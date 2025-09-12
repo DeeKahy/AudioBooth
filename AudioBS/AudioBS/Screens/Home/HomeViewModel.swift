@@ -20,6 +20,7 @@ final class HomeViewModel: HomeView.Model {
   init() {
     super.init()
     setupRecentItemsObservation()
+    loadCachedContent()
   }
 
   private func setupRecentItemsObservation() {
@@ -77,16 +78,26 @@ final class HomeViewModel: HomeView.Model {
 
   override func onAppear() {
     Task {
-      await loadPersonalizedContent()
+      await fetchRemoteContent()
     }
   }
 
   override func refresh() async {
-    await loadPersonalizedContent()
+    await fetchRemoteContent()
   }
 
-  private func loadPersonalizedContent() async {
-    isLoading = true
+  private func loadCachedContent() {
+    guard let personalized = Audiobookshelf.shared.libraries.getCachedPersonalized() else {
+      return
+    }
+
+    processSections(personalized.sections)
+  }
+
+  private func fetchRemoteContent() async {
+    if sections.isEmpty {
+      isLoading = true
+    }
 
     do {
       async let progressSync: Void = MediaProgress.syncFromAPI()
@@ -95,31 +106,35 @@ final class HomeViewModel: HomeView.Model {
       _ = try await (progressSync, recentSync)
 
       let personalized = try await Audiobookshelf.shared.libraries.fetchPersonalized()
-
-      var sections = [Section]()
-      for section in personalized {
-        switch section.entities {
-        case .books(let items):
-          if section.id == "continue-listening" {
-            continueListening = items
-            continue
-          } else {
-            let books = items.map({ BookCardModel($0, sortBy: .title) })
-            sections.append(.init(title: section.label, items: .books(books)))
-          }
-
-        case .series(let items):
-          let series = items.map(SeriesCardModel.init)
-          sections.append(.init(title: section.label, items: .series(series)))
-        }
-      }
-
-      self.sections = sections
+      processSections(personalized.sections)
     } catch {
-      sections = []
+      print("Failed to fetch personalized content: \(error)")
     }
 
     isLoading = false
+  }
+
+  private func processSections(_ personalizedSections: [Personalized.Section]) {
+    var sections = [Section]()
+
+    for section in personalizedSections {
+      switch section.entities {
+      case .books(let items):
+        if section.id == "continue-listening" {
+          continueListening = items
+          continue
+        } else {
+          let books = items.map({ BookCardModel($0, sortBy: .title) })
+          sections.append(.init(title: section.label, items: .books(books)))
+        }
+
+      case .series(let items):
+        let series = items.map(SeriesCardModel.init)
+        sections.append(.init(title: section.label, items: .series(series)))
+      }
+    }
+
+    self.sections = sections
   }
 
   private func syncRecentItemsProgress() async {
@@ -168,7 +183,6 @@ final class HomeViewModel: HomeView.Model {
           progress: progress.progress
         )
       } catch {
-
         do {
           let newSession = try await Audiobookshelf.shared.sessions.start(
             itemID: item.bookID,

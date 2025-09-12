@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Book: Decodable, Sendable {
+public struct Book: Codable, Sendable {
   public let id: String
   public let libraryID: String
   public let title: String
@@ -15,8 +15,7 @@ public struct Book: Decodable, Sendable {
 
   public var coverURL: URL? {
     guard let serverURL = Audiobookshelf.shared.serverURL else { return nil }
-    return serverURL.appendingPathComponent(
-      "audiobookshelf/api/items/\(id)/cover")
+    return serverURL.appendingPathComponent("audiobookshelf/api/items/\(id)/cover")
   }
 
   private enum CodingKeys: String, CodingKey {
@@ -72,5 +71,30 @@ public struct Book: Decodable, Sendable {
     let seriesContainer = try? metadataContainer.nestedContainer(
       keyedBy: SeriesKeys.self, forKey: .series)
     self.sequence = try seriesContainer?.decodeIfPresent(String.self, forKey: .sequence)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(id, forKey: .id)
+    try container.encode(libraryID, forKey: .libraryId)
+    try container.encode(Int(addedAt.timeIntervalSince1970 * 1000), forKey: .addedAt)
+    try container.encode(Int(updatedAt.timeIntervalSince1970 * 1000), forKey: .updatedAt)
+
+    var mediaContainer = container.nestedContainer(keyedBy: MediaKeys.self, forKey: .media)
+    try mediaContainer.encode(duration, forKey: .duration)
+    try mediaContainer.encode(numAudioFiles, forKey: .numAudioFiles)
+    try mediaContainer.encodeIfPresent(size, forKey: .size)
+
+    var metadataContainer = mediaContainer.nestedContainer(
+      keyedBy: MetadataKeys.self, forKey: .metadata)
+    try metadataContainer.encode(title, forKey: .title)
+    try metadataContainer.encodeIfPresent(authorName, forKey: .authorName)
+    try metadataContainer.encodeIfPresent(publishedYear, forKey: .publishedYear)
+
+    if let sequence = sequence {
+      var seriesContainer = metadataContainer.nestedContainer(
+        keyedBy: SeriesKeys.self, forKey: .series)
+      try seriesContainer.encode(sequence, forKey: .sequence)
+    }
   }
 }

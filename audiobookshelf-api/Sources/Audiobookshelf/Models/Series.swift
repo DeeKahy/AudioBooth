@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Series: Decodable, Sendable {
+public struct Series: Codable, Sendable {
   public let id: String
   public let name: String
   public let addedAt: Int?
@@ -33,5 +33,14 @@ public struct Series: Decodable, Sendable {
       self.totalDuration = try container.decodeIfPresent(Double.self, forKey: .totalDuration)
       self.books = try container.decode([Book].self, forKey: .books)
     }
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(id, forKey: .id)
+    try container.encode(name, forKey: .name)
+    try container.encodeIfPresent(addedAt, forKey: .addedAt)
+    try container.encodeIfPresent(totalDuration, forKey: .totalDuration)
+    try container.encode(books, forKey: .books)
   }
 }

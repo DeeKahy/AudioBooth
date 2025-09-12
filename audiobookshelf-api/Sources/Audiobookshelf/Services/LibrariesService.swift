@@ -7,6 +7,9 @@ public final class LibrariesService {
 
   enum Keys {
     static let library = "audiobookshelf_selected_library"
+    static func personalized(libraryID: String) -> String {
+      "audiobookshelf_personalized_\(libraryID)"
+    }
   }
 
   init(audiobookshelf: Audiobookshelf) {
@@ -54,7 +57,14 @@ public final class LibrariesService {
     }
   }
 
-  public func fetchPersonalized() async throws -> [PersonalizedSection] {
+  public func getCachedPersonalized() -> Personalized? {
+    guard let library = audiobookshelf.libraries.current else { return nil }
+    let key = Keys.personalized(libraryID: library.id)
+    guard let data = userDefaults.data(forKey: key) else { return nil }
+    return try? JSONDecoder().decode(Personalized.self, from: data)
+  }
+
+  public func fetchPersonalized() async throws -> Personalized {
     guard let networkService = audiobookshelf.networkService else {
       throw Audiobookshelf.AudiobookshelfError.networkError(
         "Network service not configured. Please login first.")
@@ -65,14 +75,23 @@ public final class LibrariesService {
         "No library selected. Please select a library first.")
     }
 
-    let request = NetworkRequest<[PersonalizedSection]>(
+    let request = NetworkRequest<[Personalized.Section]>(
       path: "/api/libraries/\(library.id)/personalized",
       method: .get
     )
 
     do {
       let response = try await networkService.send(request)
-      return response.value
+
+      let personalized = Personalized(libraryID: library.id, sections: response.value)
+
+      let encoder = JSONEncoder()
+      if let data = try? encoder.encode(personalized) {
+        let key = Keys.personalized(libraryID: personalized.libraryID)
+        userDefaults.set(data, forKey: key)
+      }
+
+      return personalized
     } catch {
       throw Audiobookshelf.AudiobookshelfError.networkError(
         "Failed to fetch personalized sections: \(error.localizedDescription)"
