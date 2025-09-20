@@ -110,7 +110,7 @@ extension MediaProgress {
       }
 
       isProcessingNotification = true
-      Task {
+      Task { @MainActor in
         let hasRelevantChanges = await checkForMediaProgressChanges(
           userInfo: userInfo, bookID: bookID)
 

@@ -64,7 +64,7 @@ final class DownloadManager: ObservableObject {
 
           print("Starting download of track \(track.index) (\(index + 1)/\(tracks.count))")
 
-          let (data, response) = try await URLSession.shared.data(from: trackURL)
+          let (tempURL, response) = try await URLSession.shared.download(from: trackURL)
 
           guard let httpResponse = response as? HTTPURLResponse,
             let contentType = httpResponse.allHeaderFields["Content-Type"] as? String
@@ -78,7 +78,12 @@ final class DownloadManager: ObservableObject {
 
           let trackFile = bookDirectory.appendingPathComponent(
             "\(track.index).\(fileExtension)")
-          try data.write(to: trackFile)
+
+          if FileManager.default.fileExists(atPath: trackFile.path) {
+            try FileManager.default.removeItem(at: trackFile)
+          }
+
+          try FileManager.default.moveItem(at: tempURL, to: trackFile)
 
           await MainActor.run {
             track.fileName = "\(track.index).\(fileExtension)"
@@ -169,7 +174,14 @@ final class DownloadManager: ObservableObject {
         bookID)
 
       do {
-        try FileManager.default.removeItem(at: bookDirectory)
+        print("Attempting to delete directory: \(bookDirectory.path)")
+
+        if FileManager.default.fileExists(atPath: bookDirectory.path) {
+          try FileManager.default.removeItem(at: bookDirectory)
+          print("Successfully removed directory: \(bookDirectory.path)")
+        } else {
+          print("Directory does not exist: \(bookDirectory.path)")
+        }
 
         if let item = try? RecentlyPlayedItem.fetch(bookID: bookID),
           let tracks = item.playSessionInfo.orderedTracks
@@ -184,8 +196,8 @@ final class DownloadManager: ObservableObject {
         downloads.removeValue(forKey: bookID)
         print("Download deleted successfully for book: \(bookID)")
       } catch {
-        print("Failed to delete download: \(error)")
-        ToastManager.shared.show(error: "Failed to delete download")
+        print("Failed to delete download directory \(bookDirectory.path): \(error)")
+        ToastManager.shared.show(error: "Failed to delete download: \(error.localizedDescription)")
       }
     }
   }
