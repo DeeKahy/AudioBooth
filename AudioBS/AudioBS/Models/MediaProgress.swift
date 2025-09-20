@@ -96,23 +96,28 @@ extension MediaProgress {
     fetchData: @escaping () -> Void,
     continuation: AsyncStream<MediaProgress?>.Continuation
   ) {
+    var isProcessingNotification = false
+
     let observer = NotificationCenter.default.addObserver(
       forName: ModelContext.didSave,
       object: context,
       queue: .main
     ) { notification in
+      guard !isProcessingNotification else { return }
       guard let userInfo = notification.userInfo else {
         fetchData()
         return
       }
 
-      Task { @MainActor in
+      isProcessingNotification = true
+      Task {
         let hasRelevantChanges = await checkForMediaProgressChanges(
           userInfo: userInfo, bookID: bookID)
 
         if hasRelevantChanges {
           fetchData()
         }
+        isProcessingNotification = false
       }
     }
 

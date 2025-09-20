@@ -38,6 +38,8 @@ extension RecentlyPlayedItem {
       let context = ModelContextProvider.shared.context
       let appStateManager = AppStateManager.shared
       let descriptor = FetchDescriptor<RecentlyPlayedItem>()
+      var isProcessingNotification = false
+
       let fetchData = {
         guard !appStateManager.isInBackground else { return }
         do {
@@ -55,7 +57,10 @@ extension RecentlyPlayedItem {
         object: context,
         queue: .main
       ) { _ in
+        guard !isProcessingNotification else { return }
+        isProcessingNotification = true
         fetchData()
+        isProcessingNotification = false
       }
 
       continuation.onTermination = { _ in
