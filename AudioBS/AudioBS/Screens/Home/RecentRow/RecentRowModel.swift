@@ -32,7 +32,7 @@ final class RecentRowModel: RecentRow.Model {
       author: recent.author,
       coverURL: recent.coverURL,
       progress: progress?.progress ?? 0,
-      lastPlayed: progress?.lastPlayedAt.formatted(.relative(presentation: .named)) ?? "Never",
+      lastPlayed: progress?.lastPlayedAt,
       timeRemaining: progress.flatMap { Self.formatTimeRemaining(progress: $0) }
     )
 
@@ -52,7 +52,7 @@ final class RecentRowModel: RecentRow.Model {
       author: book.authorName,
       coverURL: book.coverURL,
       progress: progress?.progress ?? 0,
-      lastPlayed: progress?.lastPlayedAt.formatted(.relative(presentation: .named)) ?? "Never",
+      lastPlayed: progress?.lastPlayedAt,
       timeRemaining: progress.flatMap { Self.formatTimeRemaining(from: book, progress: $0) }
     )
 
@@ -102,7 +102,7 @@ final class RecentRowModel: RecentRow.Model {
         guard !AppStateManager.shared.isInBackground else { continue }
 
         self.progress = progress.progress
-        self.lastPlayed = progress.lastPlayedAt.formatted(.relative(presentation: .named))
+        self.lastPlayed = progress.lastPlayedAt
 
         switch item {
         case .recent:

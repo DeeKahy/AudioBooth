@@ -50,6 +50,7 @@ struct PlaybackProgressView: View {
           .font(.caption)
           .foregroundColor(.white.opacity(0.7))
       }
+      .monospacedDigit()
     }
   }
 

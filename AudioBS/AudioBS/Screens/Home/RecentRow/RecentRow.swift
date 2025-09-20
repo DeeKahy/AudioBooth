@@ -116,9 +116,10 @@ struct RecentRow: View {
       Spacer()
 
       if let lastPlayed = model.lastPlayed {
-        Text(lastPlayed)
+        Text(lastPlayed, style: .relative)
           .font(.caption)
           .foregroundColor(.secondary)
+          .monospacedDigit()
       }
     }
   }
@@ -219,7 +220,7 @@ extension RecentRow {
     let author: String?
     let coverURL: URL?
     var progress: Double?
-    var lastPlayed: String?
+    var lastPlayed: Date?
     var timeRemaining: String?
 
     var downloadState: DownloadManager.DownloadState
@@ -236,7 +237,7 @@ extension RecentRow {
       author: String?,
       coverURL: URL?,
       progress: Double?,
-      lastPlayed: String?,
+      lastPlayed: Date?,
       timeRemaining: String? = nil,
       downloadState: DownloadManager.DownloadState = .notDownloaded
     ) {
@@ -258,7 +259,7 @@ extension RecentRow.Model {
     author: "J.R.R. Tolkien",
     coverURL: URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg"),
     progress: 0.45,
-    lastPlayed: Date().addingTimeInterval(-3600).formatted(.relative(presentation: .named)),
+    lastPlayed: Date().addingTimeInterval(-3600),
     timeRemaining: "8hr 32min remaining"
   )
 }
