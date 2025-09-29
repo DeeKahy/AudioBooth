@@ -8,7 +8,7 @@ final class SettingsViewModel: SettingsView.Model {
 
   init() {
     let isAuthenticated = audiobookshelf.isAuthenticated
-    let serverURL = audiobookshelf.serverURL?.absoluteString ?? "https://audiobooks.dev"
+    let serverURL = audiobookshelf.serverURL?.absoluteString ?? ""
 
     super.init(
       isAuthenticated: isAuthenticated,

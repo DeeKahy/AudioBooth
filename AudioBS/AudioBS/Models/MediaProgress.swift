@@ -133,6 +133,7 @@ extension MediaProgress {
     }
   }
 
+  @MainActor
   private static func checkForMediaProgressChanges(userInfo: [AnyHashable: Any], bookID: String)
     async -> Bool
   {
@@ -283,6 +284,7 @@ extension MediaProgress {
     }
   }
 
+  @MainActor
   static func syncFromAPI() async throws {
     let userData = try await Audiobookshelf.shared.authentication.fetchMe()
 
