@@ -116,6 +116,7 @@ final class OIDCAuthenticationManager: NSObject {
       URLQueryItem(name: "response_type", value: "code"),
       URLQueryItem(name: "scope", value: "openid"),
       URLQueryItem(name: "redirect_uri", value: "audiobs://oauth"),
+      URLQueryItem(name: "callback", value: "audiobs://oauth"),
       URLQueryItem(name: "code_challenge", value: pkce.challenge),
       URLQueryItem(name: "code_challenge_method", value: "S256"),
     ]
