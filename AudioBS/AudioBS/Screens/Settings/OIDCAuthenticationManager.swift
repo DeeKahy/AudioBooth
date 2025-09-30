@@ -51,12 +51,12 @@ final class OIDCAuthenticationManager: NSObject {
   }
 
   private func handleAuthenticationResult(callbackURL: URL?, error: Error?) {
-    if let error = error {
+    if let error {
       delegate?.oidcAuthentication(didFailWithError: error)
       return
     }
 
-    guard let callbackURL = callbackURL else {
+    guard let callbackURL else {
       delegate?.oidcAuthentication(didFailWithError: OIDCError.invalidCallback)
       return
     }
@@ -135,20 +135,26 @@ final class OIDCAuthenticationManager: NSObject {
     let session = URLSession(
       configuration: config, delegate: NoRedirectDelegate(), delegateQueue: nil)
 
-    let (_, response) = try await session.data(for: request)
+    let (data, response) = try await session.data(for: request)
 
     guard let httpResponse = response as? HTTPURLResponse else {
       throw URLError(.badServerResponse)
     }
 
-    let cookies = HTTPCookie.cookies(
-      withResponseHeaderFields: httpResponse.allHeaderFields as! [String: String], for: authURL)
-
     if httpResponse.statusCode == 302,
       let locationString = httpResponse.allHeaderFields["Location"] as? String,
       let redirectURL = URL(string: locationString)
     {
+      let cookies = HTTPCookie.cookies(
+        withResponseHeaderFields: httpResponse.allHeaderFields as! [String: String], for: authURL
+      )
       return (redirectURL, cookies)
+    } else if httpResponse.statusCode == 400, let error = String(data: data, encoding: .utf8) {
+      if error == "Invalid redirect_uri" {
+        throw OIDCError.invalidCallback
+      } else {
+        throw OIDCError.badRequest(error)
+      }
     }
 
     throw URLError(.badServerResponse)
@@ -197,11 +203,12 @@ enum OIDCError: LocalizedError {
   case noAuthorizationCode(String)
   case invalidServerURL
   case failedToConstructURL
+  case badRequest(String)
 
   var errorDescription: String? {
     switch self {
     case .invalidCallback:
-      return "Invalid callback URL"
+      return "Add **audiobs://oauth** to your **Allowed Mobile Redirect URIs**"
     case .authenticationFailed(let error):
       return "Authentication failed: \(error)"
     case .noAuthorizationCode(let available):
@@ -210,6 +217,8 @@ enum OIDCError: LocalizedError {
       return "Invalid server URL"
     case .failedToConstructURL:
       return "Failed to construct authorization URL"
+    case .badRequest(let error):
+      return error
     }
   }
 }
