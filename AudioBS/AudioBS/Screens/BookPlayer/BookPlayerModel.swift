@@ -617,6 +617,7 @@ extension BookPlayerModel {
 
     if isNowPlaying && !isPlaying {
       lastPlaybackAt = now
+      mediaProgress.lastPlayedAt = Date()
     } else if !isNowPlaying && isPlaying {
       if let last = lastPlaybackAt {
         let timeListened = now.timeIntervalSince(last)
@@ -625,6 +626,7 @@ extension BookPlayerModel {
       }
       lastPlaybackAt = nil
     }
+    try? mediaProgress.save()
   }
 
   private func syncSessionProgress() {

@@ -8,9 +8,7 @@ final class HomeViewModel: HomeView.Model {
 
   private var recentItemsTask: Task<Void, Never>?
 
-  private var recentlyPlayed: [RecentlyPlayedItem] = [] {
-    didSet { refreshRecents() }
-  }
+  private var recentlyPlayed: [RecentlyPlayedItem] = []
 
   private var continueListening: [Book] = [] {
     didSet { refreshRecents() }
@@ -51,8 +49,22 @@ extension HomeViewModel {
       for await recents in RecentlyPlayedItem.observeAll() {
         guard !Task.isCancelled else { break }
         self?.recentlyPlayed = recents
+        self?.syncRecents()
       }
     }
+  }
+
+  private func syncRecents() {
+    let ids = Set(recentlyPlayed.map(\.bookID) + continueListening.map(\.id))
+
+    recents.removeAll { recent in !ids.contains(recent.id) }
+
+    let existingIDs = Set(recents.map(\.id))
+    for recent in recentlyPlayed where !existingIDs.contains(recent.bookID) {
+      recents.append(RecentRowModel(recent: recent))
+    }
+
+    recents.sort(by: >)
   }
 
   private func refreshRecents() {
@@ -89,14 +101,7 @@ extension HomeViewModel {
       }
     }
 
-    self.recents = recents.sorted { lhs, rhs in
-      switch (lhs.lastPlayedAt, rhs.lastPlayedAt) {
-      case (.none, .none): false
-      case (.some, .none): true
-      case (.none, .some): false
-      case let (.some(lhs), .some(rhs)): lhs > rhs
-      }
-    }
+    self.recents = recents.sorted(by: >)
   }
 
   private func processSections(_ personalizedSections: [Personalized.Section]) {

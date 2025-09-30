@@ -10,7 +10,6 @@ final class RecentRowModel: RecentRow.Model {
   }
 
   let item: Item
-  let lastPlayedAt: Date?
 
   private let downloadManager = DownloadManager.shared
   private var playerManager = PlayerManager.shared
@@ -21,7 +20,6 @@ final class RecentRowModel: RecentRow.Model {
 
   init(recent: RecentlyPlayedItem) {
     self.item = .recent(recent)
-    self.lastPlayedAt = nil
 
     super.init(
       id: recent.bookID,
@@ -29,7 +27,7 @@ final class RecentRowModel: RecentRow.Model {
       author: recent.author,
       coverURL: recent.coverURL,
       progress: 0,
-      lastPlayed: nil,
+      lastPlayedAt: nil,
       timeRemaining: nil
     )
 
@@ -39,7 +37,6 @@ final class RecentRowModel: RecentRow.Model {
 
   init(book: Book, onRemoved: @escaping () -> Void) {
     self.item = .book(book)
-    self.lastPlayedAt = nil
 
     super.init(
       id: book.id,
@@ -47,7 +44,7 @@ final class RecentRowModel: RecentRow.Model {
       author: book.authorName,
       coverURL: book.coverURL,
       progress: 0,
-      lastPlayed: nil,
+      lastPlayedAt: nil,
       timeRemaining: nil
     )
 
@@ -100,7 +97,7 @@ final class RecentRowModel: RecentRow.Model {
         guard !AppStateManager.shared.isInBackground else { continue }
 
         self.progress = progress.progress
-        self.lastPlayed = progress.lastPlayedAt
+        self.lastPlayedAt = progress.lastPlayedAt
 
         switch item {
         case .recent:

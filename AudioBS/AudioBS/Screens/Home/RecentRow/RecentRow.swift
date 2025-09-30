@@ -100,8 +100,8 @@ struct RecentRow: View {
 
       Spacer()
 
-      if let lastPlayed = model.lastPlayed {
-        Text(lastPlayed, style: .relative)
+      if let lastPlayedAt = model.lastPlayedAt {
+        Text(lastPlayedAt, style: .relative)
           .font(.caption)
           .foregroundColor(.secondary)
           .monospacedDigit()
@@ -199,13 +199,13 @@ struct RecentRow: View {
 }
 
 extension RecentRow {
-  @Observable class Model {
+  @Observable class Model: Comparable {
     let id: String
     let title: String
     let author: String?
     let coverURL: URL?
     var progress: Double?
-    var lastPlayed: Date?
+    var lastPlayedAt: Date?
     var timeRemaining: String?
 
     var downloadState: DownloadManager.DownloadState
@@ -222,7 +222,7 @@ extension RecentRow {
       author: String?,
       coverURL: URL?,
       progress: Double?,
-      lastPlayed: Date?,
+      lastPlayedAt: Date?,
       timeRemaining: String? = nil,
       downloadState: DownloadManager.DownloadState = .notDownloaded
     ) {
@@ -231,9 +231,22 @@ extension RecentRow {
       self.author = author
       self.coverURL = coverURL
       self.progress = progress
-      self.lastPlayed = lastPlayed
+      self.lastPlayedAt = lastPlayedAt
       self.timeRemaining = timeRemaining
       self.downloadState = downloadState
+    }
+
+    static func == (lhs: RecentRow.Model, rhs: RecentRow.Model) -> Bool {
+      lhs.id == rhs.id
+    }
+
+    static func < (lhs: RecentRow.Model, rhs: RecentRow.Model) -> Bool {
+      switch (lhs.lastPlayedAt, rhs.lastPlayedAt) {
+      case (.none, .none): false
+      case (.some, .none): false
+      case (.none, .some): true
+      case let (.some(lhs), .some(rhs)): lhs < rhs
+      }
     }
   }
 }
@@ -244,7 +257,7 @@ extension RecentRow.Model {
     author: "J.R.R. Tolkien",
     coverURL: URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg"),
     progress: 0.45,
-    lastPlayed: Date().addingTimeInterval(-3600),
+    lastPlayedAt: Date().addingTimeInterval(-3600),
     timeRemaining: "8hr 32min remaining"
   )
 }
