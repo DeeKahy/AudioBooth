@@ -84,6 +84,13 @@ struct SettingsView: View {
         #if DEBUG
           development
         #endif
+
+        Section {
+          Text(model.appVersion)
+            .font(.caption)
+            .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
       }
       .navigationTitle("Settings")
       .navigationDestination(for: String.self) { destination in
@@ -232,6 +239,13 @@ extension SettingsView {
       let lowercased = serverURL.lowercased()
       return lowercased.hasPrefix("https://") || lowercased.hasPrefix("http://")
         || "https://".hasPrefix(lowercased) || "http://".hasPrefix(lowercased)
+    }
+
+    var appVersion: String {
+      let version =
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+      let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+      return "Version \(version) (\(build))"
     }
 
     func onLoginTapped() {}

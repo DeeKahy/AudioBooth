@@ -125,7 +125,6 @@ final class SettingsViewModel: SettingsView.Model {
 
     return serverScheme.rawValue + trimmedURL
   }
-
 }
 
 extension SettingsViewModel: OIDCAuthenticationDelegate {
