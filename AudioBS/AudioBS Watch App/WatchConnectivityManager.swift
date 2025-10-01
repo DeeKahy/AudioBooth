@@ -1,3 +1,4 @@
+import Audiobookshelf
 import Combine
 import Foundation
 import WatchConnectivity
@@ -17,7 +18,6 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
   @Published var coverURL: URL?
   @Published var playbackSpeed: Float = 1.0
   @Published var hasActivePlayer: Bool = false
-  @Published var recentlyPlayed: [RecentlyPlayedItemInfo] = []
 
   private var session: WCSession?
 
@@ -86,6 +86,9 @@ extension WatchConnectivityManager: WCSessionDelegate {
 
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any])
   {
+    handleAuthCredentials(applicationContext)
+    handleLibrary(applicationContext)
+
     DispatchQueue.main.async {
       if let hasActivePlayer = applicationContext["hasActivePlayer"] as? Bool,
         !hasActivePlayer
@@ -142,17 +145,29 @@ extension WatchConnectivityManager: WCSessionDelegate {
         self.playbackSpeed = playbackSpeed
       }
 
-      if let recentlyPlayedData = applicationContext["recentlyPlayedData"] as? Data {
-        do {
-          let decoder = PropertyListDecoder()
-          self.recentlyPlayed = try decoder.decode(
-            [RecentlyPlayedItemInfo].self, from: recentlyPlayedData)
-        } catch {
-          print("Failed to decode recently played list: \(error)")
-        }
-      }
-
       self.hasActivePlayer = true
+    }
+  }
+
+  private func handleAuthCredentials(_ context: [String: Any]) {
+    if let serverURLString = context["authServerURL"] as? String,
+      let token = context["authToken"] as? String,
+      let serverURL = URL(string: serverURLString)
+    {
+      Audiobookshelf.shared.authentication.connection = AuthenticationService.Connection(
+        serverURL: serverURL, token: token)
+    } else if context["authServerURL"] == nil && context["authToken"] == nil {
+      Audiobookshelf.shared.authentication.logout()
+    }
+  }
+
+  private func handleLibrary(_ context: [String: Any]) {
+    if let libraryData = context["library"] as? Data,
+      let library = try? JSONDecoder().decode(Library.self, from: libraryData)
+    {
+      Audiobookshelf.shared.libraries.current = library
+    } else if context["library"] == nil {
+      Audiobookshelf.shared.libraries.current = nil
     }
   }
 }

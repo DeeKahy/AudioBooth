@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Library: Codable, Sendable {
+public struct Library: Codable, Sendable, Equatable {
   public let id: String
   public let name: String
 

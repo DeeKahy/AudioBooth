@@ -1,34 +1,51 @@
+import Combine
 import Foundation
 import Nuke
 
-public final class LibrariesService {
+public final class LibrariesService: ObservableObject, @unchecked Sendable {
   private let audiobookshelf: Audiobookshelf
+  private let sharedDefaults = UserDefaults(suiteName: "group.me.jgrenier.audioBS") ?? .standard
   private let userDefaults = UserDefaults.standard
 
+  public var onLibraryChanged: ((Library)?) -> Void = { _ in }
+
   enum Keys {
-    static let library = "audiobookshelf_selected_library"
+    static let library = "selected_library"
     static func personalized(libraryID: String) -> String {
-      "audiobookshelf_personalized_\(libraryID)"
+      "personalized_\(libraryID)"
     }
   }
 
   init(audiobookshelf: Audiobookshelf) {
     self.audiobookshelf = audiobookshelf
+    migrateUserDefaultsIfNeeded()
+  }
+
+  private func migrateUserDefaultsIfNeeded() {
+    guard sharedDefaults.data(forKey: Keys.library) == nil else { return }
+
+    if let libraryData = userDefaults.data(forKey: "audiobookshelf_selected_library") {
+      sharedDefaults.set(libraryData, forKey: Keys.library)
+      userDefaults.removeObject(forKey: "audiobookshelf_selected_library")
+      print("Migrated library selection to App Group UserDefaults")
+    }
   }
 
   public var current: Library? {
     get {
-      guard let data = userDefaults.data(forKey: Keys.library) else { return nil }
+      guard let data = sharedDefaults.data(forKey: Keys.library) else { return nil }
       return try? JSONDecoder().decode(Library.self, from: data)
     }
     set {
+      objectWillChange.send()
       if let newValue {
         guard let data = try? JSONEncoder().encode(newValue) else { return }
-        userDefaults.set(data, forKey: Keys.library)
+        sharedDefaults.set(data, forKey: Keys.library)
       } else {
-        userDefaults.removeObject(forKey: Keys.library)
+        sharedDefaults.removeObject(forKey: Keys.library)
       }
       ImagePipeline.shared.cache.removeAll()
+      onLibraryChanged(newValue)
     }
   }
 

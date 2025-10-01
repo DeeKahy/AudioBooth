@@ -8,15 +8,23 @@ public final class AuthenticationService {
     service: "me.jgrenier.AudioBS", accessGroup: "7MM2M9KD2W.me.jgrenier.AudioBS"
   ).synchronizable(true)
 
+  public var onAuthenticationChanged: ((URL, String)?) -> Void = { _ in }
+
   enum Keys {
     static let connection = "audiobookshelf_server_connection"
   }
 
-  struct Connection: Codable {
-    let serverURL: URL
-    let token: String
+  public struct Connection: Codable {
+    public let serverURL: URL
+    public let token: String
+
+    public init(serverURL: URL, token: String) {
+      self.serverURL = serverURL
+      self.token = token
+    }
   }
-  private(set) var connection: Connection? {
+
+  public var connection: Connection? {
     get {
       guard let data = try? keychain.getData(Keys.connection) else { return nil }
       return try? JSONDecoder().decode(Connection.self, from: data)
@@ -28,6 +36,7 @@ public final class AuthenticationService {
       } else {
         try? keychain.remove(Keys.connection)
       }
+      audiobookshelf.setupNetworkService()
     }
   }
 
@@ -85,7 +94,7 @@ public final class AuthenticationService {
       let token = response.value.user.token
 
       self.connection = Connection(serverURL: baseURL, token: token)
-      audiobookshelf.setupNetworkService()
+      onAuthenticationChanged((baseURL, token))
 
     } catch {
       throw Audiobookshelf.AudiobookshelfError.networkError(
@@ -134,7 +143,7 @@ public final class AuthenticationService {
       let token = response.value.user.token
 
       self.connection = Connection(serverURL: baseURL, token: token)
-      audiobookshelf.setupNetworkService()
+      onAuthenticationChanged((baseURL, token))
     } catch {
       throw Audiobookshelf.AudiobookshelfError.networkError(
         "OIDC login failed: \(error.localizedDescription)")
@@ -144,8 +153,8 @@ public final class AuthenticationService {
   public func logout() {
     connection = nil
     audiobookshelf.libraries.current = nil
-    audiobookshelf.setupNetworkService()
     ImagePipeline.shared.cache.removeAll()
+    onAuthenticationChanged(nil)
   }
 
   public func fetchMe() async throws -> User {

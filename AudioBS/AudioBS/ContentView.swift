@@ -4,7 +4,7 @@ import SwiftUI
 
 struct ContentView: View {
   @StateObject private var playerManager = PlayerManager.shared
-  @AppStorage("audiobookshelf_selected_library") private var libraryData: Data?
+  @ObservedObject private var libraries = Audiobookshelf.shared.libraries
   @Environment(\.scenePhase) private var scenePhase
 
   @State var miniPlayerHeight: CGFloat = 0.0
@@ -16,7 +16,7 @@ struct ContentView: View {
   }
 
   private var hasSelectedLibrary: Bool {
-    libraryData != nil
+    libraries.current != nil
   }
 
   var body: some View {

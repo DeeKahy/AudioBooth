@@ -1,3 +1,4 @@
+import Audiobookshelf
 import Combine
 import Foundation
 import WatchConnectivity
@@ -79,24 +80,65 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     }
   }
 
-  func sendRecentlyPlayedList(_ items: [RecentlyPlayedItem]) {
+  func syncAuthCredentials(serverURL: URL, token: String) {
     guard let session = session else { return }
 
-    let recentItems = items.map { RecentlyPlayedItemInfo(from: $0) }
+    var context = session.applicationContext
+    context["authServerURL"] = serverURL.absoluteString
+    context["authToken"] = token
 
     do {
-      let encoder = PropertyListEncoder()
-      encoder.outputFormat = .binary
-      let data = try encoder.encode(recentItems)
-
-      var context = session.applicationContext
-      context["recentlyPlayedData"] = data
-
       try session.updateApplicationContext(context)
+      print("Synced auth credentials to watch")
     } catch {
-      print("Failed to send recently played list to watch: \(error)")
+      print("Failed to sync auth credentials to watch: \(error)")
     }
   }
+
+  func clearAuthCredentials() {
+    guard let session = session else { return }
+
+    var context = session.applicationContext
+    context.removeValue(forKey: "authServerURL")
+    context.removeValue(forKey: "authToken")
+
+    do {
+      try session.updateApplicationContext(context)
+      print("Cleared auth credentials on watch")
+    } catch {
+      print("Failed to clear auth credentials on watch: \(error)")
+    }
+  }
+
+  func syncLibrary(_ library: Library) {
+    guard let session = session else { return }
+
+    var context = session.applicationContext
+    if let libraryData = try? JSONEncoder().encode(library) {
+      context["library"] = libraryData
+      do {
+        try session.updateApplicationContext(context)
+        print("Synced library to watch: \(library.name)")
+      } catch {
+        print("Failed to sync library to watch: \(error)")
+      }
+    }
+  }
+
+  func clearLibrary() {
+    guard let session = session else { return }
+
+    var context = session.applicationContext
+    context.removeValue(forKey: "library")
+
+    do {
+      try session.updateApplicationContext(context)
+      print("Cleared library on watch")
+    } catch {
+      print("Failed to clear library on watch: \(error)")
+    }
+  }
+
 }
 
 extension WatchConnectivityManager: WCSessionDelegate {

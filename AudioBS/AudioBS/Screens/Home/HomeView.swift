@@ -7,7 +7,7 @@ struct HomeView: View {
   @StateObject var model: Model
   @State private var showingDeleteConfirmation = false
   @State private var showingSettings = false
-  @AppStorage("audiobookshelf_selected_library") private var libraryData: Data?
+  @ObservedObject private var libraries = Audiobookshelf.shared.libraries
 
   var body: some View {
     ScrollView {
@@ -49,12 +49,12 @@ struct HomeView: View {
       }
     }
     .onAppear {
-      if libraryData == nil {
+      if libraries.current == nil {
         showingSettings = true
       }
       model.onAppear()
     }
-    .onChange(of: libraryData) { _, new in
+    .onChange(of: libraries.current) { _, new in
       model.onReset(new != nil)
     }
     .refreshable {

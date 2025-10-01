@@ -7,7 +7,7 @@ import SwiftData
 final class DownloadManager: ObservableObject {
   static let shared = DownloadManager()
 
-  private let audiobookshelf = Audiobookshelf.shared
+  private var audiobookshelf: Audiobookshelf { .shared }
 
   enum DownloadState: Equatable {
     case notDownloaded
@@ -18,11 +18,6 @@ final class DownloadManager: ObservableObject {
   @Published private(set) var downloads: [String: Bool] = [:]
 
   private var downloadTasks: [String: Task<Void, Never>] = [:]
-  private let audiobookshelfService: Audiobookshelf
-
-  private init() {
-    self.audiobookshelfService = Audiobookshelf.shared
-  }
 
   func isDownloading(for bookID: String) -> Bool {
     return downloads[bookID] ?? false
