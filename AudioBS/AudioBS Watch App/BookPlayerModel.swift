@@ -19,14 +19,21 @@ final class BookPlayerModel: ObservableObject {
   @Published var total: Double = 0
   @Published var totalTimeRemaining: Double = 0
 
+  @Published var currentChapter: ChapterInfo?
+  @Published var currentChapterIndex: Int = 0
+  @Published var chapterProgress: Double = 0
+  @Published var chapterCurrent: Double = 0
+  @Published var chapterRemaining: Double = 0
+
   private let audiobookshelf = Audiobookshelf.shared
 
   private var player: AVPlayer?
   private var timeObserver: Any?
   private var cancellables = Set<AnyCancellable>()
-  private var item: RecentlyPlayedItem?
+  var item: RecentlyPlayedItem?
   private var mediaProgress: MediaProgress
   private var timerSecondsCounter = 0
+  private var chapters: [ChapterInfo] = []
 
   private var lastPlaybackAt: Date?
   private var lastSyncAt = Date()
@@ -70,6 +77,28 @@ final class BookPlayerModel: ObservableObject {
     let newTime = CMTimeSubtract(currentTime, CMTime(seconds: 30, preferredTimescale: 1))
     let zeroTime = CMTime(seconds: 0, preferredTimescale: 1)
     player.seek(to: CMTimeMaximum(newTime, zeroTime))
+  }
+
+  func onPreviousChapterTapped() {
+    guard let player = player, !chapters.isEmpty, currentChapterIndex > 0 else { return }
+    let previousChapter = chapters[currentChapterIndex - 1]
+    player.seek(to: CMTime(seconds: previousChapter.start + 0.1, preferredTimescale: 1000))
+  }
+
+  func onNextChapterTapped() {
+    guard let player = player, !chapters.isEmpty, currentChapterIndex < chapters.count - 1 else {
+      return
+    }
+    let nextChapter = chapters[currentChapterIndex + 1]
+    player.seek(to: CMTime(seconds: nextChapter.start + 0.1, preferredTimescale: 1000))
+  }
+
+  func seekToChapter(at index: Int) {
+    guard let player = player, !chapters.isEmpty, index >= 0, index < chapters.count else {
+      return
+    }
+    let chapter = chapters[index]
+    player.seek(to: CMTime(seconds: chapter.start + 0.1, preferredTimescale: 1000))
   }
 }
 
@@ -158,6 +187,16 @@ extension BookPlayerModel {
     setupTimeObserver()
 
     total = sessionInfo.duration
+
+    if let sessionChapters = sessionInfo.orderedChapters {
+      chapters = sessionChapters
+      if !chapters.isEmpty {
+        currentChapter = chapters[0]
+        currentChapterIndex = 0
+        print("Loaded \(chapters.count) chapters")
+      }
+    }
+
     updateNowPlayingInfo()
   }
 
@@ -304,6 +343,9 @@ extension BookPlayerModel {
           self.remaining = max(0, self.total - currentTime)
           self.progress = self.total > 0 ? currentTime / self.total : 0
           self.totalTimeRemaining = self.remaining
+
+          // Update chapter tracking
+          self.updateCurrentChapter(currentTime: currentTime)
         }
 
         self.timerSecondsCounter += 1
@@ -315,6 +357,29 @@ extension BookPlayerModel {
         DispatchQueue.main.async {
           self.updateNowPlayingInfo()
         }
+      }
+    }
+  }
+
+  private func updateCurrentChapter(currentTime: TimeInterval) {
+    guard !chapters.isEmpty else { return }
+
+    // Find current chapter
+    for (index, chapter) in chapters.enumerated() {
+      if currentTime >= chapter.start && currentTime < chapter.end {
+        if currentChapterIndex != index {
+          currentChapterIndex = index
+          currentChapter = chapter
+        }
+
+        // Calculate chapter progress
+        let chapterDuration = chapter.end - chapter.start
+        if chapterDuration > 0 {
+          chapterCurrent = currentTime - chapter.start
+          chapterRemaining = chapter.end - currentTime
+          chapterProgress = chapterCurrent / chapterDuration
+        }
+        break
       }
     }
   }

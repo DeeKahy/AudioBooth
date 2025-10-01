@@ -58,22 +58,62 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
   }
 
   override func playBook(bookID: String) {
-    if WCSession.default.isReachable {
+    #if DEBUG
+      let forceLocalPlayback = true  // Set to false to test with iPhone
+    #else
+      let forceLocalPlayback = false
+    #endif
+
+    if !forceLocalPlayback && WCSession.default.isReachable {
       print("iPhone is reachable - sending play command to iPhone")
       connectivityManager.playBook(bookID: bookID)
     } else {
-      print("iPhone not reachable - playing locally on watch")
+      print(
+        "Playing locally on watch (forced: \(forceLocalPlayback), reachable: \(WCSession.default.isReachable))"
+      )
       Task {
         do {
-          if let recentItem = try RecentlyPlayedItem.fetch(bookID: bookID) {
-            await MainActor.run {
-              playerManager.setCurrent(recentItem)
-            }
+          let recentItem: RecentlyPlayedItem
+
+          if let existingItem = try await MainActor.run(body: {
+            try RecentlyPlayedItem.fetch(bookID: bookID)
+          }) {
+            recentItem = existingItem
           } else {
-            print("No cached item found for bookID: \(bookID)")
+            print("No cached item found, creating from server...")
+
+            // Fetch book info and create session
+            let session = try await Audiobookshelf.shared.sessions.start(
+              itemID: bookID,
+              forceTranscode: false
+            )
+
+            // Find book details from continue listening list
+            guard let book = books.first(where: { $0.id == bookID }) else {
+              print("Book not found in continue listening list")
+              return
+            }
+
+            let playSessionInfo = PlaySessionInfo(from: session)
+
+            recentItem = RecentlyPlayedItem(
+              bookID: bookID,
+              title: book.title,
+              author: book.author,
+              coverURL: book.coverURL,
+              playSessionInfo: playSessionInfo
+            )
+
+            try await MainActor.run {
+              try recentItem.save()
+            }
+          }
+
+          await MainActor.run {
+            playerManager.setCurrent(recentItem)
           }
         } catch {
-          print("Failed to fetch recently played item: \(error)")
+          print("Failed to setup playback: \(error)")
         }
       }
     }

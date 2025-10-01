@@ -2,7 +2,7 @@ import Combine
 import NukeUI
 import SwiftUI
 
-struct NowPlayingView: View {
+struct PlayerView: View {
   @StateObject var model: Model
 
   var body: some View {
@@ -12,29 +12,53 @@ struct NowPlayingView: View {
 
         TitleAuthorView(title: model.title, author: model.author)
 
+        if let chapterTitle = model.currentChapterTitle {
+          ChapterView(title: chapterTitle)
+        }
+
         PlaybackProgressView(
-          progress: model.progress,
-          current: model.current,
-          remaining: model.remaining,
-          totalTimeRemaining: model.totalTimeRemaining
+          progress: model.hasChapters ? model.chapterProgress : model.progress,
+          current: model.hasChapters ? model.chapterCurrent : model.current,
+          remaining: model.hasChapters ? model.chapterRemaining : model.remaining,
+          totalTimeRemaining: model.totalTimeRemaining,
+          label: model.hasChapters ? "Chapter" : "Book"
         )
 
         PlaybackControlsView(
           isPlaying: model.isPlaying,
+          hasChapters: model.hasChapters,
           onTogglePlayback: { model.togglePlayback() },
           onSkipBackward: { model.skipBackward() },
-          onSkipForward: { model.skipForward() }
+          onSkipForward: { model.skipForward() },
+          onPreviousChapter: { model.previousChapter() },
+          onNextChapter: { model.nextChapter() }
         )
 
         PlaybackSpeedView(playbackSpeed: model.playbackSpeed)
+
+        if model.hasChapters {
+          Button(action: { model.showChapterPicker() }) {
+            Label("All Chapters", systemImage: "list.bullet")
+              .font(.caption)
+          }
+          .buttonStyle(.borderedProminent)
+          .tint(.orange)
+        }
       }
       .padding()
     }
     .navigationTitle("Playing")
+    .sheet(item: $model.chapters) { chapters in
+      NavigationStack {
+        if let chapters = Binding($model.chapters) {
+          ChapterPickerSheet(model: chapters)
+        }
+      }
+    }
   }
 }
 
-extension NowPlayingView {
+extension PlayerView {
   private struct CoverArtView: View {
     let coverURL: URL?
 
@@ -56,7 +80,7 @@ extension NowPlayingView {
   }
 }
 
-extension NowPlayingView {
+extension PlayerView {
   private struct TitleAuthorView: View {
     let title: String
     let author: String
@@ -79,12 +103,27 @@ extension NowPlayingView {
   }
 }
 
-extension NowPlayingView {
+extension PlayerView {
+  private struct ChapterView: View {
+    let title: String
+
+    var body: some View {
+      Text(title)
+        .font(.caption)
+        .foregroundStyle(.orange)
+        .lineLimit(1)
+        .padding(.horizontal)
+    }
+  }
+}
+
+extension PlayerView {
   struct PlaybackProgressView: View {
     let progress: Double
     let current: Double
     let remaining: Double
     let totalTimeRemaining: Double
+    let label: String
 
     var body: some View {
       VStack(spacing: 4) {
@@ -103,7 +142,7 @@ extension NowPlayingView {
         }
         .monospacedDigit()
 
-        Text(formatTimeRemaining(totalTimeRemaining))
+        Text("\(formatTimeRemaining(totalTimeRemaining)) (\(label))")
           .font(.caption2)
           .fontWeight(.medium)
       }
@@ -124,39 +163,67 @@ extension NowPlayingView {
   }
 }
 
-extension NowPlayingView {
+extension PlayerView {
   private struct PlaybackControlsView: View {
     let isPlaying: Bool
+    let hasChapters: Bool
     let onTogglePlayback: () -> Void
     let onSkipBackward: () -> Void
     let onSkipForward: () -> Void
+    let onPreviousChapter: () -> Void
+    let onNextChapter: () -> Void
 
     var body: some View {
-      HStack(spacing: 20) {
-        Button(action: onSkipBackward) {
-          Image(systemName: "gobackward.30")
-            .font(.title2)
-        }
-        .buttonStyle(.plain)
+      VStack(spacing: 12) {
+        HStack(spacing: 20) {
+          Button(action: onSkipBackward) {
+            Image(systemName: "gobackward.30")
+              .font(.title2)
+          }
+          .buttonStyle(.plain)
 
-        Button(action: onTogglePlayback) {
-          Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-            .font(.title)
-        }
-        .buttonStyle(.plain)
+          Button(action: onTogglePlayback) {
+            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+              .font(.title)
+          }
+          .buttonStyle(.plain)
 
-        Button(action: onSkipForward) {
-          Image(systemName: "goforward.30")
-            .font(.title2)
+          Button(action: onSkipForward) {
+            Image(systemName: "goforward.30")
+              .font(.title2)
+          }
+          .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+
+        // Chapter navigation (if chapters exist)
+        if hasChapters {
+          HStack(spacing: 32) {
+            Button(action: onPreviousChapter) {
+              Label("Previous", systemImage: "backward.end.fill")
+                .labelStyle(.iconOnly)
+                .font(.caption)
+            }
+            .buttonStyle(.plain)
+
+            Text("Chapters")
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+
+            Button(action: onNextChapter) {
+              Label("Next", systemImage: "forward.end.fill")
+                .labelStyle(.iconOnly)
+                .font(.caption)
+            }
+            .buttonStyle(.plain)
+          }
+        }
       }
       .padding(.top, 8)
     }
   }
 }
 
-extension NowPlayingView {
+extension PlayerView {
   private struct PlaybackSpeedView: View {
     let playbackSpeed: Float
 
@@ -170,7 +237,7 @@ extension NowPlayingView {
   }
 }
 
-extension NowPlayingView {
+extension PlayerView {
   @Observable class Model: ObservableObject {
     var isPlaying: Bool
     var progress: Double
@@ -185,9 +252,19 @@ extension NowPlayingView {
     var playbackSpeed: Float
     var hasActivePlayer: Bool
 
+    var currentChapterTitle: String?
+    var chapterProgress: Double
+    var chapterCurrent: Double
+    var chapterRemaining: Double
+    var hasChapters: Bool
+    var chapters: ChapterPickerSheet.Model?
+
     func togglePlayback() {}
     func skipBackward() {}
     func skipForward() {}
+    func previousChapter() {}
+    func nextChapter() {}
+    func showChapterPicker() {}
 
     init(
       isPlaying: Bool = false,
@@ -201,7 +278,13 @@ extension NowPlayingView {
       author: String = "",
       coverURL: URL? = nil,
       playbackSpeed: Float = 1.0,
-      hasActivePlayer: Bool = false
+      hasActivePlayer: Bool = false,
+      currentChapterTitle: String? = nil,
+      chapterProgress: Double = 0,
+      chapterCurrent: Double = 0,
+      chapterRemaining: Double = 0,
+      hasChapters: Bool = false,
+      chapters: ChapterPickerSheet.Model? = nil
     ) {
       self.isPlaying = isPlaying
       self.progress = progress
@@ -215,14 +298,20 @@ extension NowPlayingView {
       self.coverURL = coverURL
       self.playbackSpeed = playbackSpeed
       self.hasActivePlayer = hasActivePlayer
+      self.currentChapterTitle = currentChapterTitle
+      self.chapterProgress = chapterProgress
+      self.chapterCurrent = chapterCurrent
+      self.chapterRemaining = chapterRemaining
+      self.hasChapters = hasChapters
+      self.chapters = chapters
     }
   }
 }
 
 #Preview {
   NavigationStack {
-    NowPlayingView(
-      model: NowPlayingView.Model(
+    PlayerView(
+      model: PlayerView.Model(
         isPlaying: true,
         progress: 0.45,
         current: 1800,
