@@ -111,6 +111,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
 
           await MainActor.run {
             playerManager.setCurrent(recentItem)
+            playerManager.isShowingFullPlayer = true
           }
         } catch {
           print("Failed to setup playback: \(error)")

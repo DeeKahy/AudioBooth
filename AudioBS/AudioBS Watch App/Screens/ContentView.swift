@@ -1,40 +1,61 @@
 import Combine
+import Models
 import SwiftUI
 
 struct ContentView: View {
   @ObservedObject var connectivityManager = WatchConnectivityManager.shared
   @ObservedObject var playerManager = PlayerManager.shared
-  @StateObject private var continueListeningModel = ContinueListeningViewModel()
-  @StateObject private var localPlayerModel = LocalPlayerViewModel()
-  @StateObject private var remotePlayerModel = RemotePlayerViewModel()
 
-  private var hasActivePlayer: Bool {
-    playerManager.hasActivePlayer || connectivityManager.hasActivePlayer
-  }
-
-  private var activePlayerModel: PlayerView.Model {
-    if playerManager.hasActivePlayer {
-      return localPlayerModel
-    } else {
-      return remotePlayerModel
-    }
-  }
+  @StateObject private var model: Model = Model()
 
   var body: some View {
     NavigationStack {
-      ContinueListeningView(model: continueListeningModel)
+      ContinueListeningView(model: ContinueListeningViewModel())
         .toolbar {
-          if hasActivePlayer {
-            ToolbarItem(placement: .topBarTrailing) {
-              NavigationLink {
-                PlayerView(model: activePlayerModel)
-              } label: {
-                Image(systemName: playerManager.hasActivePlayer ? "applewatch" : "iphone")
-              }
-            }
-          }
+          toolbar
+        }
+        .sheet(item: $model.player) { model in
+          PlayerView(model: model)
+        }
+        .onChange(of: playerManager.isShowingFullPlayer) { _, newValue in
+          guard newValue, let model = playerManager.current else { return }
+          self.model.player = model
         }
     }
+  }
+
+  @ToolbarContentBuilder
+  var toolbar: some ToolbarContent {
+    if let localPlayer = playerManager.current {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button(
+          action: {
+            model.player = localPlayer
+          },
+          label: {
+            Image(systemName: "applewatch")
+          }
+        )
+      }
+    } else if connectivityManager.hasActivePlayer {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button(
+          action: {
+            model.player = RemotePlayerModel()
+          },
+          label: {
+            Image(systemName: "iphone")
+          }
+        )
+      }
+    }
+  }
+}
+
+extension ContentView {
+  @Observable
+  class Model: ObservableObject {
+    var player: PlayerView.Model?
   }
 }
 

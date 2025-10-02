@@ -4,7 +4,8 @@ import Foundation
 import Models
 
 final class PlayerManager: ObservableObject {
-  @Published var current: BookPlayerModel?
+  @Published var current: LocalPlayerModel?
+  @Published var isShowingFullPlayer = false
 
   static let shared = PlayerManager()
 
@@ -36,13 +37,13 @@ final class PlayerManager: ObservableObject {
   }
 
   func setCurrent(_ item: RecentlyPlayedItem) {
-    if item.bookID == current?.id {
+    if item.bookID == current?.item.bookID {
       return
     } else {
       if let currentPlayer = current {
         currentPlayer.closeSession()
       }
-      current = BookPlayerModel(item)
+      current = LocalPlayerModel(item)
       UserDefaults.standard.set(item.bookID, forKey: Self.currentBookIDKey)
     }
   }

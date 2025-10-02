@@ -5,45 +5,25 @@ import Foundation
 import MediaPlayer
 import Models
 
-final class BookPlayerModel: ObservableObject {
-  let id: String
-  let title: String
-  let author: String?
-  let coverURL: URL?
-
-  @Published var isPlaying: Bool = false
-  @Published var isLoading: Bool = false
-  @Published var progress: Double = 0
-  @Published var current: Double = 0
-  @Published var remaining: Double = 0
-  @Published var total: Double = 0
-  @Published var totalTimeRemaining: Double = 0
-
-  @Published var currentChapter: ChapterInfo?
-  @Published var currentChapterIndex: Int = 0
-  @Published var chapterProgress: Double = 0
-  @Published var chapterCurrent: Double = 0
-  @Published var chapterRemaining: Double = 0
+final class LocalPlayerModel: PlayerView.Model {
+  var currentChapterIndex: Int = 0
 
   private let audiobookshelf = Audiobookshelf.shared
 
   private var player: AVPlayer?
   private var timeObserver: Any?
   private var cancellables = Set<AnyCancellable>()
-  var item: RecentlyPlayedItem?
+  var item: RecentlyPlayedItem
   private var mediaProgress: MediaProgress
   private var timerSecondsCounter = 0
-  private var chapters: [ChapterInfo] = []
+  private var chaptersList: [ChapterInfo] = []
+  private var total: Double = 0
 
   private var lastPlaybackAt: Date?
   private var lastSyncAt = Date()
 
   init(_ item: RecentlyPlayedItem) {
     self.item = item
-    self.id = item.bookID
-    self.title = item.title
-    self.author = item.author
-    self.coverURL = item.coverURL
 
     do {
       self.mediaProgress = try MediaProgress.getOrCreate(for: item.bookID)
@@ -51,10 +31,23 @@ final class BookPlayerModel: ObservableObject {
       fatalError("Failed to create MediaProgress for item \(item.bookID): \(error)")
     }
 
+    super.init(
+      isPlaying: false,
+      progress: 0,
+      current: 0,
+      remaining: 0,
+      totalTimeRemaining: 0,
+      title: item.title,
+      author: item.author ?? "",
+      coverURL: item.coverURL
+    )
+
     onLoad()
   }
 
-  func onTogglePlaybackTapped() {
+  override func onMoreTapped() {}
+
+  override func togglePlayback() {
     guard let player = player else { return }
 
     if isPlaying {
@@ -64,14 +57,14 @@ final class BookPlayerModel: ObservableObject {
     }
   }
 
-  func onSkipForwardTapped() {
+  override func skipForward() {
     guard let player = player else { return }
     let currentTime = player.currentTime()
     let newTime = CMTimeAdd(currentTime, CMTime(seconds: 30, preferredTimescale: 1))
     player.seek(to: newTime)
   }
 
-  func onSkipBackwardTapped() {
+  override func skipBackward() {
     guard let player = player else { return }
     let currentTime = player.currentTime()
     let newTime = CMTimeSubtract(currentTime, CMTime(seconds: 30, preferredTimescale: 1))
@@ -79,30 +72,16 @@ final class BookPlayerModel: ObservableObject {
     player.seek(to: CMTimeMaximum(newTime, zeroTime))
   }
 
-  func onPreviousChapterTapped() {
-    guard let player = player, !chapters.isEmpty, currentChapterIndex > 0 else { return }
-    let previousChapter = chapters[currentChapterIndex - 1]
-    player.seek(to: CMTime(seconds: previousChapter.start + 0.1, preferredTimescale: 1000))
-  }
-
-  func onNextChapterTapped() {
-    guard let player = player, !chapters.isEmpty, currentChapterIndex < chapters.count - 1 else {
-      return
-    }
-    let nextChapter = chapters[currentChapterIndex + 1]
-    player.seek(to: CMTime(seconds: nextChapter.start + 0.1, preferredTimescale: 1000))
-  }
-
   func seekToChapter(at index: Int) {
-    guard let player = player, !chapters.isEmpty, index >= 0, index < chapters.count else {
+    guard let player = player, !chaptersList.isEmpty, index >= 0, index < chaptersList.count else {
       return
     }
-    let chapter = chapters[index]
+    let chapter = chaptersList[index]
     player.seek(to: CMTime(seconds: chapter.start + 0.1, preferredTimescale: 1000))
   }
 }
 
-extension BookPlayerModel {
+extension LocalPlayerModel {
   private func setupSessionInfo() async throws -> PlaySessionInfo {
     var sessionInfo: PlaySessionInfo?
 
@@ -111,7 +90,7 @@ extension BookPlayerModel {
 
       let audiobookshelfSession: PlaySession
       audiobookshelfSession = try await audiobookshelf.sessions.start(
-        itemID: id,
+        itemID: item.bookID,
         forceTranscode: false
       )
 
@@ -123,22 +102,16 @@ extension BookPlayerModel {
           "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s")
       }
 
-      if let item {
-        item.playSessionInfo.merge(with: newPlaySessionInfo)
-        try? MediaProgress.updateProgress(
-          for: item.bookID,
-          currentTime: mediaProgress.currentTime,
-          timeListened: mediaProgress.timeListened,
-          duration: item.playSessionInfo.duration,
-          progress: mediaProgress.currentTime / item.playSessionInfo.duration
-        )
-        sessionInfo = item.playSessionInfo
-        print("Merged fresh session with existing session")
-      } else {
-        let newItem = createRecentlyPlayedItem(for: newPlaySessionInfo)
-        item = newItem
-        sessionInfo = newPlaySessionInfo
-      }
+      item.playSessionInfo.merge(with: newPlaySessionInfo)
+      try? MediaProgress.updateProgress(
+        for: item.bookID,
+        currentTime: mediaProgress.currentTime,
+        timeListened: mediaProgress.timeListened,
+        duration: item.playSessionInfo.duration,
+        progress: mediaProgress.currentTime / item.playSessionInfo.duration
+      )
+      sessionInfo = item.playSessionInfo
+      print("Merged fresh session with existing session")
 
       print("Successfully fetched fresh session from server")
 
@@ -189,11 +162,10 @@ extension BookPlayerModel {
     total = sessionInfo.duration
 
     if let sessionChapters = sessionInfo.orderedChapters {
-      chapters = sessionChapters
-      if !chapters.isEmpty {
-        currentChapter = chapters[0]
+      chaptersList = sessionChapters
+      if !chaptersList.isEmpty {
         currentChapterIndex = 0
-        print("Loaded \(chapters.count) chapters")
+        print("Loaded \(chaptersList.count) chapters")
       }
     }
 
@@ -235,7 +207,7 @@ extension BookPlayerModel {
   }
 }
 
-extension BookPlayerModel {
+extension LocalPlayerModel {
   private func configureAudioSession() {
     do {
       let audioSession = AVAudioSession.sharedInstance()
@@ -253,22 +225,22 @@ extension BookPlayerModel {
     let commandCenter = MPRemoteCommandCenter.shared()
 
     commandCenter.playCommand.addTarget { [weak self] _ in
-      self?.onTogglePlaybackTapped()
+      self?.togglePlayback()
       return .success
     }
 
     commandCenter.pauseCommand.addTarget { [weak self] _ in
-      self?.onTogglePlaybackTapped()
+      self?.togglePlayback()
       return .success
     }
 
     commandCenter.skipForwardCommand.addTarget { [weak self] _ in
-      self?.onSkipForwardTapped()
+      self?.skipForward()
       return .success
     }
 
     commandCenter.skipBackwardCommand.addTarget { [weak self] _ in
-      self?.onSkipBackwardTapped()
+      self?.skipBackward()
       return .success
     }
 
@@ -362,22 +334,21 @@ extension BookPlayerModel {
   }
 
   private func updateCurrentChapter(currentTime: TimeInterval) {
-    guard !chapters.isEmpty else { return }
+    guard !chaptersList.isEmpty else { return }
 
     // Find current chapter
-    for (index, chapter) in chapters.enumerated() {
+    for (index, chapter) in chaptersList.enumerated() {
       if currentTime >= chapter.start && currentTime < chapter.end {
         if currentChapterIndex != index {
           currentChapterIndex = index
-          currentChapter = chapter
         }
 
         // Calculate chapter progress
         let chapterDuration = chapter.end - chapter.start
         if chapterDuration > 0 {
-          chapterCurrent = currentTime - chapter.start
-          chapterRemaining = chapter.end - currentTime
-          chapterProgress = chapterCurrent / chapterDuration
+          current = currentTime - chapter.start
+          remaining = chapter.end - currentTime
+          progress = current / chapterDuration
         }
         break
       }
@@ -386,24 +357,21 @@ extension BookPlayerModel {
 
   private func createRecentlyPlayedItem(for sessionInfo: PlaySessionInfo) -> RecentlyPlayedItem {
     return RecentlyPlayedItem(
-      bookID: id,
+      bookID: item.bookID,
       title: title,
-      author: author,
+      author: author.isEmpty ? nil : author,
       coverURL: coverURL,
       playSessionInfo: sessionInfo
     )
   }
 
   private func saveRecentlyPlayedItem() {
-    guard let sessionInfo = item?.playSessionInfo else {
-      return
-    }
-
+    let sessionInfo = item.playSessionInfo
     let newItem = createRecentlyPlayedItem(for: sessionInfo)
 
     do {
       try newItem.save()
-      if let existingItem = try RecentlyPlayedItem.fetch(bookID: id) {
+      if let existingItem = try RecentlyPlayedItem.fetch(bookID: item.bookID) {
         self.item = existingItem
       } else {
         self.item = newItem
@@ -431,7 +399,7 @@ extension BookPlayerModel {
   }
 
   private func syncSessionProgress() {
-    guard let sessionInfo = item?.playSessionInfo else { return }
+    let sessionInfo = item.playSessionInfo
 
     let now = Date()
 
@@ -455,7 +423,6 @@ extension BookPlayerModel {
   }
 
   private func updateRecentlyPlayedProgress() {
-    guard let item else { return }
 
     Task { @MainActor in
       do {
@@ -481,10 +448,7 @@ extension BookPlayerModel {
   }
 
   func closeSession() {
-    guard let sessionInfo = item?.playSessionInfo else {
-      print("Session already closed or no session to close")
-      return
-    }
+    let sessionInfo = item.playSessionInfo
 
     Task {
       if mediaProgress.timeListened > 0 {

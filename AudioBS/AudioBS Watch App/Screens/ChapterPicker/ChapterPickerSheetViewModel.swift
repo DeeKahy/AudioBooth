@@ -2,12 +2,12 @@ import Foundation
 import Models
 
 final class ChapterPickerSheetViewModel: ChapterPickerSheet.Model {
-  private weak var player: BookPlayerModel?
+  private weak var player: LocalPlayerModel?
 
-  init(player: BookPlayerModel) {
+  init(player: LocalPlayerModel) {
     self.player = player
 
-    let chapters = (player.item?.playSessionInfo.orderedChapters ?? []).map { chapterInfo in
+    let chapters = (player.item.playSessionInfo.orderedChapters ?? []).map { chapterInfo in
       ChapterPickerSheet.Model.Chapter(
         id: chapterInfo.id,
         title: chapterInfo.title,
