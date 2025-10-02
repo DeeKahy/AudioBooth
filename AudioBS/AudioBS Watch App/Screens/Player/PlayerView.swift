@@ -26,6 +26,16 @@ struct PlayerView: View {
     .toolbar {
       toolbar
     }
+    .sheet(
+      isPresented: Binding(
+        get: { model.chapters?.isPresented ?? false },
+        set: { newValue in model.chapters?.isPresented = newValue }
+      )
+    ) {
+      if let chapters = Binding($model.chapters) {
+        ChapterPickerSheet(model: chapters)
+      }
+    }
     .onDisappear {
       playerManager.isShowingFullPlayer = false
     }
@@ -45,14 +55,16 @@ struct PlayerView: View {
     }
 
     ToolbarItem(placement: .topBarTrailing) {
-      Button(
-        action: {
-          model.onMoreTapped()
-        },
-        label: {
-          Image(systemName: "ellipsis")
-        }
-      )
+      if let chapters = model.chapters {
+        Button(
+          action: {
+            chapters.isPresented = true
+          },
+          label: {
+            Image(systemName: "ellipsis")
+          }
+        )
+      }
     }
 
     ToolbarItemGroup(placement: .bottomBar) {
@@ -180,8 +192,7 @@ extension PlayerView {
     var title: String
     var author: String
     var coverURL: URL?
-
-    func onMoreTapped() {}
+    var chapters: ChapterPickerSheet.Model?
 
     func togglePlayback() {}
     func skipBackward() {}
@@ -195,7 +206,8 @@ extension PlayerView {
       totalTimeRemaining: Double = 0,
       title: String = "",
       author: String = "",
-      coverURL: URL? = nil
+      coverURL: URL? = nil,
+      chapters: ChapterPickerSheet.Model? = nil
     ) {
       self.isPlaying = isPlaying
       self.progress = progress
@@ -205,6 +217,7 @@ extension PlayerView {
       self.title = title
       self.author = author
       self.coverURL = coverURL
+      self.chapters = chapters
     }
   }
 }

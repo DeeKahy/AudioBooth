@@ -20,6 +20,7 @@ struct ChapterPickerSheet: View {
                 .fontWeight(model.currentIndex == index ? .bold : .regular)
                 .foregroundColor(.primary)
                 .lineLimit(2)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
               Text(formatDuration(chapter.end - chapter.start))
                 .font(.caption2)
@@ -30,10 +31,12 @@ struct ChapterPickerSheet: View {
               if model.currentIndex == index {
                 RoundedRectangle(cornerRadius: 4)
                   .fill(Color.orange)
-                  .frame(width: 4, height: 16)
-                  .offset(x: -16)
+                  .frame(width: 4)
+                  .padding(.vertical, 8)
+                  .offset(x: -12)
               }
             }
+            .contentShape(Rectangle())
           }
           .buttonStyle(.plain)
           .id(chapter.id)

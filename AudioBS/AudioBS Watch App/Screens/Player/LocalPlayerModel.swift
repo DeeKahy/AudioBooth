@@ -22,6 +22,14 @@ final class LocalPlayerModel: PlayerView.Model {
   private var lastPlaybackAt: Date?
   private var lastSyncAt = Date()
 
+  private class LocalChapterPickerModel: ChapterPickerSheet.Model {
+    weak var playerModel: LocalPlayerModel?
+
+    override func onChapterTapped(at index: Int) {
+      playerModel?.seekToChapter(at: index)
+    }
+  }
+
   init(_ item: RecentlyPlayedItem) {
     self.item = item
 
@@ -44,8 +52,6 @@ final class LocalPlayerModel: PlayerView.Model {
 
     onLoad()
   }
-
-  override func onMoreTapped() {}
 
   override func togglePlayback() {
     guard let player = player else { return }
@@ -166,6 +172,21 @@ extension LocalPlayerModel {
       if !chaptersList.isEmpty {
         currentChapterIndex = 0
         print("Loaded \(chaptersList.count) chapters")
+
+        let pickerChapters = chaptersList.enumerated().map { index, chapter in
+          ChapterPickerSheet.Model.Chapter(
+            id: index,
+            title: chapter.title,
+            start: chapter.start,
+            end: chapter.end
+          )
+        }
+        let chapterPickerModel = LocalChapterPickerModel(
+          chapters: pickerChapters,
+          currentIndex: currentChapterIndex
+        )
+        chapterPickerModel.playerModel = self
+        chapters = chapterPickerModel
       }
     }
 
@@ -341,6 +362,7 @@ extension LocalPlayerModel {
       if currentTime >= chapter.start && currentTime < chapter.end {
         if currentChapterIndex != index {
           currentChapterIndex = index
+          chapters?.currentIndex = index
         }
 
         // Calculate chapter progress
