@@ -146,13 +146,11 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
           } else {
             print("No cached item found, creating from server...")
 
-            // Fetch book info and create session
             let session = try await Audiobookshelf.shared.sessions.start(
               itemID: bookID,
               forceTranscode: false
             )
 
-            // Find book details from continue listening list
             guard let book = books.first(where: { $0.id == bookID }) else {
               print("Book not found in continue listening list")
               return

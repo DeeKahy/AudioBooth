@@ -136,12 +136,13 @@ final class LocalPlayerModel: PlayerView.Model {
   }
 
   private func setupDownloadStateBinding() {
-    downloadManager.$downloads
-      .map { [weak self] downloads -> DownloadManager.DownloadState in
+    Publishers.CombineLatest(downloadManager.$downloads, downloadManager.$downloadProgress)
+      .map { [weak self] downloads, progress -> DownloadManager.DownloadState in
         guard let self = self else { return .notDownloaded }
 
         if downloads[item.bookID] == true {
-          return .downloading
+          let downloadProgress = progress[item.bookID] ?? 0.0
+          return .downloading(progress: downloadProgress)
         }
 
         return item.playSessionInfo.isDownloaded ? .downloaded : .notDownloaded
@@ -372,13 +373,16 @@ extension LocalPlayerModel {
           switch status {
           case .readyToPlay:
             self?.isLoading = false
+            self?.isReadyToPlay = true
           case .failed:
             self?.isLoading = false
+            self?.isReadyToPlay = false
             let errorMessage = currentItem.error?.localizedDescription ?? "Unknown error"
             print("Player item failed: \(errorMessage)")
             PlayerManager.shared.clearCurrent()
           case .unknown:
             self?.isLoading = true
+            self?.isReadyToPlay = false
           @unknown default:
             break
           }
@@ -446,27 +450,9 @@ extension LocalPlayerModel {
     }
   }
 
-  private func createRecentlyPlayedItem(for sessionInfo: PlaySessionInfo) -> RecentlyPlayedItem {
-    return RecentlyPlayedItem(
-      bookID: item.bookID,
-      title: title,
-      author: author.isEmpty ? nil : author,
-      coverURL: coverURL,
-      playSessionInfo: sessionInfo
-    )
-  }
-
   private func saveRecentlyPlayedItem() {
-    let sessionInfo = item.playSessionInfo
-    let newItem = createRecentlyPlayedItem(for: sessionInfo)
-
     do {
-      try newItem.save()
-      if let existingItem = try RecentlyPlayedItem.fetch(bookID: item.bookID) {
-        self.item = existingItem
-      } else {
-        self.item = newItem
-      }
+      try item.save()
     } catch {
       print("Failed to save recently played item: \(error)")
     }

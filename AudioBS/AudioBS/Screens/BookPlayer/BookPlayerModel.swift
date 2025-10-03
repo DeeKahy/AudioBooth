@@ -311,12 +311,13 @@ extension BookPlayerModel {
   }
 
   private func setupDownloadStateBinding() {
-    downloadManager.$downloads
-      .map { [weak self] downloads in
+    Publishers.CombineLatest(downloadManager.$downloads, downloadManager.$downloadProgress)
+      .map { [weak self] downloads, progress in
         guard let item = self?.item else { return .notDownloaded }
 
         if downloads[item.bookID] == true {
-          return .downloading
+          let downloadProgress = progress[item.bookID] ?? 0.0
+          return .downloading(progress: downloadProgress)
         }
 
         return item.playSessionInfo.isDownloaded ? .downloaded : .notDownloaded

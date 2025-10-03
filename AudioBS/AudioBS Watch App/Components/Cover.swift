@@ -28,9 +28,9 @@ struct Cover: View {
     switch state {
     case .downloaded:
       EmptyView()
-    case .downloading:
-      ProgressView()
-        .controlSize(.mini)
+    case .downloading(let value):
+      progress(value)
+        .padding(2)
         .frame(width: 14, height: 14)
         .foregroundColor(.white)
         .padding(.trailing, 4)
@@ -50,6 +50,21 @@ struct Cover: View {
           DownloadBackground()
             .fill(.gray.opacity(0.8))
         }
+    }
+  }
+
+  func progress(_ progress: Double) -> some View {
+    ZStack {
+      Circle()
+        .stroke(Color.white.opacity(0.4), lineWidth: 2)
+
+      Circle()
+        .trim(from: 0, to: progress)
+        .stroke(
+          Color.white,
+          style: StrokeStyle(lineWidth: 2, lineCap: .round)
+        )
+        .rotationEffect(.degrees(-90))
     }
   }
 }
@@ -72,7 +87,7 @@ extension Cover {
 #Preview("Cover") {
   Cover(
     url: URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg"),
-    state: .downloading
+    state: .downloading(progress: 0.5)
   )
   .frame(width: 50, height: 50)
 

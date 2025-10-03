@@ -49,6 +49,8 @@ public final class Audiobookshelf: @unchecked Sendable {
       ]
       configuration.timeoutIntervalForRequest = 30
       configuration.timeoutIntervalForResource = 60
+      configuration.waitsForConnectivity = true
+      configuration.allowsCellularAccess = true
     }
   }
 

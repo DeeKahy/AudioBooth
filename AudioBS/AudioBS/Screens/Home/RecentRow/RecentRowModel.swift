@@ -69,12 +69,13 @@ final class RecentRowModel: RecentRow.Model {
   }
 
   private func setupDownloadStateBinding() {
-    downloadManager.$downloads
-      .map { [weak self] downloads in
+    Publishers.CombineLatest(downloadManager.$downloads, downloadManager.$downloadProgress)
+      .map { [weak self] downloads, progress in
         guard let self = self else { return .notDownloaded }
 
         if downloads[id] == true {
-          return .downloading
+          let downloadProgress = progress[id] ?? 0.0
+          return .downloading(progress: downloadProgress)
         }
 
         switch self.item {

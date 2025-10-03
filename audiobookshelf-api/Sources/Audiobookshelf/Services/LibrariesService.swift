@@ -4,7 +4,6 @@ import Nuke
 
 public final class LibrariesService: ObservableObject, @unchecked Sendable {
   private let audiobookshelf: Audiobookshelf
-  private let sharedDefaults = UserDefaults(suiteName: "group.me.jgrenier.audioBS") ?? .standard
   private let userDefaults = UserDefaults.standard
 
   public var onLibraryChanged: ((Library)?) -> Void = { _ in }
@@ -22,10 +21,10 @@ public final class LibrariesService: ObservableObject, @unchecked Sendable {
   }
 
   private func migrateUserDefaultsIfNeeded() {
-    guard sharedDefaults.data(forKey: Keys.library) == nil else { return }
+    guard userDefaults.data(forKey: Keys.library) == nil else { return }
 
     if let libraryData = userDefaults.data(forKey: "audiobookshelf_selected_library") {
-      sharedDefaults.set(libraryData, forKey: Keys.library)
+      userDefaults.set(libraryData, forKey: Keys.library)
       userDefaults.removeObject(forKey: "audiobookshelf_selected_library")
       print("Migrated library selection to App Group UserDefaults")
     }
@@ -33,16 +32,16 @@ public final class LibrariesService: ObservableObject, @unchecked Sendable {
 
   public var current: Library? {
     get {
-      guard let data = sharedDefaults.data(forKey: Keys.library) else { return nil }
+      guard let data = userDefaults.data(forKey: Keys.library) else { return nil }
       return try? JSONDecoder().decode(Library.self, from: data)
     }
     set {
       objectWillChange.send()
       if let newValue {
         guard let data = try? JSONEncoder().encode(newValue) else { return }
-        sharedDefaults.set(data, forKey: Keys.library)
+        userDefaults.set(data, forKey: Keys.library)
       } else {
-        sharedDefaults.removeObject(forKey: Keys.library)
+        userDefaults.removeObject(forKey: Keys.library)
       }
       ImagePipeline.shared.cache.removeAll()
       onLibraryChanged(newValue)

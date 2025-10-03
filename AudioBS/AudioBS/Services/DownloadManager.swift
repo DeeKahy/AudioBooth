@@ -12,11 +12,12 @@ final class DownloadManager: ObservableObject {
 
   enum DownloadState: Equatable {
     case notDownloaded
-    case downloading
+    case downloading(progress: Double)
     case downloaded
   }
 
   @Published private(set) var downloads: [String: Bool] = [:]
+  @Published private(set) var downloadProgress: [String: Double] = [:]
 
   private var downloadTasks: [String: Task<Void, Never>] = [:]
 

@@ -20,11 +20,12 @@ struct PlayerOptionsSheet: View {
         model.onDownloadTapped()
         dismiss()
       }) {
-        if case .downloading = model.downloadState {
+        switch model.downloadState {
+        case .downloading:
           Label("Cancel Download", systemImage: "stop.circle")
-        } else if case .downloaded = model.downloadState {
+        case .downloaded:
           Label("Remove from Device", systemImage: "trash")
-        } else {
+        case .notDownloaded:
           Label("Download", systemImage: "icloud.and.arrow.down")
         }
       }

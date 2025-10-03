@@ -112,13 +112,13 @@ struct RecentRow: View {
   var source: some View {
     HStack(spacing: 8) {
       switch model.downloadState {
-      case .downloading:
+      case .downloading(let progress):
         Image(systemName: "internaldrive.fill")
           .font(.caption)
           .foregroundColor(.blue)
           .hidden()
           .overlay {
-            ProgressView()
+            ProgressView(value: progress)
               .progressViewStyle(CircularProgressViewStyle(tint: .blue))
               .scaleEffect(0.7)
           }

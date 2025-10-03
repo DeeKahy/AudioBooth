@@ -241,8 +241,8 @@ struct BookPlayer: View {
 
       Button(action: { model.onDownloadTapped() }) {
         VStack(spacing: 6) {
-          if case .downloading = model.downloadState {
-            ProgressView()
+          if case .downloading(let progress) = model.downloadState {
+            ProgressView(value: progress)
               .progressViewStyle(CircularProgressViewStyle(tint: .white))
               .scaleEffect(0.8)
           } else {

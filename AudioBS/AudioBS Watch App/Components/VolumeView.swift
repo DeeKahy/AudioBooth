@@ -111,7 +111,7 @@ extension VolumeView {
 #Preview {
   Cover(
     url: URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg"),
-    state: .downloading
+    state: .downloading(progress: 0.5)
   )
   .frame(width: 100, height: 100)
   .frame(maxWidth: .infinity, maxHeight: .infinity)

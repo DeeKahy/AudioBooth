@@ -89,6 +89,7 @@ struct PlayerView: View {
           Image(systemName: "gobackward.30")
         }
       )
+      .disabled(!model.isReadyToPlay)
 
       Button(
         action: model.togglePlayback,
@@ -98,6 +99,7 @@ struct PlayerView: View {
       )
       .overlay { progress }
       .controlSize(.large)
+      .disabled(!model.isReadyToPlay)
 
       Button(
         action: model.skipForward,
@@ -105,6 +107,7 @@ struct PlayerView: View {
           Image(systemName: "goforward.30")
         }
       )
+      .disabled(!model.isReadyToPlay)
     }
 
   }
@@ -183,6 +186,7 @@ extension PlayerView {
   @Observable
   class Model: ObservableObject, Identifiable {
     var isLoading: Bool = false
+    var isReadyToPlay: Bool = false
 
     var isPlaying: Bool
     var progress: Double

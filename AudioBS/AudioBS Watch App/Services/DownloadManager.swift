@@ -4,20 +4,34 @@ import Combine
 import Foundation
 import Models
 
-final class DownloadManager: ObservableObject {
+final class DownloadManager: NSObject, ObservableObject {
   static let shared = DownloadManager()
 
   private var audiobookshelf: Audiobookshelf { .shared }
 
   enum DownloadState: Equatable {
     case notDownloaded
-    case downloading
+    case downloading(progress: Double)
     case downloaded
   }
 
   @Published private(set) var downloads: [String: Bool] = [:]
+  @Published private(set) var downloadProgress: [String: Double] = [:]
 
   private var downloadTasks: [String: Task<Void, Never>] = [:]
+  private var urlSession: URLSession!
+  private var activeDownloads: [URLSessionDownloadTask: (bookID: String, trackIndex: Int)] = [:]
+  private var trackProgress: [String: [Int: Double]] = [:]
+
+  override init() {
+    super.init()
+    let config = URLSessionConfiguration.background(
+      withIdentifier: "me.jgrenier.AudioBS.watchkitapp")
+    config.allowsExpensiveNetworkAccess = false
+    config.httpMaximumConnectionsPerHost = 2
+    config.isDiscretionary = false
+    urlSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+  }
 
   func isDownloading(for bookID: String) -> Bool {
     return downloads[bookID] ?? false
@@ -34,6 +48,14 @@ final class DownloadManager: ObservableObject {
 
     let bookID = item.bookID
     downloads[bookID] = true
+    downloadProgress[bookID] = 0.0
+
+    var initialProgress: [Int: Double] = [:]
+    for track in tracks {
+      initialProgress[track.index] = 0.0
+    }
+    trackProgress[bookID] = initialProgress
+
     print("Starting download of \(tracks.count) tracks for book: \(item.title)")
 
     let task = Task {
@@ -59,7 +81,8 @@ final class DownloadManager: ObservableObject {
             "Starting download of track \(track.index) (\(index + 1)/\(tracks.count)) at \(trackURL)"
           )
 
-          let (tempURL, response) = try await URLSession.shared.download(from: trackURL)
+          let (tempURL, response) = try await downloadTrack(
+            from: trackURL, bookID: bookID, trackIndex: track.index)
 
           guard let httpResponse = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
@@ -106,6 +129,8 @@ final class DownloadManager: ObservableObject {
 
         await MainActor.run {
           downloads.removeValue(forKey: bookID)
+          downloadProgress.removeValue(forKey: bookID)
+          trackProgress.removeValue(forKey: bookID)
           print("Download completed successfully")
 
           NotificationCenter.default.post(
@@ -116,6 +141,8 @@ final class DownloadManager: ObservableObject {
         print("Download failed: \(error)")
         await MainActor.run {
           downloads.removeValue(forKey: bookID)
+          downloadProgress.removeValue(forKey: bookID)
+          trackProgress.removeValue(forKey: bookID)
         }
       }
 
@@ -167,6 +194,120 @@ final class DownloadManager: ObservableObject {
     }
   }
 
+  func cleanupOrphanedDownloads() {
+    Task {
+      do {
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+          .first!
+        let audiobooksDirectory = documentsPath.appendingPathComponent("audiobooks")
+
+        guard FileManager.default.fileExists(atPath: audiobooksDirectory.path) else {
+          print("Audiobooks directory does not exist, nothing to cleanup")
+          return
+        }
+
+        var orphanedFilesCount = 0
+        var orphanedDirectoriesCount = 0
+
+        let downloadDirectories = try FileManager.default.contentsOfDirectory(
+          at: audiobooksDirectory, includingPropertiesForKeys: [.isDirectoryKey])
+
+        for directory in downloadDirectories {
+          var isDirectory: ObjCBool = false
+          FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory)
+
+          if isDirectory.boolValue {
+            let bookID = directory.lastPathComponent
+
+            guard
+              let item = try? RecentlyPlayedItem.fetch(bookID: bookID),
+              let tracks = item.playSessionInfo.orderedTracks
+            else {
+              try FileManager.default.removeItem(at: directory)
+              orphanedDirectoriesCount += 1
+              print("Removed orphaned directory for unknown book: \(bookID)")
+              continue
+            }
+
+            var expectedFilenames = Set<String>()
+            for track in tracks {
+              if let fileName = track.fileName {
+                expectedFilenames.insert(fileName)
+              }
+            }
+
+            let filesInDirectory = try FileManager.default.contentsOfDirectory(
+              at: directory, includingPropertiesForKeys: nil)
+
+            for file in filesInDirectory {
+              let filename = file.lastPathComponent
+
+              if expectedFilenames.contains(filename) {
+                print("Keep file: \(filename)")
+              } else {
+                try FileManager.default.removeItem(at: file)
+                orphanedFilesCount += 1
+                print("Removed orphaned file: \(filename)")
+              }
+            }
+
+            let remainingFiles = try FileManager.default.contentsOfDirectory(
+              at: directory, includingPropertiesForKeys: nil)
+            if remainingFiles.isEmpty {
+              try FileManager.default.removeItem(at: directory)
+              orphanedDirectoriesCount += 1
+              print("Removed empty directory: \(bookID)")
+            }
+          }
+        }
+
+        if orphanedFilesCount > 0 || orphanedDirectoriesCount > 0 {
+          print(
+            "Cleanup completed: removed \(orphanedFilesCount) orphaned files and \(orphanedDirectoriesCount) empty directories"
+          )
+        } else {
+          print("No orphaned files or directories found")
+        }
+
+      } catch {
+        print("Failed to cleanup orphaned downloads: \(error)")
+      }
+    }
+  }
+
+  private func downloadTrack(
+    from url: URL,
+    bookID: String,
+    trackIndex: Int
+  ) async throws -> (URL, URLResponse) {
+    return try await withCheckedThrowingContinuation { continuation in
+      let task = urlSession.downloadTask(with: url)
+      activeDownloads[task] = (bookID: bookID, trackIndex: trackIndex)
+
+      task.resume()
+
+      downloadCompletionHandlers[task] = { result in
+        self.activeDownloads.removeValue(forKey: task)
+        self.downloadCompletionHandlers.removeValue(forKey: task)
+        continuation.resume(with: result)
+      }
+    }
+  }
+
+  private var downloadCompletionHandlers:
+    [URLSessionDownloadTask: (Result<(URL, URLResponse), Error>) -> Void] = [:]
+
+  private func updateOverallProgress(for bookID: String, totalTracks: Int) {
+    guard let trackProgressDict = trackProgress[bookID] else { return }
+
+    let totalProgress = trackProgressDict.values.reduce(0.0, +)
+    let overallProgress = totalProgress / Double(totalTracks)
+
+    DispatchQueue.main.async {
+      self.downloadProgress[bookID] = overallProgress
+    }
+  }
+
   private func contentTypeToExtension(_ contentType: String) -> String {
     switch contentType.lowercased() {
     case "audio/mpeg", "audio/mp3":
@@ -178,6 +319,51 @@ final class DownloadManager: ObservableObject {
     default:
       print("WARNING: Unknown Content-Type '\(contentType)', defaulting to mp3")
       return "mp3"
+    }
+  }
+}
+
+extension DownloadManager: URLSessionDownloadDelegate {
+  func urlSession(
+    _ session: URLSession,
+    downloadTask: URLSessionDownloadTask,
+    didWriteData bytesWritten: Int64,
+    totalBytesWritten: Int64,
+    totalBytesExpectedToWrite: Int64
+  ) {
+    guard let (bookID, trackIndex) = activeDownloads[downloadTask] else { return }
+
+    let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+
+    trackProgress[bookID]?[trackIndex] = progress
+
+    if let totalTracks = trackProgress[bookID]?.count {
+      updateOverallProgress(for: bookID, totalTracks: totalTracks)
+      print(
+        "Track \(trackIndex): \(String(format: "%.1f", progress * 100))% | Overall: \(String(format: "%.1f", (downloadProgress[bookID] ?? 0) * 100))%"
+      )
+    }
+  }
+
+  func urlSession(
+    _ session: URLSession,
+    downloadTask: URLSessionDownloadTask,
+    didFinishDownloadingTo location: URL
+  ) {
+    guard let handler = downloadCompletionHandlers[downloadTask],
+      let response = downloadTask.response
+    else { return }
+
+    handler(.success((location, response)))
+  }
+
+  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    guard let downloadTask = task as? URLSessionDownloadTask,
+      let handler = downloadCompletionHandlers[downloadTask]
+    else { return }
+
+    if let error = error {
+      handler(.failure(error))
     }
   }
 }

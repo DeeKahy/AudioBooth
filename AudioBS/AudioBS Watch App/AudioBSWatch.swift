@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct AudioBSWatch: App {
   init() {
+    DownloadManager.shared.cleanupOrphanedDownloads()
     _ = Audiobookshelf.shared
     _ = WatchConnectivityManager.shared
   }
