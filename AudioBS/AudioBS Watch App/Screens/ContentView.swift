@@ -39,7 +39,7 @@ struct ContentView: View {
 
   @ToolbarContentBuilder
   var toolbar: some ToolbarContent {
-    if connectivityManager.hasActivePlayer && !playerManager.isPlaying {
+    if connectivityManager.hasActivePlayer && !playerManager.isPlayingLocally {
       ToolbarItem(placement: .topBarTrailing) {
         Button(
           action: {

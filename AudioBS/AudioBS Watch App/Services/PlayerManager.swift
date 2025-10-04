@@ -4,7 +4,7 @@ import Foundation
 import Models
 
 final class PlayerManager: ObservableObject {
-  @Published var current: LocalPlayerModel?
+  @Published var current: PlayerView.Model?
   @Published var isShowingFullPlayer = false
 
   static let shared = PlayerManager()
@@ -28,29 +28,26 @@ final class PlayerManager: ObservableObject {
     setCurrent(recent)
   }
 
-  var hasActivePlayer: Bool {
-    current != nil
-  }
-
-  var isPlaying: Bool {
-    current?.isPlaying ?? false
+  var isPlayingLocally: Bool {
+    guard let current else { return false }
+    return current is LocalPlayerModel && current.isPlaying
   }
 
   func setCurrent(_ item: RecentlyPlayedItem) {
-    if item.bookID == current?.item.bookID {
+    if let localPlayer = current as? LocalPlayerModel,
+      item.bookID == localPlayer.item.bookID
+    {
       return
     } else {
-      if let currentPlayer = current {
-        currentPlayer.closeSession()
-      }
+      clearCurrent()
       current = LocalPlayerModel(item)
       UserDefaults.standard.set(item.bookID, forKey: Self.currentBookIDKey)
     }
   }
 
   func clearCurrent() {
-    if let currentPlayer = current {
-      currentPlayer.closeSession()
+    if let localPlayer = current as? LocalPlayerModel {
+      localPlayer.closeSession()
     }
     current = nil
     UserDefaults.standard.removeObject(forKey: Self.currentBookIDKey)

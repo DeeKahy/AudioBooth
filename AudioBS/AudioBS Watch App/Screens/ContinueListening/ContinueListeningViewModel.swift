@@ -5,9 +5,8 @@ import Models
 import WatchConnectivity
 
 final class ContinueListeningViewModel: ContinueListeningView.Model {
-  private let connectivityManager = WatchConnectivityManager.shared
-  private let playerManager = PlayerManager.shared
-  private let downloadManager = DownloadManager.shared
+  private var connectivityManager: WatchConnectivityManager { .shared }
+  private var playerManager: PlayerManager { .shared }
   private var cancellables = Set<AnyCancellable>()
 
   override init(books: [BookItem] = [], isLoading: Bool = false) {
@@ -22,13 +21,6 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
         updateBooks(from: recentItems)
       }
     }
-
-    downloadManager.$downloads
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        self?.refreshBooksDownloadState()
-      }
-      .store(in: &cancellables)
   }
 
   private func loadCachedBooks() {
@@ -59,11 +51,6 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
     }
 
     books = items
-  }
-
-  private func refreshBooksDownloadState() {
-    guard let recentItems = try? RecentlyPlayedItem.fetchAll() else { return }
-    updateBooks(from: recentItems)
   }
 
   override func fetch() async {

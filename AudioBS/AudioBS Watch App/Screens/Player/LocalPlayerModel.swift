@@ -136,7 +136,14 @@ final class LocalPlayerModel: PlayerView.Model {
   private func playOnIPhone() {
     playbackDestination = nil
     connectivityManager.playBook(bookID: item.bookID)
-    PlayerManager.shared.clearCurrent()
+
+    Task { @MainActor in
+      PlayerManager.shared.clearCurrent()
+      PlayerManager.shared.isShowingFullPlayer = false
+      try? await Task.sleep(for: .milliseconds(100))
+      PlayerManager.shared.current = RemotePlayerModel()
+      PlayerManager.shared.isShowingFullPlayer = true
+    }
   }
 
   override func skipForward() {

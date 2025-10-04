@@ -4,6 +4,7 @@ import Foundation
 final class RemotePlayerModel: PlayerView.Model {
   private var cancellables = Set<AnyCancellable>()
   private let connectivityManager = WatchConnectivityManager.shared
+  private var pendingState: Bool?
 
   init() {
     super.init(isReadyToPlay: true, isLocal: false)
@@ -14,7 +15,17 @@ final class RemotePlayerModel: PlayerView.Model {
 
   private func setupBindings() {
     connectivityManager.$isPlaying
-      .assign(to: \.isPlaying, on: self)
+      .sink { [weak self] isPlaying in
+        guard let self else { return }
+
+        if let pending = self.pendingState, pending == isPlaying {
+          self.pendingState = nil
+        }
+
+        if self.pendingState == nil {
+          self.isPlaying = isPlaying
+        }
+      }
       .store(in: &cancellables)
 
     connectivityManager.$progress
@@ -47,7 +58,14 @@ final class RemotePlayerModel: PlayerView.Model {
   }
 
   override func togglePlayback() {
-    connectivityManager.togglePlayback()
+    if isPlaying {
+      connectivityManager.pause()
+      pendingState = false
+    } else {
+      connectivityManager.play()
+      pendingState = true
+    }
+    isPlaying.toggle()
   }
 
   override func skipBackward() {

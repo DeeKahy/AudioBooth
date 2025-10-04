@@ -33,7 +33,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     coverURL: URL?,
     playbackSpeed: Float
   ) {
-    guard let session = session, session.isReachable else { return }
+    guard let session = session else { return }
 
     var context = session.applicationContext
 
@@ -170,19 +170,40 @@ extension WatchConnectivityManager: WCSessionDelegate {
 
     Task { @MainActor in
       switch command {
-      case "togglePlayback":
-        PlayerManager.shared.current?.onTogglePlaybackTapped()
+      case "play":
+        if let bookID = message["bookID"] as? String {
+          handlePlayCommand(bookID: bookID)
+        } else {
+          updatePlaybackStateContext(isPlaying: true)
+          if PlayerManager.shared.current?.isPlaying == false {
+            PlayerManager.shared.current?.onTogglePlaybackTapped()
+          }
+        }
+      case "pause":
+        updatePlaybackStateContext(isPlaying: false)
+        if PlayerManager.shared.current?.isPlaying == true {
+          PlayerManager.shared.current?.onTogglePlaybackTapped()
+        }
       case "skipForward":
         PlayerManager.shared.current?.onSkipForwardTapped()
       case "skipBackward":
         PlayerManager.shared.current?.onSkipBackwardTapped()
-      case "play":
-        if let bookID = message["bookID"] as? String {
-          handlePlayCommand(bookID: bookID)
-        }
       default:
         print("Unknown command from watch: \(command)")
       }
+    }
+  }
+
+  private func updatePlaybackStateContext(isPlaying: Bool) {
+    guard let session = session else { return }
+
+    var context = session.applicationContext
+    context["isPlaying"] = isPlaying
+
+    do {
+      try session.updateApplicationContext(context)
+    } catch {
+      print("Failed to update playback state context: \(error)")
     }
   }
 

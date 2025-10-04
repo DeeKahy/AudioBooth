@@ -742,9 +742,10 @@ extension BookPlayerModel {
 
   private func sendWatchUpdate() {
     let playbackProgress = self.playbackProgress
+    let actualIsPlaying = player?.rate ?? 0 > 0
 
     watchConnectivity.sendPlaybackState(
-      isPlaying: isPlaying,
+      isPlaying: actualIsPlaying,
       progress: playbackProgress.progress,
       current: playbackProgress.current,
       remaining: playbackProgress.remaining,

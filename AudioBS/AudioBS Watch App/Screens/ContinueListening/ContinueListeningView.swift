@@ -28,7 +28,7 @@ struct ContinueListeningView: View {
             model.playBook(bookID: item.id)
           } label: {
             HStack(spacing: 12) {
-              Cover(url: item.coverURL, state: item.isDownloaded ? .downloaded : .notDownloaded)
+              Cover(url: item.coverURL, state: .downloaded)
                 .frame(width: 50, height: 50)
 
               VStack(alignment: .leading, spacing: 4) {

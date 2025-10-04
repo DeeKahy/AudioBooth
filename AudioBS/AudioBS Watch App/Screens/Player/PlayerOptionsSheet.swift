@@ -24,9 +24,9 @@ struct PlayerOptionsSheet: View {
         case .downloading:
           Label("Cancel Download", systemImage: "stop.circle")
         case .downloaded:
-          Label("Remove from Device", systemImage: "trash")
+          Label("Remove from Watch", systemImage: "trash")
         case .notDownloaded:
-          Label("Download", systemImage: "icloud.and.arrow.down")
+          Label("Download to Watch", systemImage: "icloud.and.arrow.down")
         }
       }
     }

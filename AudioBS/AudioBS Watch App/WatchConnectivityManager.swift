@@ -43,8 +43,12 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     }
   }
 
-  func togglePlayback() {
-    sendCommand("togglePlayback")
+  func play() {
+    sendCommand("play")
+  }
+
+  func pause() {
+    sendCommand("pause")
   }
 
   func skipForward() {
