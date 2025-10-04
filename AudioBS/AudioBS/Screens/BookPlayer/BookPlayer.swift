@@ -241,18 +241,26 @@ struct BookPlayer: View {
 
       Button(action: { model.onDownloadTapped() }) {
         VStack(spacing: 6) {
-          if case .downloading(let progress) = model.downloadState {
-            ProgressView(value: progress)
-              .progressViewStyle(CircularProgressViewStyle(tint: .white))
-              .scaleEffect(0.8)
-          } else {
-            Image(systemName: downloadIcon)
-              .font(.system(size: 16))
-              .foregroundColor(.white)
-          }
+          Image(systemName: downloadIcon)
+            .font(.system(size: 16))
+            .foregroundColor(.white)
+            .opacity([.downloaded, .notDownloaded].contains(model.downloadState) ? 1 : 0)
+            .overlay {
+              if case .downloading(let progress) = model.downloadState {
+                ProgressView(value: progress)
+                  .progressViewStyle(GaugeProgressViewStyle(tint: .white))
+              }
+            }
           Text(downloadText)
             .font(.caption2)
-            .foregroundColor(.white.opacity(0.7))
+            .lineLimit(1)
+            .hidden()
+            .overlay(alignment: .top) {
+              Text(downloadText)
+                .font(.caption2)
+                .foregroundColor(.white.opacity(0.7))
+                .fixedSize(horizontal: false, vertical: true)
+            }
         }
       }
       .frame(maxWidth: .infinity)

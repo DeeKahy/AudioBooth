@@ -57,35 +57,9 @@ extension RecentlyPlayedItem {
   }
 
   public func delete() throws {
-    cleanupLocalFiles()
-
     let context = ModelContextProvider.shared.context
     context.delete(self)
     try context.save()
-  }
-
-  public func deleteFiles() throws {
-    cleanupLocalFiles()
-
-    let context = ModelContextProvider.shared.context
-    for track in playSessionInfo.audioTracks ?? [] {
-      track.relativePath = nil
-    }
-    try context.save()
-  }
-
-  private func cleanupLocalFiles() {
-    let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-      .first!
-    let bookDirectory = documentsPath.appendingPathComponent("audiobooks").appendingPathComponent(
-      bookID)
-
-    do {
-      if FileManager.default.fileExists(atPath: bookDirectory.path) {
-        try FileManager.default.removeItem(at: bookDirectory)
-      }
-    } catch {
-    }
   }
 
   public static func deleteAll() throws {
@@ -94,7 +68,6 @@ extension RecentlyPlayedItem {
     let allItems = try context.fetch(descriptor)
 
     for item in allItems {
-      item.cleanupLocalFiles()
       context.delete(item)
     }
 

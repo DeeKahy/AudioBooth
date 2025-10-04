@@ -105,8 +105,8 @@ struct HomeView: View {
         .fontWeight(.semibold)
         .frame(maxWidth: .infinity, alignment: .leading)
 
-      LazyVStack(spacing: 0) {
-        ForEach(model.recents, id: \.id) { item in
+      VStack(spacing: 0) {
+        ForEach(model.recents) { item in
           RecentRow(model: item)
 
           if item.id != model.recents.last?.id {

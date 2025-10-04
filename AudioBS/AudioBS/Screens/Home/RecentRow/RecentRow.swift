@@ -8,9 +8,7 @@ struct RecentRow: View {
   @State private var showingDeleteConfirmation = false
 
   var body: some View {
-    Button(action: {
-      model.onTapped()
-    }) {
+    Button(action: model.onTapped) {
       HStack(spacing: 8) {
         cover
 
@@ -49,6 +47,7 @@ struct RecentRow: View {
     }
     .contextMenu { contextMenu }
     .onAppear(perform: model.onAppear)
+    .onDisappear(perform: model.onDisappear)
     .alert("Remove from continue listening", isPresented: $showingDeleteConfirmation) {
       Button("Cancel", role: .cancel) {}
       Button("Remove", role: .destructive) {
@@ -118,9 +117,8 @@ struct RecentRow: View {
           .foregroundColor(.blue)
           .hidden()
           .overlay {
-            ProgressView(value: progress)
-              .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-              .scaleEffect(0.7)
+            ProgressView(value: progress, total: 1.0)
+              .progressViewStyle(.gauge)
           }
       case .downloaded:
         Image(systemName: "internaldrive.fill")
@@ -199,8 +197,9 @@ struct RecentRow: View {
 }
 
 extension RecentRow {
-  @Observable class Model: Comparable {
-    let id: String
+  @Observable
+  class Model: Comparable, Identifiable {
+    let bookID: String
     let title: String
     let author: String?
     let coverURL: URL?
@@ -211,13 +210,15 @@ extension RecentRow {
     var downloadState: DownloadManager.DownloadState
 
     func onAppear() {}
+    func onDisappear() {}
+
     func onTapped() {}
     func onDeleteTapped(isFileOnly: Bool) {}
     func onDownloadTapped() {}
     func onMarkFinishedTapped(isFinished: Bool) {}
 
     init(
-      id: String = UUID().uuidString,
+      bookID: String = UUID().uuidString,
       title: String,
       author: String?,
       coverURL: URL?,
@@ -226,7 +227,7 @@ extension RecentRow {
       timeRemaining: String? = nil,
       downloadState: DownloadManager.DownloadState = .notDownloaded
     ) {
-      self.id = id
+      self.bookID = bookID
       self.title = title
       self.author = author
       self.coverURL = coverURL

@@ -58,9 +58,9 @@ extension HomeViewModel {
   private func syncRecents() {
     let ids = Set(recentlyPlayed.map(\.bookID) + continueListening.map(\.id))
 
-    recents.removeAll { recent in !ids.contains(recent.id) }
+    recents.removeAll { recent in !ids.contains(recent.bookID) }
 
-    let existingIDs = Set(recents.map(\.id))
+    let existingIDs = Set(recents.map(\.bookID))
     for recent in recentlyPlayed where !existingIDs.contains(recent.bookID) {
       recents.append(RecentRowModel(recent: recent))
     }

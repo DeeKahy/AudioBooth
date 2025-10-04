@@ -78,6 +78,7 @@ final class SettingsViewModel: SettingsView.Model {
     Task {
       do {
         try RecentlyPlayedItem.deleteAll()
+        DownloadManager.shared.cleanupOrphanedDownloads()
         PlayerManager.shared.clearCurrent()
         Toast(success: "Storage cleared successfully").show()
       } catch {
@@ -108,6 +109,7 @@ final class SettingsViewModel: SettingsView.Model {
     playerManager.current = nil
     try? RecentlyPlayedItem.deleteAll()
     try? MediaProgress.deleteAll()
+    DownloadManager.shared.cleanupOrphanedDownloads()
 
     audiobookshelf.logout()
     isAuthenticated = false

@@ -24,10 +24,6 @@ public final class PlaySessionInfo {
 }
 
 extension PlaySessionInfo {
-  private func fileURL(for track: AudioTrackInfo) -> URL? {
-    return track.localPath
-  }
-
   public func track(at time: TimeInterval) -> AudioTrackInfo? {
     guard let tracks = orderedTracks else { return nil }
 
@@ -48,11 +44,8 @@ extension PlaySessionInfo {
   }
 
   public var isDownloaded: Bool {
-    guard let tracks = orderedTracks, !tracks.isEmpty else { return false }
-
-    return tracks.allSatisfy { track in
-      return fileURL(for: track) != nil
-    }
+    guard let tracks = audioTracks, !tracks.isEmpty else { return false }
+    return tracks.allSatisfy { track in track.relativePath != nil }
   }
 
   public var orderedChapters: [ChapterInfo]? {

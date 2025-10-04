@@ -41,7 +41,7 @@ public struct PlaySession: Codable, Sendable {
   }
 
   public var streamingTracks: [StreamingTrack]? {
-    guard var serverURL = Audiobookshelf.shared.authentication.serverURL, let audioTracks else {
+    guard let serverURL = Audiobookshelf.shared.authentication.serverURL, let audioTracks else {
       return nil
     }
 

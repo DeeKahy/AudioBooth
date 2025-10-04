@@ -16,6 +16,7 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
   private var timeObserver: Any?
   private var cancellables = Set<AnyCancellable>()
   private var item: RecentlyPlayedItem?
+  private var itemObservation: Task<Void, Never>?
   private var mediaProgress: MediaProgress
   private var timerSecondsCounter = 0
 
@@ -214,7 +215,6 @@ extension BookPlayerModel {
     setupRemoteCommandCenter()
     setupPlayerObservers()
     setupTimeObserver()
-    setupDownloadNotification()
 
     speed = SpeedPickerSheetViewModel(player: player)
     let timerViewModel = TimerPickerSheetViewModel()
@@ -320,6 +320,29 @@ extension BookPlayerModel {
         self?.downloadState = downloadState
       }
       .store(in: &cancellables)
+
+    if let bookID = item?.bookID {
+      itemObservation = Task { [weak self] in
+        for await updatedItem in RecentlyPlayedItem.observe(where: \.bookID, equals: bookID) {
+          guard !Task.isCancelled, let self = self else { continue }
+
+          self.item = updatedItem
+
+          // Re-evaluate download state with updated item
+          if downloadManager.downloads[updatedItem.bookID] == true {
+            let progress = downloadManager.downloadProgress[updatedItem.bookID] ?? 0.0
+            self.downloadState = .downloading(progress: progress)
+          } else {
+            self.downloadState =
+              updatedItem.playSessionInfo.isDownloaded ? .downloaded : .notDownloaded
+          }
+
+          if updatedItem.playSessionInfo.isDownloaded, self.isPlayerUsingRemoteURL() {
+            self.refreshPlayerForLocalPlayback()
+          }
+        }
+      }
+    }
   }
 }
 
@@ -547,19 +570,15 @@ extension BookPlayerModel {
     }
   }
 
-  private func setupDownloadNotification() {
-    NotificationCenter.default.addObserver(
-      forName: Notification.Name("DownloadCompleted"),
-      object: nil,
-      queue: .main
-    ) { [weak self] notification in
-      guard let self = self,
-        let completedBookID = notification.object as? String,
-        completedBookID == self.id
-      else { return }
-
-      self.refreshPlayerForLocalPlayback()
+  private func isPlayerUsingRemoteURL() -> Bool {
+    guard let player = self.player,
+      let currentItem = player.currentItem,
+      let asset = currentItem.asset as? AVURLAsset
+    else {
+      return false
     }
+
+    return !asset.url.absoluteString.hasPrefix("file")
   }
 
   private func refreshPlayerForLocalPlayback() {

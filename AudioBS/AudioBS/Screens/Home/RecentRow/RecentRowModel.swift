@@ -10,12 +10,13 @@ final class RecentRowModel: RecentRow.Model {
     case book(Book)
   }
 
-  let item: Item
+  var item: Item
 
-  private let downloadManager = DownloadManager.shared
-  private var playerManager = PlayerManager.shared
+  private var downloadManager: DownloadManager { .shared }
+  private var playerManager: PlayerManager { .shared }
   private var cancellables = Set<AnyCancellable>()
   private var mediaProgressObservation: Task<Void, Never>?
+  private var itemObservation: Task<Void, Never>?
 
   private var onRemoved: (() -> Void)?
 
@@ -23,24 +24,22 @@ final class RecentRowModel: RecentRow.Model {
     self.item = .recent(recent)
 
     super.init(
-      id: recent.bookID,
+      bookID: recent.bookID,
       title: recent.title,
       author: recent.author,
       coverURL: recent.coverURL,
       progress: 0,
       lastPlayedAt: nil,
-      timeRemaining: nil
+      timeRemaining: nil,
+      downloadState: recent.playSessionInfo.isDownloaded ? .downloaded : .notDownloaded
     )
-
-    setupDownloadStateBinding()
-    setupProgressObservation()
   }
 
   init(book: Book, onRemoved: @escaping () -> Void) {
     self.item = .book(book)
 
     super.init(
-      id: book.id,
+      bookID: book.id,
       title: book.title,
       author: book.authorName,
       coverURL: book.coverURL,
@@ -49,14 +48,19 @@ final class RecentRowModel: RecentRow.Model {
       timeRemaining: nil
     )
 
-    setupDownloadStateBinding()
-    setupProgressObservation()
-
     self.onRemoved = onRemoved
   }
 
-  isolated deinit {
+  override func onAppear() {
+    setupDownloadStateBinding()
+    setupProgressObservation()
+    setupItemObservation()
+  }
+
+  override func onDisappear() {
     mediaProgressObservation?.cancel()
+    itemObservation?.cancel()
+    cancellables.removeAll()
   }
 
   override func onTapped() {
@@ -69,13 +73,13 @@ final class RecentRowModel: RecentRow.Model {
   }
 
   private func setupDownloadStateBinding() {
+    let bookID = bookID
     Publishers.CombineLatest(downloadManager.$downloads, downloadManager.$downloadProgress)
       .map { [weak self] downloads, progress in
         guard let self = self else { return .notDownloaded }
 
-        if downloads[id] == true {
-          let downloadProgress = progress[id] ?? 0.0
-          return .downloading(progress: downloadProgress)
+        if let progress = progress[bookID] {
+          return .downloading(progress: progress)
         }
 
         switch self.item {
@@ -91,10 +95,28 @@ final class RecentRowModel: RecentRow.Model {
       .store(in: &cancellables)
   }
 
+  private func setupItemObservation() {
+    let bookID = bookID
+    itemObservation = Task { [weak self] in
+      for await updatedItem in RecentlyPlayedItem.observe(where: \.bookID, equals: bookID) {
+        guard !Task.isCancelled, let self = self else { continue }
+
+        self.item = .recent(updatedItem)
+
+        if let progress = downloadManager.downloadProgress[bookID] {
+          self.downloadState = .downloading(progress: progress)
+        } else {
+          self.downloadState =
+            updatedItem.playSessionInfo.isDownloaded ? .downloaded : .notDownloaded
+        }
+      }
+    }
+  }
+
   private func setupProgressObservation() {
-    let id = id
+    let bookID = bookID
     mediaProgressObservation = Task { [weak self] in
-      for await progress in MediaProgress.observe(where: \.bookID, equals: id) {
+      for await progress in MediaProgress.observe(where: \.bookID, equals: bookID) {
         guard !Task.isCancelled, let self = self else { continue }
         guard !AppStateManager.shared.isInBackground else { continue }
 
@@ -114,9 +136,9 @@ final class RecentRowModel: RecentRow.Model {
   override func onDownloadTapped() {
     switch downloadState {
     case .downloading:
-      downloadManager.cancelDownload(for: id)
+      downloadManager.cancelDownload(for: bookID)
     case .downloaded:
-      downloadManager.deleteDownload(for: id)
+      downloadManager.deleteDownload(for: bookID)
     case .notDownloaded:
       switch item {
       case .recent(let recentItem):
@@ -132,17 +154,21 @@ final class RecentRowModel: RecentRow.Model {
       do {
         if case .recent(let recent) = item {
           if isFileOnly {
-            try recent.deleteFiles()
+            downloadManager.deleteDownload(for: bookID)
           } else {
+            downloadManager.deleteDownload(for: bookID)
             try recent.delete()
           }
         }
 
-        if !isFileOnly, let progress = try? MediaProgress.fetch(bookID: id), let id = progress.id {
+        if !isFileOnly, let progress = try? MediaProgress.fetch(bookID: bookID),
+          let id = progress.id
+        {
           try? await Audiobookshelf.shared.sessions.removeFromContinueListening(id)
           onRemoved?()
         }
       } catch {
+        print(error)
       }
     }
   }
@@ -151,11 +177,11 @@ final class RecentRowModel: RecentRow.Model {
     Task {
       do {
         try await Audiobookshelf.shared.libraries.updateBookFinishedStatus(
-          bookID: id, isFinished: isFinished)
+          bookID: bookID, isFinished: isFinished)
 
-        try MediaProgress.updateFinishedStatus(for: id, isFinished: isFinished)
+        try MediaProgress.updateFinishedStatus(for: bookID, isFinished: isFinished)
 
-        if playerManager.current?.id == id {
+        if playerManager.current?.id == bookID {
           playerManager.clearCurrent()
         }
       } catch {
