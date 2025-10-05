@@ -90,11 +90,18 @@ public final class SessionService {
       let currentTime: Double
     }
 
+    let timeout: TimeInterval
+    #if os(watchOS)
+      timeout = 15
+    #else
+      timeout = 5
+    #endif
+
     let request = NetworkRequest<Data>(
       path: "/api/session/\(id)/sync",
       method: .post,
       body: SyncRequest(timeListened: Int(timeListened), currentTime: currentTime),
-      timeout: 3
+      timeout: timeout
     )
 
     do {

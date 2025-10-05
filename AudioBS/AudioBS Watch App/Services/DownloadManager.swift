@@ -276,7 +276,6 @@ extension DownloadManager: URLSessionDownloadDelegate {
 
     Task { @MainActor in
       downloadProgress[downloadInfo.bookID] = totalProgress
-      print("Download for \(downloadInfo.bookID) at \(totalProgress * 100)%")
     }
   }
 

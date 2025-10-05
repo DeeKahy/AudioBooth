@@ -57,21 +57,11 @@
 			);
 			target = 3FC8DC6D2E638F5E00A4B080 /* AudioBS */;
 		};
-		3F3AF2662E91D9140052C80D /* Exceptions for "AudioBS Watch App" folder in "AudioBS Watch App" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"AudioBS-Watch-App-Info.plist",
-			);
-			target = 3FBEA0642E8CD49300976BA0 /* AudioBS Watch App */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3FBEA0662E8CD49300976BA0 /* AudioBS Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				3F3AF2662E91D9140052C80D /* Exceptions for "AudioBS Watch App" folder in "AudioBS Watch App" target */,
-			);
 			path = "AudioBS Watch App";
 			sourceTree = "<group>";
 		};
@@ -484,7 +474,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AudioBS/AudioBS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AudioBS/Info.plist;
@@ -521,7 +511,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AudioBS/AudioBS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AudioBS/Info.plist;
