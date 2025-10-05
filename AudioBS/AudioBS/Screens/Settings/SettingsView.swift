@@ -81,9 +81,9 @@ struct SettingsView: View {
           account
         }
 
-        #if DEBUG
-          development
-        #endif
+        //        #if DEBUG
+        //          development
+        //        #endif
 
         Section {
           Text(model.appVersion)
@@ -183,6 +183,8 @@ struct SettingsView: View {
       }
     }
 
+    TipJarView(model: model.tipJar)
+
     Section("Account") {
       HStack {
         Image(systemName: "checkmark.circle.fill")
@@ -233,6 +235,7 @@ extension SettingsView {
     var discoveryPort: String
     var authenticationMethod: AuthenticationMethod
     var library: LibrariesView.Model
+    var tipJar: TipJarView.Model
     var discoveredServers: [DiscoveredServer]
 
     var isTypingScheme: Bool {
@@ -266,6 +269,7 @@ extension SettingsView {
       discoveryPort: String = "13378",
       authenticationMethod: AuthenticationMethod = .usernamePassword,
       library: LibrariesView.Model,
+      tipJar: TipJarView.Model = .mock,
       discoveredServers: [DiscoveredServer] = []
     ) {
       self.serverURL = serverURL
@@ -278,6 +282,7 @@ extension SettingsView {
       self.isLoading = isLoading
       self.isDiscovering = isDiscovering
       self.library = library
+      self.tipJar = tipJar
       self.discoveredServers = discoveredServers
     }
   }

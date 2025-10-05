@@ -17,7 +17,8 @@ final class SettingsViewModel: SettingsView.Model {
       serverURL: serverURL,
       username: "",
       password: "",
-      library: LibrariesViewModel()
+      library: LibrariesViewModel(),
+      tipJar: TipJarViewModel()
     )
 
   }

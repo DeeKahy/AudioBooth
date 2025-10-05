@@ -8,7 +8,7 @@ public final class SessionService {
     self.audiobookshelf = audiobookshelf
   }
 
-  private static var deviceID: String {
+  public static var deviceID: String {
     guard let deviceID = UserDefaults.standard.string(forKey: "deviceID") else {
       let deviceID = UUID().uuidString
       UserDefaults.standard.set(deviceID, forKey: "deviceID")

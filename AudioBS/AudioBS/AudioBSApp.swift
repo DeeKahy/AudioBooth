@@ -1,4 +1,5 @@
 import API
+import RevenueCat
 import SwiftUI
 import UIKit
 
@@ -32,6 +33,9 @@ struct AudioBSApp: App {
     if let library = Audiobookshelf.shared.libraries.current {
       WatchConnectivityManager.shared.syncLibrary(library)
     }
+
+    Purchases.logLevel = .debug
+    Purchases.configure(withAPIKey: "appl_AuBdFKRrOngbJsXGkkxDKGNbGRW")
   }
 
   var body: some Scene {

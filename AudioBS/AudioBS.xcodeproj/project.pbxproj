@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F3AF2692E91DA350052C80D /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 3F3AF2682E91DA350052C80D /* RevenueCat */; };
+		3F3AF26B2E91DA350052C80D /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 3F3AF26A2E91DA350052C80D /* RevenueCatUI */; };
+		3F3AF26D2E91DA4E0052C80D /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F3AF26C2E91DA4E0052C80D /* StoreKit.framework */; };
 		3F50E5E42E8DD9770087A5B6 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 3F50E5E32E8DD9770087A5B6 /* Models */; };
 		3F50E5E62E8DD97C0087A5B6 /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = 3F50E5E52E8DD97C0087A5B6 /* Models */; };
 		3F6E94DD2E6395A20039F187 /* API in Frameworks */ = {isa = PBXBuildFile; productRef = 3F6E94DC2E6395A20039F187 /* API */; };
@@ -39,6 +42,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3F3AF26C2E91DA4E0052C80D /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		3F50E5E22E8DD9700087A5B6 /* Models */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Models; path = ../Models; sourceTree = "<group>"; };
 		3F75FB462E7139F700F77C1B /* API */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = API; path = ../API; sourceTree = SOURCE_ROOT; };
 		3FBEA0652E8CD49300976BA0 /* AudioBS Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AudioBS Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -53,11 +57,21 @@
 			);
 			target = 3FC8DC6D2E638F5E00A4B080 /* AudioBS */;
 		};
+		3F3AF2662E91D9140052C80D /* Exceptions for "AudioBS Watch App" folder in "AudioBS Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"AudioBS-Watch-App-Info.plist",
+			);
+			target = 3FBEA0642E8CD49300976BA0 /* AudioBS Watch App */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3FBEA0662E8CD49300976BA0 /* AudioBS Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3F3AF2662E91D9140052C80D /* Exceptions for "AudioBS Watch App" folder in "AudioBS Watch App" target */,
+			);
 			path = "AudioBS Watch App";
 			sourceTree = "<group>";
 		};
@@ -85,8 +99,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F3AF26B2E91DA350052C80D /* RevenueCatUI in Frameworks */,
 				3F50E5E42E8DD9770087A5B6 /* Models in Frameworks */,
+				3F3AF26D2E91DA4E0052C80D /* StoreKit.framework in Frameworks */,
 				3F6E94DD2E6395A20039F187 /* API in Frameworks */,
+				3F3AF2692E91DA350052C80D /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +113,7 @@
 		3F6E94DB2E6395A20039F187 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3F3AF26C2E91DA4E0052C80D /* StoreKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -177,6 +195,8 @@
 			packageProductDependencies = (
 				3F6E94DC2E6395A20039F187 /* API */,
 				3F50E5E32E8DD9770087A5B6 /* Models */,
+				3F3AF2682E91DA350052C80D /* RevenueCat */,
+				3F3AF26A2E91DA350052C80D /* RevenueCatUI */,
 			);
 			productName = AudiobookshelfDemo;
 			productReference = 3FC8DC6E2E638F5E00A4B080 /* AudioBS.app */;
@@ -210,6 +230,7 @@
 			mainGroup = 3FC8DC652E638F5E00A4B080;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				3F3AF2672E91DA350052C80D /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3FC8DC6F2E638F5E00A4B080 /* Products */;
@@ -275,6 +296,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AudioBS-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = AudioBS;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = me.jgrenier.AudioBS;
@@ -282,7 +304,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = me.jgrenier.AudioBS.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -308,6 +330,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AudioBS-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = AudioBS;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = me.jgrenier.AudioBS;
@@ -315,7 +338,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = me.jgrenier.AudioBS.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -461,13 +484,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AudioBS/AudioBS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AudioBS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AudioBS;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -498,13 +521,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AudioBS/AudioBS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AudioBS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AudioBS;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -560,7 +583,28 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		3F3AF2672E91DA350052C80D /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.41.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		3F3AF2682E91DA350052C80D /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F3AF2672E91DA350052C80D /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+		3F3AF26A2E91DA350052C80D /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F3AF2672E91DA350052C80D /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCatUI;
+		};
 		3F50E5E32E8DD9770087A5B6 /* Models */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Models;
