@@ -268,7 +268,7 @@ struct BookDetailsView: View {
     .frame(height: 8)
   }
 
-  private func chaptersSection(_ chapters: [ChapterInfo]) -> some View {
+  private func chaptersSection(_ chapters: [Chapter]) -> some View {
     VStack(alignment: .leading, spacing: 12) {
       Text("Chapters")
         .font(.headline)
@@ -293,7 +293,7 @@ struct BookDetailsView: View {
     }
   }
 
-  private func tracksSection(_ tracks: [AudioTrackInfo]) -> some View {
+  private func tracksSection(_ tracks: [Track]) -> some View {
     VStack(alignment: .leading, spacing: 12) {
       Text("Audio Files")
         .font(.headline)
@@ -338,8 +338,8 @@ extension BookDetailsView {
     var progress: Double?
     var durationText: String?
     var timeRemaining: String?
-    var chapters: [ChapterInfo]?
-    var tracks: [AudioTrackInfo]?
+    var chapters: [Chapter]?
+    var tracks: [Track]?
     var downloadState: DownloadManager.DownloadState
     var isLoading: Bool
     var isEbook: Bool
@@ -358,8 +358,8 @@ extension BookDetailsView {
       progress: Double? = nil,
       durationText: String? = nil,
       timeRemaining: String? = nil,
-      chapters: [ChapterInfo]? = nil,
-      tracks: [AudioTrackInfo]? = nil,
+      chapters: [Chapter]? = nil,
+      tracks: [Track]? = nil,
       downloadState: DownloadManager.DownloadState = .notDownloaded,
       isLoading: Bool = true,
       isEbook: Bool = false

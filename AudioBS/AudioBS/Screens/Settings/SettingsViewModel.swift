@@ -78,7 +78,7 @@ final class SettingsViewModel: SettingsView.Model {
   override func onClearStorageTapped() {
     Task {
       do {
-        try RecentlyPlayedItem.deleteAll()
+        try LocalBook.deleteAll()
         DownloadManager.shared.cleanupOrphanedDownloads()
         PlayerManager.shared.clearCurrent()
         Toast(success: "Storage cleared successfully").show()
@@ -108,7 +108,7 @@ final class SettingsViewModel: SettingsView.Model {
 
   override func onLogoutTapped() {
     playerManager.current = nil
-    try? RecentlyPlayedItem.deleteAll()
+    try? LocalBook.deleteAll()
     try? MediaProgress.deleteAll()
     DownloadManager.shared.cleanupOrphanedDownloads()
 

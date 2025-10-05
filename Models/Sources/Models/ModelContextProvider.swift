@@ -9,17 +9,13 @@ public final class ModelContextProvider {
   public let context: ModelContext
 
   private init() {
-    let schema = Schema([RecentlyPlayedItem.self, MediaProgress.self])
-
     let dbURL = URL.documentsDirectory.appending(path: "AudiobookshelfData.sqlite")
-    let configuration = ModelConfiguration(
-      schema: schema,
-      url: dbURL,
-      allowsSave: true
-    )
+    let configuration = ModelConfiguration(url: dbURL, allowsSave: true)
 
     do {
-      self.container = try ModelContainer(for: schema, configurations: [configuration])
+      let schema = Schema(versionedSchema: AudiobookshelfSchema.self)
+      self.container = try ModelContainer(for: schema, configurations: configuration)
+      print("✅ ModelContainer created successfully")
     } catch {
       print("❌ Failed to create persistent model container: \(error)")
       print("🔄 Clearing data and creating fresh container...")
@@ -31,7 +27,9 @@ public final class ModelContextProvider {
       print("✅ Cleared existing database files")
 
       do {
-        self.container = try ModelContainer(for: schema, configurations: [configuration])
+        let schema = Schema(versionedSchema: AudiobookshelfSchema.self)
+        self.container = try ModelContainer(for: schema, configurations: configuration)
+        print("✅ Fresh container created successfully")
       } catch {
         print("❌ Failed to create fresh container: \(error)")
         fatalError("Could not create ModelContainer even after clearing data")

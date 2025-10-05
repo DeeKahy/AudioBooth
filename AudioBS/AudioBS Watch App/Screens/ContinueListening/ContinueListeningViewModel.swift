@@ -17,7 +17,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
 
   private func observeChanges() {
     Task { @MainActor in
-      for await recentItems in RecentlyPlayedItem.observeAll() {
+      for await recentItems in LocalBook.observeAll() {
         updateBooks(from: recentItems)
       }
     }
@@ -25,20 +25,20 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
 
   private func loadCachedBooks() {
     do {
-      let recentItems = try RecentlyPlayedItem.fetchAll()
+      let recentItems = try LocalBook.fetchAll()
       updateBooks(from: recentItems)
     } catch {
       print("Failed to load cached books: \(error)")
     }
   }
 
-  private func updateBooks(from recentItems: [RecentlyPlayedItem]) {
+  private func updateBooks(from recentItems: [LocalBook]) {
     let items = recentItems.compactMap { item -> BookItem? in
       guard let mediaProgress = try? MediaProgress.getOrCreate(for: item.bookID) else {
         return nil
       }
 
-      let timeRemaining = max(0, item.playSessionInfo.duration - mediaProgress.currentTime)
+      let timeRemaining = max(0, item.duration - mediaProgress.currentTime)
 
       return BookItem(
         id: item.bookID,
@@ -46,7 +46,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
         author: item.author ?? "",
         coverURL: item.coverURL,
         timeRemaining: timeRemaining,
-        isDownloaded: item.playSessionInfo.isDownloaded
+        isDownloaded: item.isDownloaded
       )
     }
 
@@ -85,8 +85,8 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
           }
 
           let isDownloaded: Bool
-          if let item = try? RecentlyPlayedItem.fetch(bookID: book.id) {
-            isDownloaded = item.playSessionInfo.isDownloaded
+          if let item = try? LocalBook.fetch(bookID: book.id) {
+            isDownloaded = item.isDownloaded
           } else {
             isDownloaded = false
           }
@@ -111,44 +111,14 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
   override func playBook(bookID: String) {
     Task {
       do {
-        let recentItem: RecentlyPlayedItem
-
-        if let existingItem = try RecentlyPlayedItem.fetch(bookID: bookID) {
-          recentItem = existingItem
-        } else {
-          print("No cached item found, creating from server...")
-
-          let session = try await Audiobookshelf.shared.sessions.start(
-            itemID: bookID,
-            forceTranscode: false
-          )
-
-          guard let book = books.first(where: { $0.id == bookID }) else {
-            print("Book not found in continue listening list")
-            return
-          }
-
-          let playSessionInfo = PlaySessionInfo(from: session)
-
-          recentItem = RecentlyPlayedItem(
-            bookID: bookID,
-            title: book.title,
-            author: book.author,
-            coverURL: book.coverURL,
-            playSessionInfo: playSessionInfo
-          )
-
-          try await MainActor.run {
-            try recentItem.save()
-          }
-        }
+        let book = try await Audiobookshelf.shared.books.fetch(id: bookID)
 
         await MainActor.run {
-          playerManager.setCurrent(recentItem)
+          playerManager.setCurrent(book)
           playerManager.isShowingFullPlayer = true
         }
       } catch {
-        print("Failed to setup playback: \(error)")
+        print("Failed to fetch book: \(error)")
       }
     }
   }

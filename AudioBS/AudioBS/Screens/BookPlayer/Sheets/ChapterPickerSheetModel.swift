@@ -8,7 +8,7 @@ final class ChapterPickerSheetViewModel: ChapterPickerSheet.Model {
   private var currentTime: TimeInterval = 0
   private var onSeekToTime: ((TimeInterval) -> Void)?
 
-  init(chapters: [ChapterInfo], player: AVPlayer) {
+  init(chapters: [Models.Chapter], player: AVPlayer) {
     self.player = player
 
     let convertedChapters = chapters.map { chapterInfo in

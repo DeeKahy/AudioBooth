@@ -6,7 +6,7 @@ import SwiftUI
 
 final class RecentRowModel: RecentRow.Model {
   enum Item {
-    case recent(RecentlyPlayedItem)
+    case recent(LocalBook)
     case book(Book)
   }
 
@@ -20,7 +20,7 @@ final class RecentRowModel: RecentRow.Model {
 
   private var onRemoved: (() -> Void)?
 
-  init(recent: RecentlyPlayedItem) {
+  init(recent: LocalBook) {
     self.item = .recent(recent)
 
     super.init(
@@ -31,7 +31,7 @@ final class RecentRowModel: RecentRow.Model {
       progress: 0,
       lastPlayedAt: nil,
       timeRemaining: nil,
-      downloadState: recent.playSessionInfo.isDownloaded ? .downloaded : .notDownloaded
+      downloadState: recent.isDownloaded ? .downloaded : .notDownloaded
     )
   }
 
@@ -75,7 +75,7 @@ final class RecentRowModel: RecentRow.Model {
 
         switch self.item {
         case .recent(let recentItem):
-          return recentItem.playSessionInfo.isDownloaded ? .downloaded : .notDownloaded
+          return recentItem.isDownloaded ? .downloaded : .notDownloaded
         case .book:
           return .notDownloaded
         }
@@ -89,7 +89,7 @@ final class RecentRowModel: RecentRow.Model {
   private func setupItemObservation() {
     let bookID = bookID
     itemObservation = Task { [weak self] in
-      for await updatedItem in RecentlyPlayedItem.observe(where: \.bookID, equals: bookID) {
+      for await updatedItem in LocalBook.observe(where: \.bookID, equals: bookID) {
         guard !Task.isCancelled, let self = self else { continue }
 
         self.item = .recent(updatedItem)
@@ -98,7 +98,7 @@ final class RecentRowModel: RecentRow.Model {
           self.downloadState = .downloading(progress: progress)
         } else {
           self.downloadState =
-            updatedItem.playSessionInfo.isDownloaded ? .downloaded : .notDownloaded
+            updatedItem.isDownloaded ? .downloaded : .notDownloaded
         }
       }
     }
@@ -133,9 +133,9 @@ final class RecentRowModel: RecentRow.Model {
     case .notDownloaded:
       switch item {
       case .recent(let recentItem):
-        downloadManager.startDownload(for: recentItem)
+        downloadManager.startDownload(for: recentItem.bookID)
       case .book(let book):
-        downloadManager.startDownload(for: book)
+        downloadManager.startDownload(for: book.id)
       }
     }
   }

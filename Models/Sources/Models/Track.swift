@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 
 @Model
-public final class AudioTrackInfo {
+public final class Track {
   public var index: Int
   public var startOffset: TimeInterval
   public var duration: TimeInterval
@@ -11,7 +11,6 @@ public final class AudioTrackInfo {
   public var updatedAt: Date?
   public var ext: String?
   public var size: Int64?
-  public var streamingURL: URL?
   public var relativePath: URL?
 
   public init(from streamingTrack: PlaySession.StreamingTrack) {
@@ -22,7 +21,17 @@ public final class AudioTrackInfo {
     self.updatedAt = streamingTrack.track.updatedAt
     self.ext = streamingTrack.track.metadata?.ext
     self.size = streamingTrack.track.metadata?.size
-    self.streamingURL = streamingTrack.url
+    self.relativePath = nil
+  }
+
+  public init(from track: Book.Media.Track) {
+    self.index = track.index
+    self.startOffset = track.startOffset
+    self.duration = track.duration
+    self.title = track.title
+    self.updatedAt = track.updatedAt
+    self.ext = track.metadata?.ext
+    self.size = track.metadata?.size
     self.relativePath = nil
   }
 
@@ -34,7 +43,6 @@ public final class AudioTrackInfo {
     updatedAt: Date? = nil,
     ext: String? = nil,
     size: Int64? = nil,
-    streamingURL: URL? = nil,
     relativePath: URL? = nil
   ) {
     self.index = index
@@ -44,7 +52,6 @@ public final class AudioTrackInfo {
     self.updatedAt = updatedAt
     self.ext = ext
     self.size = size
-    self.streamingURL = streamingURL
     self.relativePath = relativePath
   }
 
@@ -61,9 +68,5 @@ public final class AudioTrackInfo {
     let fileURL = documentsURL.appendingPathComponent(relativePath.relativePath)
     guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
     return fileURL
-  }
-
-  public var url: URL? {
-    return localPath ?? streamingURL
   }
 }

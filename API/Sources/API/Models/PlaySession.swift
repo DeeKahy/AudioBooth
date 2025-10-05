@@ -8,7 +8,7 @@ public struct PlaySession: Codable, Sendable {
   public let duration: Double
   public let audioTracks: [Book.Media.Track]?
   public let chapters: [Book.Media.Chapter]?
-  public let libraryItem: Book?
+  public let libraryItem: Book
 
   public struct StreamingTrack {
     public var track: Book.Media.Track

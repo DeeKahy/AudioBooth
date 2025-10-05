@@ -48,7 +48,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
           Series(id: series.id, name: series.name, sequence: series.sequence)
         } ?? []
       self.coverURL = book.coverURL
-      self.chapters = book.chapters?.map { ChapterInfo(from: $0) }
+      self.chapters = book.chapters?.map { Chapter(from: $0) }
       self.isEbook = book.mediaType == .ebook
 
       self.tracks = []
@@ -99,10 +99,10 @@ final class BookDetailsViewModel: BookDetailsView.Model {
   private func setupItemObservation() {
     let bookID = bookID
     itemObservation = Task { [weak self] in
-      for await updatedItem in RecentlyPlayedItem.observe(where: \.bookID, equals: bookID) {
+      for await updatedItem in LocalBook.observe(where: \.bookID, equals: bookID) {
         guard !Task.isCancelled, let self = self else { continue }
 
-        if updatedItem.playSessionInfo.isDownloaded {
+        if updatedItem.isDownloaded {
           self.downloadState = .downloaded
         } else if self.downloadState == .downloaded {
           self.downloadState = .notDownloaded
@@ -165,7 +165,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
       Task {
         do {
           let book = try await booksService.fetch(id: bookID)
-          downloadManager.startDownload(for: book)
+          downloadManager.startDownload(for: book.id)
         } catch {
           Toast(error: "Failed to start download").show()
         }

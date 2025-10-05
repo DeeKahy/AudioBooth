@@ -210,7 +210,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
   private func handlePlayCommand(bookID: String) {
     Task { @MainActor in
       do {
-        if let recentItem = try RecentlyPlayedItem.fetch(bookID: bookID) {
+        if let recentItem = try LocalBook.fetch(bookID: bookID) {
           PlayerManager.shared.setCurrent(recentItem)
           PlayerManager.shared.current?.onTogglePlaybackTapped()
           PlayerManager.shared.showFullPlayer()
@@ -221,13 +221,9 @@ extension WatchConnectivityManager: WCSessionDelegate {
             forceTranscode: false
           )
 
-          if let book = session.libraryItem {
-            PlayerManager.shared.setCurrent(book)
-            PlayerManager.shared.current?.onTogglePlaybackTapped()
-            PlayerManager.shared.showFullPlayer()
-          } else {
-            print("No library item in session response")
-          }
+          PlayerManager.shared.setCurrent(session.libraryItem)
+          PlayerManager.shared.current?.onTogglePlaybackTapped()
+          PlayerManager.shared.showFullPlayer()
         }
       } catch {
         print("Failed to handle play command: \(error)")

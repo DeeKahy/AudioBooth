@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 
 @Model
-public final class ChapterInfo {
+public final class Chapter {
   public var id: Int
   public var start: TimeInterval
   public var end: TimeInterval

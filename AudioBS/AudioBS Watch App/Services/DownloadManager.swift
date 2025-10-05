@@ -40,8 +40,8 @@ final class DownloadManager: NSObject, ObservableObject {
     return downloads[bookID] ?? false
   }
 
-  func startDownload(for item: RecentlyPlayedItem) {
-    guard let tracks = item.playSessionInfo.orderedTracks else {
+  func startDownload(for item: LocalBook, session: Session) {
+    guard let tracks = item.orderedTracks else {
       print("Cannot start download: missing tracks")
       return
     }
@@ -63,9 +63,7 @@ final class DownloadManager: NSObject, ObservableObject {
         var bytesDownloadedSoFar: Int64 = 0
 
         for track in tracks {
-          guard let trackURL = track.streamingURL else {
-            continue
-          }
+          let trackURL = session.url(for: track)
 
           let fileExtension = track.ext ?? ".mp3"
           let trackFile = bookDirectory.appendingPathComponent("\(track.index)\(fileExtension)")
@@ -119,25 +117,25 @@ final class DownloadManager: NSObject, ObservableObject {
     downloadTasks[bookID] = task
   }
 
-  func startDownload(for book: Book) {
-    let bookID = book.id
+  func startDownload(for book: LocalBook) {
+    let bookID = book.bookID
     downloads[bookID] = true
 
     let task = Task {
       do {
         let playSession = try await audiobookshelf.sessions.start(itemID: bookID)
 
-        let recentItem = RecentlyPlayedItem(
-          bookID: bookID,
-          title: book.title,
-          author: book.authorName,
-          coverURL: book.coverURL,
-          playSessionInfo: PlaySessionInfo(from: playSession)
-        )
+        guard let session = Session(from: playSession) else {
+          downloads.removeValue(forKey: bookID)
+          print("Failed to create session")
+          return
+        }
+
+        let recentItem = LocalBook(from: playSession.libraryItem)
 
         try recentItem.save()
 
-        startDownload(for: recentItem)
+        startDownload(for: recentItem, session: session)
 
       } catch {
         downloads.removeValue(forKey: bookID)
@@ -173,8 +171,8 @@ extension DownloadManager {
           try FileManager.default.removeItem(at: bookDirectory)
         }
 
-        if let item = try? RecentlyPlayedItem.fetch(bookID: bookID),
-          let tracks = item.playSessionInfo.orderedTracks
+        if let item = try? LocalBook.fetch(bookID: bookID),
+          let tracks = item.orderedTracks
         {
           for track in tracks {
             track.relativePath = nil
@@ -213,8 +211,8 @@ extension DownloadManager {
             let bookID = directory.lastPathComponent
 
             guard
-              let item = try? RecentlyPlayedItem.fetch(bookID: bookID),
-              let tracks = item.playSessionInfo.orderedTracks
+              let item = try? LocalBook.fetch(bookID: bookID),
+              let tracks = item.orderedTracks
             else {
               try FileManager.default.removeItem(at: directory)
               orphanedDirectoriesCount += 1

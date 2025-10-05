@@ -67,7 +67,7 @@ final class BookCardModel: BookCard.Model {
   }
 
   override func onDownloadTapped() {
-    downloadManager.startDownload(for: book)
+    downloadManager.startDownload(for: book.id)
   }
 
   override func onMarkFinishedTapped(isFinished: Bool) {

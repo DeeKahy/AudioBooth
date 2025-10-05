@@ -20,7 +20,7 @@ final class PlayerManager: ObservableObject {
   private func restoreLastPlayer() async {
     guard current == nil,
       let savedBookID = UserDefaults.standard.string(forKey: Self.currentBookIDKey),
-      let recent = try? RecentlyPlayedItem.fetch(bookID: savedBookID)
+      let recent = try? LocalBook.fetch(bookID: savedBookID)
     else {
       return
     }
@@ -33,7 +33,7 @@ final class PlayerManager: ObservableObject {
     return current is LocalPlayerModel && current.isPlaying
   }
 
-  func setCurrent(_ item: RecentlyPlayedItem) {
+  func setCurrent(_ item: LocalBook) {
     if let localPlayer = current as? LocalPlayerModel,
       item.bookID == localPlayer.item.bookID
     {
@@ -42,6 +42,18 @@ final class PlayerManager: ObservableObject {
       clearCurrent()
       current = LocalPlayerModel(item)
       UserDefaults.standard.set(item.bookID, forKey: Self.currentBookIDKey)
+    }
+  }
+
+  func setCurrent(_ book: Book) {
+    if let localPlayer = current as? LocalPlayerModel,
+      book.id == localPlayer.item.bookID
+    {
+      return
+    } else {
+      clearCurrent()
+      current = LocalPlayerModel(book)
+      UserDefaults.standard.set(book.id, forKey: Self.currentBookIDKey)
     }
   }
 

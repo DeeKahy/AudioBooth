@@ -21,7 +21,7 @@ final class PlayerManager: ObservableObject {
   private func restoreLastPlayer() async {
     guard current == nil,
       let savedBookID = UserDefaults.standard.string(forKey: Self.currentBookIDKey),
-      let recent = try? RecentlyPlayedItem.fetch(bookID: savedBookID)
+      let recent = try? LocalBook.fetch(bookID: savedBookID)
     else {
       return
     }
@@ -37,7 +37,7 @@ final class PlayerManager: ObservableObject {
     current?.isPlaying ?? false
   }
 
-  func setCurrent(_ book: RecentlyPlayedItem) {
+  func setCurrent(_ book: LocalBook) {
     if book.bookID == current?.id {
       isShowingFullPlayer = true
     } else {

@@ -9,7 +9,7 @@ final class HomeViewModel: HomeView.Model {
 
   private var recentItemsTask: Task<Void, Never>?
 
-  private var recentlyPlayed: [RecentlyPlayedItem] = []
+  private var recentlyPlayed: [LocalBook] = []
 
   private var continueListening: [Book] = [] {
     didSet { refreshRecents() }
@@ -47,7 +47,7 @@ final class HomeViewModel: HomeView.Model {
 extension HomeViewModel {
   private func setupRecentItemsObservation() {
     recentItemsTask = Task { [weak self] in
-      for await recents in RecentlyPlayedItem.observeAll() {
+      for await recents in LocalBook.observeAll() {
         guard !Task.isCancelled else { break }
         self?.recentlyPlayed = recents
         self?.syncRecents()
@@ -93,7 +93,7 @@ extension HomeViewModel {
     for recent in recentsByID.values {
       let progress = try? MediaProgress.fetch(bookID: recent.bookID)
       if downloadManager.downloads[recent.bookID] == true
-        || recent.playSessionInfo.isDownloaded || (progress?.timeListened ?? 0) != 0
+        || recent.isDownloaded || (progress?.timeListened ?? 0) != 0
         || PlayerManager.shared.current?.id == recent.bookID
       {
         recents.append(RecentRowModel(recent: recent))
@@ -135,22 +135,6 @@ extension HomeViewModel {
     self.sections = sections
   }
 
-  private func syncRecentItemsProgress() async {
-    do {
-      let recentItems = try RecentlyPlayedItem.fetchAll()
-      let currentBookID = PlayerManager.shared.current?.id
-
-      for item in recentItems {
-        let progress = try? MediaProgress.fetch(bookID: item.bookID)
-        guard item.bookID != currentBookID,
-          (progress?.timeListened ?? 0) > 0
-        else { continue }
-
-        await syncItemProgress(item)
-      }
-    } catch {
-    }
-  }
 }
 
 extension HomeViewModel {
@@ -168,10 +152,7 @@ extension HomeViewModel {
     }
 
     do {
-      async let progressSync: Void = MediaProgress.syncFromAPI()
-      async let recentSync: Void = syncRecentItemsProgress()
-
-      _ = try await (progressSync, recentSync)
+      try await MediaProgress.syncFromAPI()
 
       let personalized = try await Audiobookshelf.shared.libraries.fetchPersonalized()
       processSections(personalized.sections)
@@ -180,60 +161,5 @@ extension HomeViewModel {
     }
 
     isLoading = false
-  }
-
-  private func syncItemProgress(_ item: RecentlyPlayedItem) async {
-    guard let localProgress = try? MediaProgress.fetch(bookID: item.bookID) else { return }
-
-    if localProgress.timeListened > 0 {
-      await syncWithSessionRecreation(item, progress: localProgress)
-    }
-  }
-
-  private func syncWithSessionRecreation(_ item: RecentlyPlayedItem, progress: MediaProgress) async
-  {
-    do {
-      let sessionInfo = item.playSessionInfo
-
-      do {
-        try await Audiobookshelf.shared.sessions.sync(
-          sessionInfo.id,
-          timeListened: progress.timeListened,
-          currentTime: progress.currentTime
-        )
-
-        try? MediaProgress.updateProgress(
-          for: item.bookID,
-          currentTime: progress.currentTime,
-          timeListened: 0,
-          duration: progress.duration,
-          progress: progress.progress
-        )
-      } catch {
-        do {
-          let newSession = try await Audiobookshelf.shared.sessions.start(
-            itemID: item.bookID,
-            forceTranscode: false
-          )
-
-          let newSessionInfo = PlaySessionInfo(from: newSession)
-          item.playSessionInfo.merge(with: newSessionInfo)
-
-          try await Audiobookshelf.shared.sessions.sync(
-            newSessionInfo.id,
-            timeListened: progress.timeListened,
-            currentTime: progress.currentTime
-          )
-
-          try? MediaProgress.updateProgress(
-            for: item.bookID,
-            currentTime: progress.currentTime,
-            timeListened: 0,
-            duration: progress.duration,
-            progress: progress.progress
-          )
-        } catch {}
-      }
-    }
   }
 }

@@ -5,7 +5,7 @@ import Models
 final class ChapterPickerSheetViewModel: ChapterPickerSheet.Model {
   let player: AVPlayer
 
-  init(chapters: [ChapterInfo], player: AVPlayer, currentIndex: Int = 0) {
+  init(chapters: [Models.Chapter], player: AVPlayer, currentIndex: Int = 0) {
     self.player = player
 
     let convertedChapters = chapters.map { chapterInfo in

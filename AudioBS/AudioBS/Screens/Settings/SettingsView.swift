@@ -81,9 +81,9 @@ struct SettingsView: View {
           account
         }
 
-        //        #if DEBUG
-        //          development
-        //        #endif
+        #if DEBUG
+          development
+        #endif
 
         Section {
           Text(model.appVersion)
