@@ -10,7 +10,11 @@ public struct Book: Codable, Sendable {
   public var coverURL: URL? {
     guard let serverURL = Audiobookshelf.shared.serverURL else { return nil }
     var url = serverURL.appendingPathComponent("audiobookshelf/api/items/\(id)/cover")
-    url.append(queryItems: [URLQueryItem(name: "raw", value: "1")])
+
+    #if os(iOS)
+      url.append(queryItems: [URLQueryItem(name: "raw", value: "1")])
+    #endif
+
     return url
   }
 

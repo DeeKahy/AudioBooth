@@ -11,23 +11,6 @@ final class PlayerManager: ObservableObject {
 
   private static let currentBookIDKey = "currentBookID"
 
-  private init() {
-    Task { @MainActor in
-      await self.restoreLastPlayer()
-    }
-  }
-
-  private func restoreLastPlayer() async {
-    guard current == nil,
-      let savedBookID = UserDefaults.standard.string(forKey: Self.currentBookIDKey),
-      let recent = try? LocalBook.fetch(bookID: savedBookID)
-    else {
-      return
-    }
-
-    setCurrent(recent)
-  }
-
   var isPlayingLocally: Bool {
     guard let current else { return false }
     return current is LocalPlayerModel && current.isPlaying
