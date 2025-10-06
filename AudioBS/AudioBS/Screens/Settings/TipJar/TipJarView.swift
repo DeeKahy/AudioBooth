@@ -36,7 +36,6 @@ struct TipJarView: View {
                 .background(
                   RoundedRectangle(cornerRadius: 16)
                     .fill(Color(.systemBackground))
-                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
                 )
                 .overlay(
                   RoundedRectangle(cornerRadius: 16)
@@ -44,8 +43,8 @@ struct TipJarView: View {
                 )
               }
               .buttonStyle(.plain)
-              .disabled(model.isPurchasing)
-              .opacity(model.isPurchasing ? 0.6 : 1.0)
+              .allowsHitTesting(model.isPurchasing == nil)
+              .opacity([nil, tip.id].contains(model.isPurchasing) ? 1.0 : 0.4)
             }
           }
 
@@ -64,6 +63,8 @@ struct TipJarView: View {
         }
       }
       .animation(.easeInOut(duration: 0.3), value: model.lastPurchaseSuccess)
+      .listRowBackground(Color.clear)
+      .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
     }
   }
 }
@@ -79,14 +80,14 @@ extension TipJarView {
     }
 
     var tips: [Tip]
-    var isPurchasing: Bool
+    var isPurchasing: String?
     var lastPurchaseSuccess: Bool
 
     func onTipSelected(_ tip: Tip) {}
 
     init(
       tips: [Tip] = [],
-      isPurchasing: Bool = false,
+      isPurchasing: String? = nil,
       lastPurchaseSuccess: Bool = false
     ) {
       self.tips = tips
@@ -100,21 +101,21 @@ extension TipJarView.Model {
   static var mock = TipJarView.Model(
     tips: [
       Tip(
-        id: "tip_small",
+        id: "coffee",
         title: "Buy Me a Coffee ☕",
         description: "A small way to say thanks!",
         price: "$2.99"
       ),
       Tip(
-        id: "tip_medium",
+        id: "lunch",
         title: "Buy Me Lunch 🍕",
         description: "Your support means a lot!",
         price: "$4.99"
       ),
       Tip(
-        id: "tip_large",
+        id: "dinner",
         title: "Buy Me Dinner 🍱",
-        description: "You‘re amazing! Thank you!",
+        description: "You're amazing! Thank you!",
         price: "$9.99"
       ),
     ]

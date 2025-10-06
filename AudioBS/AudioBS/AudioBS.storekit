@@ -1,0 +1,87 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "A92912E6",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "6753634954",
+      "localizations" : [
+        {
+          "description" : "You‘re amazing! Thank you!",
+          "displayName" : "Buy Me Dinner",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "me.jgrenier.AudioBS.tip_large",
+      "referenceName" : "Tip Large",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "6753635438",
+      "localizations" : [
+        {
+          "description" : "Your support helps a lot!",
+          "displayName" : "Buy Me Lunch",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "me.jgrenier.AudioBS.tip_medium",
+      "referenceName" : "Tip Medium",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "6753635437",
+      "localizations" : [
+        {
+          "description" : "A great way to say thanks!",
+          "displayName" : "Buy Me a Coffee",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "me.jgrenier.AudioBS.tip_small",
+      "referenceName" : "Tip Small",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6753017503",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "7MM2M9KD2W",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 781479886.50441098,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

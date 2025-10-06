@@ -3,57 +3,74 @@ import RevenueCat
 import SwiftUI
 
 final class TipJarViewModel: TipJarView.Model {
-  private let productIdentifiers = [
-    "me.jgrenier.AudioBS.tip_small",
-    "me.jgrenier.AudioBS.tip_medium",
-    "me.jgrenier.AudioBS.tip_large",
-  ]
-
-  private var storeProducts: [StoreProduct] = []
+  private var packages: [Package] = []
 
   init() {
     super.init()
-    loadProducts()
+    loadOfferings()
   }
 
   override func onTipSelected(_ tip: Tip) {
-    guard let storeProduct = storeProducts.first(where: { $0.productIdentifier == tip.id }) else {
+    guard let package = packages.first(where: { $0.identifier == tip.id }) else {
       return
     }
-    purchaseTip(storeProduct)
+    purchaseTip(package)
   }
 
-  private func loadProducts() {
+  private func loadOfferings() {
     Task {
-      let products = await Purchases.shared.products(productIdentifiers)
-      storeProducts = products.sorted { lhs, rhs in
-        return lhs.price < rhs.price
-      }
+      do {
+        let offerings = try await Purchases.shared.offerings()
 
-      tips = storeProducts.map { product in
-        Tip(
-          id: product.productIdentifier,
-          title: product.localizedTitle,
-          description: product.localizedDescription,
-          price: product.localizedPriceString
-        )
+        guard let currentOffering = offerings.current else {
+          print("No current offering available")
+          return
+        }
+
+        packages = currentOffering.availablePackages.sorted { lhs, rhs in
+          return lhs.storeProduct.price < rhs.storeProduct.price
+        }
+
+        tips = packages.map { package in
+
+          var title = package.storeProduct.localizedTitle
+          switch package.identifier {
+          case "tip_small":
+            title += " ☕"
+          case "tip_medium":
+            title += " 🍕"
+          case "tip_large":
+            title += " 🍱"
+          default:
+            break
+          }
+
+          return Tip(
+            id: package.identifier,
+            title: title,
+            description: package.storeProduct.localizedDescription,
+            price: package.localizedPriceString
+          )
+        }
+      } catch {
+        print("Failed to fetch offerings: \(error.localizedDescription)")
       }
     }
   }
 
-  private func purchaseTip(_ product: StoreProduct) {
-    isPurchasing = true
+  private func purchaseTip(_ package: Package) {
+    isPurchasing = package.identifier
     lastPurchaseSuccess = false
 
     Task {
       do {
-        let result = try await Purchases.shared.purchase(product: product)
+        let result = try await Purchases.shared.purchase(package: package)
 
         if !result.userCancelled {
           lastPurchaseSuccess = true
 
           Task { @MainActor in
-            try? await Task.sleep(for: .seconds(3))
+            try? await Task.sleep(for: .seconds(5))
             lastPurchaseSuccess = false
           }
         }
@@ -61,7 +78,7 @@ final class TipJarViewModel: TipJarView.Model {
         print("Failed to purchase tip: \(error.localizedDescription)")
       }
 
-      isPurchasing = false
+      isPurchasing = nil
     }
   }
 }
