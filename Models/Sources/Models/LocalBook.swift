@@ -6,24 +6,34 @@ import SwiftData
 public final class LocalBook {
   @Attribute(.unique) public var bookID: String
   public var title: String
-  public var author: String?
+  public var authors: [Author]
+  public var narrators: [String]
+  public var series: [Series]
   public var coverURL: URL?
   public var duration: TimeInterval
-  public var tracks: [Track]?
-  public var chapters: [Chapter]?
+  public var tracks: [Track]
+  public var chapters: [Chapter]
+
+  public var authorNames: String {
+    authors.map(\.name).joined(separator: ", ")
+  }
 
   public init(
     bookID: String,
     title: String,
-    author: String? = nil,
+    authors: [Author] = [],
+    narrators: [String] = [],
+    series: [Series] = [],
     coverURL: URL? = nil,
     duration: TimeInterval,
-    tracks: [Track]? = nil,
-    chapters: [Chapter]? = nil
+    tracks: [Track] = [],
+    chapters: [Chapter] = []
   ) {
     self.bookID = bookID
     self.title = title
-    self.author = author
+    self.authors = authors
+    self.narrators = narrators
+    self.series = series
     self.coverURL = coverURL
     self.duration = duration
     self.tracks = tracks
@@ -53,20 +63,22 @@ extension LocalBook {
 
     if let existingItem = try LocalBook.fetch(bookID: self.bookID) {
       existingItem.title = self.title
-      existingItem.author = self.author
+      existingItem.authors = self.authors
+      existingItem.narrators = self.narrators
+      existingItem.series = self.series
       existingItem.coverURL = self.coverURL
       existingItem.duration = self.duration
       existingItem.chapters = self.chapters
 
-      guard let newTracks = self.tracks else {
-        existingItem.tracks = nil
+      if self.tracks.isEmpty {
+        existingItem.tracks = []
         try context.save()
         return
       }
 
       var mergedTracks: [Track] = []
-      for newTrack in newTracks {
-        if let existingTrack = existingItem.tracks?.first(where: { $0.index == newTrack.index }) {
+      for newTrack in self.tracks {
+        if let existingTrack = existingItem.tracks.first(where: { $0.index == newTrack.index }) {
           newTrack.relativePath = existingTrack.relativePath
         }
         mergedTracks.append(newTrack)
@@ -98,7 +110,8 @@ extension LocalBook {
   }
 
   public func track(at time: TimeInterval) -> Track? {
-    guard let tracks = orderedTracks else { return nil }
+    let tracks = orderedTracks
+    guard !tracks.isEmpty else { return nil }
 
     var currentTime: TimeInterval = 0
     for track in tracks {
@@ -111,28 +124,42 @@ extension LocalBook {
     return nil
   }
 
-  public var orderedChapters: [Chapter]? {
-    chapters?.sorted(by: { $0.start < $1.start })
+  public var orderedChapters: [Chapter] {
+    chapters.sorted(by: { $0.start < $1.start })
   }
 
-  public var orderedTracks: [Track]? {
-    tracks?.sorted(by: { $0.index < $1.index })
+  public var orderedTracks: [Track] {
+    tracks.sorted(by: { $0.index < $1.index })
   }
 
   public var isDownloaded: Bool {
-    guard let tracks, !tracks.isEmpty else { return false }
+    guard !tracks.isEmpty else { return false }
     return tracks.allSatisfy { track in track.relativePath != nil }
   }
 
   public convenience init(from book: Book) {
+    let authors =
+      book.media.metadata.authors?.map { apiAuthor in
+        Author(id: apiAuthor.id, name: apiAuthor.name)
+      } ?? []
+
+    let series =
+      book.media.metadata.series?.map { apiSeries in
+        Series(id: apiSeries.id, name: apiSeries.name, sequence: apiSeries.sequence)
+      } ?? []
+
+    let narrators = book.media.metadata.narrators ?? []
+
     self.init(
       bookID: book.id,
       title: book.title,
-      author: book.authorName,
+      authors: authors,
+      narrators: narrators,
+      series: series,
       coverURL: book.coverURL,
       duration: book.duration,
-      tracks: book.tracks?.map(Track.init),
-      chapters: book.chapters?.map(Chapter.init)
+      tracks: book.tracks?.map(Track.init) ?? [],
+      chapters: book.chapters?.map(Chapter.init) ?? []
     )
   }
 }

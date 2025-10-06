@@ -3,7 +3,7 @@ import Models
 import SwiftUI
 
 final class SeriesCardModel: SeriesCard.Model {
-  init(series: Series) {
+  init(series: API.Series) {
     let bookCovers = series.books.prefix(10).map(\.coverURL)
     let progress = Self.progress(books: series.books)
 

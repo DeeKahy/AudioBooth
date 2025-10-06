@@ -68,6 +68,7 @@ extension Book {
     public struct Metadata: Codable, Sendable {
       public let title: String
       public let authors: [Author]?
+      public let narrators: [String]?
       public let series: [Series]?
       public let publishedYear: String?
       public let authorName: String?
@@ -76,6 +77,7 @@ extension Book {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         title = try container.decode(String.self, forKey: .title)
         authors = try container.decodeIfPresent([Author].self, forKey: .authors)
+        narrators = try container.decodeIfPresent([String].self, forKey: .narrators)
         publishedYear = try container.decodeIfPresent(String.self, forKey: .publishedYear)
         authorName = try container.decodeIfPresent(String.self, forKey: .authorName)
 

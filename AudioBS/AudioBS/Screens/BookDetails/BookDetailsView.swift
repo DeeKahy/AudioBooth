@@ -5,37 +5,79 @@ import SwiftUI
 
 struct BookDetailsView: View {
   @ObservedObject var model: Model
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   private enum CoordinateSpaces {
     case scrollView
   }
 
   var body: some View {
-    ScrollView {
+    Group {
+      if verticalSizeClass == .compact {
+        landscapeLayout
+      } else {
+        portraitLayout
+      }
+    }
+    .overlay {
       if model.isLoading {
         ProgressView("Loading book details...")
           .frame(maxWidth: .infinity, maxHeight: .infinity)
-      } else {
-        VStack(spacing: 0) {
-          cover
-
-          VStack(spacing: 16) {
-            headerSection
-            infoSection
-            actionButtons
-            if let chapters = model.chapters, !chapters.isEmpty {
-              chaptersSection(chapters)
-            }
+          .background(.background)
+      } else if let error = model.error {
+        ContentUnavailableView {
+          Label("Unable to Load Book", systemImage: "exclamationmark.triangle")
+        } description: {
+          Text(error)
+        } actions: {
+          Button("Try Again") {
+            model.onAppear()
           }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(.background)
+      }
+    }
+    .onAppear(perform: model.onAppear)
+  }
+
+  private var portraitLayout: some View {
+    ScrollView {
+      VStack(spacing: 0) {
+        cover
+
+        contentSections
           .padding()
           .background()
-        }
-        .padding(.vertical)
       }
+      .padding(.vertical)
     }
     .coordinateSpace(name: CoordinateSpaces.scrollView)
     .ignoresSafeArea(edges: .top)
-    .onAppear(perform: model.onAppear)
+  }
+
+  private var landscapeLayout: some View {
+    HStack(spacing: 0) {
+      simpleCover
+        .frame(width: 300)
+
+      ScrollView {
+        contentSections
+          .padding()
+      }
+      .background(.background)
+    }
+  }
+
+  private var contentSections: some View {
+    VStack(spacing: 16) {
+      headerSection
+      infoSection
+      actionButtons
+      if let chapters = model.chapters, !chapters.isEmpty {
+        chaptersSection(chapters)
+      }
+    }
   }
 
   private var cover: some View {
@@ -63,15 +105,41 @@ struct BookDetailsView: View {
     }
   }
 
+  private var simpleCover: some View {
+    VStack {
+      CoverImage(url: model.coverURL)
+        .frame(width: 200, height: 200)
+        .overlay(alignment: .bottom) {
+          if let progress = model.progress, progress > 0 {
+            progressBar(progress)
+          }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(radius: 4)
+        .padding()
+    }
+    .frame(maxHeight: .infinity)
+    .background {
+      LazyImage(url: model.coverURL) { state in
+        state.image?
+          .resizable()
+          .scaledToFill()
+          .blur(radius: 5)
+          .opacity(0.3)
+      }
+    }
+    .ignoresSafeArea(edges: .vertical)
+  }
+
   private var headerSection: some View {
     VStack(alignment: .leading, spacing: 16) {
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: 12) {
         Text(model.title)
           .font(.title)
           .fontWeight(.bold)
           .multilineTextAlignment(.leading)
 
-        if !model.authors.isEmpty {
+        if !model.authors.isEmpty || !model.narrators.isEmpty {
           FlowLayout(spacing: 4) {
             ForEach(model.authors, id: \.id) { author in
               NavigationLink(value: NavigationDestination.author(id: author.id, name: author.name))
@@ -79,9 +147,17 @@ struct BookDetailsView: View {
                 Chip(
                   title: author.name,
                   icon: "person.circle.fill",
-                  color: .blue
+                  color: .primary
                 )
               }
+            }
+
+            ForEach(model.narrators, id: \.self) { narrator in
+              Chip(
+                title: narrator,
+                icon: "person.wave.2.fill",
+                color: .primary
+              )
             }
           }
         }
@@ -95,7 +171,7 @@ struct BookDetailsView: View {
                   title: series.sequence.isEmpty
                     ? series.name : "\(series.name) #\(series.sequence)",
                   icon: "square.stack.3d.up.fill",
-                  color: .purple
+                  color: .primary
                 )
               }
             }
@@ -330,6 +406,7 @@ extension BookDetailsView {
     let bookID: String
     var title: String
     var authors: [Author]
+    var narrators: [String]
     var series: [Series]
     var coverURL: URL?
     var progress: Double?
@@ -340,6 +417,7 @@ extension BookDetailsView {
     var downloadState: DownloadManager.DownloadState
     var isLoading: Bool
     var isEbook: Bool
+    var error: String?
 
     func onAppear() {}
     func onPlayTapped() {}
@@ -350,6 +428,7 @@ extension BookDetailsView {
       bookID: String,
       title: String = "",
       authors: [Author] = [],
+      narrators: [String] = [],
       series: [Series] = [],
       coverURL: URL? = nil,
       progress: Double? = nil,
@@ -359,11 +438,13 @@ extension BookDetailsView {
       tracks: [Track]? = nil,
       downloadState: DownloadManager.DownloadState = .notDownloaded,
       isLoading: Bool = true,
-      isEbook: Bool = false
+      isEbook: Bool = false,
+      error: String? = nil
     ) {
       self.bookID = bookID
       self.title = title
       self.authors = authors
+      self.narrators = narrators
       self.series = series
       self.coverURL = coverURL
       self.progress = progress
@@ -374,6 +455,7 @@ extension BookDetailsView {
       self.downloadState = downloadState
       self.isLoading = isLoading
       self.isEbook = isEbook
+      self.error = error
     }
   }
 }
@@ -399,8 +481,9 @@ extension BookDetailsView.Model {
       authors: [
         Author(id: "author-1", name: "J.R.R. Tolkien")
       ],
+      narrators: ["Rob Inglis"],
       series: [
-        Series(id: "series-1", name: "The Lord of the Rings", sequence: "#1")
+        Series(id: "series-1", name: "The Lord of the Rings", sequence: "1")
       ],
       coverURL: URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg"),
       progress: 0.45,

@@ -41,7 +41,8 @@ final class DownloadManager: NSObject, ObservableObject {
   }
 
   func startDownload(for item: LocalBook, session: Session) {
-    guard let tracks = item.orderedTracks else {
+    let tracks = item.orderedTracks
+    guard !tracks.isEmpty else {
       print("Cannot start download: missing tracks")
       return
     }
@@ -171,10 +172,8 @@ extension DownloadManager {
           try FileManager.default.removeItem(at: bookDirectory)
         }
 
-        if let item = try? LocalBook.fetch(bookID: bookID),
-          let tracks = item.orderedTracks
-        {
-          for track in tracks {
+        if let item = try? LocalBook.fetch(bookID: bookID) {
+          for track in item.orderedTracks {
             track.relativePath = nil
           }
           try? item.save()
@@ -210,15 +209,14 @@ extension DownloadManager {
           if isDirectory.boolValue {
             let bookID = directory.lastPathComponent
 
-            guard
-              let item = try? LocalBook.fetch(bookID: bookID),
-              let tracks = item.orderedTracks
-            else {
+            guard let item = try? LocalBook.fetch(bookID: bookID) else {
               try FileManager.default.removeItem(at: directory)
               orphanedDirectoriesCount += 1
               print("Removed orphaned directory for unknown book: \(bookID)")
               continue
             }
+
+            let tracks = item.orderedTracks
 
             var expectedFilenames = Set<String>()
             for track in tracks {

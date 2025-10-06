@@ -67,7 +67,7 @@ final class LocalPlayerModel: PlayerView.Model {
       remaining: 0,
       totalTimeRemaining: 0,
       title: item.title,
-      author: item.author ?? "",
+      author: item.authorNames,
       coverURL: item.coverURL
     )
 
@@ -105,8 +105,8 @@ final class LocalPlayerModel: PlayerView.Model {
   }
 
   private func setupInitialChapters() {
-    guard let sessionChapters = item.orderedChapters, !sessionChapters.isEmpty
-    else {
+    let sessionChapters = item.orderedChapters
+    guard !sessionChapters.isEmpty else {
       return
     }
 
@@ -233,7 +233,7 @@ extension LocalPlayerModel {
     // If book is already downloaded, use local files (session is optional)
     if item.isDownloaded {
       print("Book is downloaded, using local files (session optional)")
-      print("Item has \(item.tracks?.count ?? 0) tracks")
+      print("Item has \(item.tracks.count) tracks")
 
       // Try to fetch session for streaming URLs, but don't fail if it doesn't work
       do {
@@ -278,19 +278,19 @@ extension LocalPlayerModel {
       item.duration = audiobookshelfSession.duration
 
       guard let newTracks = audiobookshelfSession.streamingTracks?.map(Track.init) else {
-        item.tracks = nil
+        item.tracks = []
         throw Audiobookshelf.AudiobookshelfError.networkError("No tracks available")
       }
 
       var mergedTracks: [Track] = []
       for newTrack in newTracks {
-        if let existingTrack = item.tracks?.first(where: { $0.index == newTrack.index }) {
+        if let existingTrack = item.tracks.first(where: { $0.index == newTrack.index }) {
           newTrack.relativePath = existingTrack.relativePath
         }
         mergedTracks.append(newTrack)
       }
       item.tracks = mergedTracks
-      item.chapters = audiobookshelfSession.chapters?.map(Chapter.init)
+      item.chapters = audiobookshelfSession.chapters?.map(Chapter.init) ?? []
 
       try? MediaProgress.updateProgress(
         for: item.bookID,
@@ -342,7 +342,8 @@ extension LocalPlayerModel {
 
     total = item.duration
 
-    if let sessionChapters = item.orderedChapters, !sessionChapters.isEmpty {
+    let sessionChapters = item.orderedChapters
+    if !sessionChapters.isEmpty {
       chaptersList = sessionChapters
       currentChapterIndex = 0
       setupChapters(player: player)

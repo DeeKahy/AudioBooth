@@ -43,7 +43,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
       return BookItem(
         id: item.bookID,
         title: item.title,
-        author: item.author ?? "",
+        author: item.authorNames,
         coverURL: item.coverURL,
         timeRemaining: timeRemaining,
         isDownloaded: item.isDownloaded

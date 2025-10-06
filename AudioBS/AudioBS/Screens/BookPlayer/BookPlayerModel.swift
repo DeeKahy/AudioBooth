@@ -64,7 +64,7 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
     super.init(
       id: item.bookID,
       title: item.title,
-      author: item.author,
+      author: item.authorNames,
       coverURL: item.coverURL,
       speed: SpeedPickerSheet.Model(),
       timer: TimerPickerSheet.Model(),
@@ -118,88 +118,47 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
 }
 
 extension BookPlayerModel {
-  private func setupSessionInfo() async throws {
-    // If book is already downloaded, use local files (session is optional)
-    if let existingItem = item, existingItem.isDownloaded {
-      print("Book is downloaded, using local files (session optional)")
-      print("Item has \(existingItem.tracks?.count ?? 0) tracks")
+  private func setupSession() async throws {
+    print("Fetching session from server...")
 
-      let progress = try? MediaProgress.fetch(bookID: existingItem.bookID)
-      let cachedCurrentTime = progress?.currentTime ?? 0
-      if cachedCurrentTime > 0 {
-        mediaProgress.currentTime = cachedCurrentTime
-        print("Using existing currentTime: \(cachedCurrentTime)s")
-      }
+    let audiobookshelfSession = try await audiobookshelf.sessions.start(
+      itemID: id,
+      forceTranscode: false
+    )
 
-      // Try to fetch session for streaming URLs, but don't fail if it doesn't work
-      do {
-        print("Attempting to fetch session for potential streaming...")
-        let audiobookshelfSession = try await audiobookshelf.sessions.start(
-          itemID: id,
-          forceTranscode: false
-        )
-        self.session = Session(from: audiobookshelfSession)
+    if audiobookshelfSession.currentTime > mediaProgress.currentTime {
+      mediaProgress.currentTime = audiobookshelfSession.currentTime
+      print("Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s")
 
-        if audiobookshelfSession.currentTime > mediaProgress.currentTime {
-          mediaProgress.currentTime = audiobookshelfSession.currentTime
-          print(
-            "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s")
+      if let player = self.player {
+        let seekTime = CMTime(seconds: audiobookshelfSession.currentTime, preferredTimescale: 1000)
+        player.seek(to: seekTime) { _ in
+          print("Seeked to server position")
         }
-
-        print("Session available for streaming if needed")
-      } catch {
-        print("Session fetch failed, will use local files only: \(error)")
       }
-
-      return
     }
 
-    // Book is not downloaded, session is required
-    do {
-      print("Attempting to fetch fresh session from server...")
+    if let item {
+      self.session = Session(from: audiobookshelfSession)
+      item.chapters = audiobookshelfSession.chapters?.map(Chapter.init) ?? []
 
-      let audiobookshelfSession: PlaySession
-      audiobookshelfSession = try await audiobookshelf.sessions.start(
-        itemID: id,
-        forceTranscode: false
+      try? MediaProgress.updateProgress(
+        for: item.bookID,
+        currentTime: mediaProgress.currentTime,
+        timeListened: mediaProgress.timeListened,
+        duration: item.duration,
+        progress: mediaProgress.currentTime / item.duration
       )
-
-      if audiobookshelfSession.currentTime > mediaProgress.currentTime {
-        mediaProgress.currentTime = audiobookshelfSession.currentTime
-        print(
-          "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s")
-      }
-
-      if let item {
-        self.session = Session(from: audiobookshelfSession)
-        item.chapters = audiobookshelfSession.chapters?.map(Chapter.init)
-
-        try? MediaProgress.updateProgress(
-          for: item.bookID,
-          currentTime: mediaProgress.currentTime,
-          timeListened: mediaProgress.timeListened,
-          duration: item.duration,
-          progress: mediaProgress.currentTime / item.duration
-        )
-        print("Merged fresh session with existing session to preserve local files")
-      } else {
-        let newItem = LocalBook(from: audiobookshelfSession.libraryItem)
-        item = newItem
-        self.session = Session(from: audiobookshelfSession)
-        try? item?.save()
-      }
-
-      print("Successfully fetched fresh session from server")
-
-    } catch {
-      print("Failed to fetch fresh session: \(error)")
-      throw Audiobookshelf.AudiobookshelfError.networkError(
-        "Cannot play without network connection or downloaded files")
+      print("Updated session with chapters")
+    } else {
+      let newItem = LocalBook(from: audiobookshelfSession.libraryItem)
+      item = newItem
+      self.session = Session(from: audiobookshelfSession)
+      try? item?.save()
+      print("Created new item from session")
     }
 
-    guard item != nil else {
-      throw Audiobookshelf.AudiobookshelfError.networkError("Failed to obtain session info")
-    }
+    print("Session setup completed successfully")
   }
 
   private func setupAudioPlayer() async throws -> AVPlayer {
@@ -209,7 +168,8 @@ extension BookPlayerModel {
 
     let playerItem: AVPlayerItem
 
-    if let tracks = item.orderedTracks, tracks.count > 1 {
+    let tracks = item.orderedTracks
+    if tracks.count > 1 {
       playerItem = try await createCompositionPlayerItem(from: tracks)
       print("Created composition with \(tracks.count) tracks")
     } else {
@@ -250,7 +210,7 @@ extension BookPlayerModel {
     timerViewModel.setPlayer(player)
     timer = timerViewModel
 
-    if let sessionChapters = item?.orderedChapters {
+    if let sessionChapters = item?.orderedChapters, !sessionChapters.isEmpty {
       chapters = ChapterPickerSheetViewModel(chapters: sessionChapters, player: player)
       timer.maxRemainingChapters = sessionChapters.count - 1
       print("Loaded \(sessionChapters.count) chapters from play session info")
@@ -260,7 +220,7 @@ extension BookPlayerModel {
     }
 
     if let playbackProgress = playbackProgress as? PlaybackProgressViewModel {
-      let totalDuration = item?.orderedTracks?.reduce(0.0) { $0 + $1.duration }
+      let totalDuration = item?.orderedTracks.reduce(0.0) { $0 + $1.duration }
       playbackProgress.configure(
         player: player,
         chapters: chapters,
@@ -307,19 +267,57 @@ extension BookPlayerModel {
       checkForExistingLocalBook()
       loadCover()
 
+      let isDownloaded = item?.isDownloaded ?? false
+
       do {
-        try await setupSessionInfo()
-        let player = try await setupAudioPlayer()
-        configurePlayerComponents(player: player)
-        seekToLastPosition(player: player)
-        saveLocalBook()
+        if isDownloaded {
+          print("Book is downloaded, loading local files instantly")
+          let progress = try? MediaProgress.fetch(bookID: item?.bookID ?? id)
+          if let cachedCurrentTime = progress?.currentTime, cachedCurrentTime > 0 {
+            mediaProgress.currentTime = cachedCurrentTime
+            print("Using cached currentTime: \(cachedCurrentTime)s")
+          }
 
-        isLoading = false
-        sendWatchUpdate()
+          let player = try await setupAudioPlayer()
+          configurePlayerComponents(player: player)
+          seekToLastPosition(player: player)
+          saveLocalBook()
 
-        if pendingPlay {
-          player.rate = speed.playbackSpeed
-          pendingPlay = false
+          isLoading = false
+          sendWatchUpdate()
+
+          if pendingPlay {
+            player.rate = speed.playbackSpeed
+            pendingPlay = false
+          }
+
+          Task {
+            do {
+              try await setupSession()
+            } catch {
+              print("Background session fetch failed: \(error)")
+            }
+          }
+        } else {
+          print("Book not downloaded, fetching session first")
+          try await setupSession()
+
+          guard item != nil else {
+            throw Audiobookshelf.AudiobookshelfError.networkError("Failed to obtain session")
+          }
+
+          let player = try await setupAudioPlayer()
+          configurePlayerComponents(player: player)
+          seekToLastPosition(player: player)
+          saveLocalBook()
+
+          isLoading = false
+          sendWatchUpdate()
+
+          if pendingPlay {
+            player.rate = speed.playbackSpeed
+            pendingPlay = false
+          }
         }
       } catch {
         handleLoadError(error)
@@ -531,10 +529,6 @@ extension BookPlayerModel {
   private func createCompositionPlayerItem(from tracks: [Track])
     async throws -> AVPlayerItem
   {
-    guard let item else {
-      throw Audiobookshelf.AudiobookshelfError.compositionError("No item available")
-    }
-
     let composition = AVMutableComposition()
 
     guard
@@ -621,7 +615,8 @@ extension BookPlayerModel {
       do {
         let playerItem: AVPlayerItem
 
-        if let tracks = item.orderedTracks, tracks.count > 1 {
+        let tracks = item.orderedTracks
+        if tracks.count > 1 {
           playerItem = try await createCompositionPlayerItem(from: tracks)
           print("Recreated composition with local files for \(tracks.count) tracks")
         } else {

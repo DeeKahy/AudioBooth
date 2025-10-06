@@ -26,7 +26,7 @@ final class RecentRowModel: RecentRow.Model {
     super.init(
       bookID: recent.bookID,
       title: recent.title,
-      author: recent.author,
+      author: recent.authorNames,
       coverURL: recent.coverURL,
       progress: 0,
       lastPlayedAt: nil,

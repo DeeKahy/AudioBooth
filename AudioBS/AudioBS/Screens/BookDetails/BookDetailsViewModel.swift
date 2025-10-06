@@ -6,21 +6,16 @@ import SafariServices
 import UIKit
 
 final class BookDetailsViewModel: BookDetailsView.Model {
-  private let booksService: BooksService
-  private let downloadManager: DownloadManager
-  private let playerManager: PlayerManager
+  private var booksService: BooksService { Audiobookshelf.shared.books }
+  private var downloadManager: DownloadManager { .shared }
+  private var playerManager: PlayerManager { .shared }
 
   private var cancellables = Set<AnyCancellable>()
   private var progressObservation: Task<Void, Never>?
   private var itemObservation: Task<Void, Never>?
 
-  init(bookID: String) {
-    self.booksService = Audiobookshelf.shared.books
-    self.downloadManager = DownloadManager.shared
-    self.playerManager = PlayerManager.shared
-
-    super.init(bookID: bookID)
-  }
+  private var book: Book?
+  private var localBook: LocalBook?
 
   isolated deinit {
     progressObservation?.cancel()
@@ -29,53 +24,131 @@ final class BookDetailsViewModel: BookDetailsView.Model {
 
   override func onAppear() {
     Task {
-      await loadBookDetails()
+      await loadLocalBook()
+      await loadBookFromAPI()
     }
     setupDownloadStateBinding()
     setupProgressObservation()
     setupItemObservation()
   }
 
-  private func loadBookDetails() async {
+  private func loadLocalBook() async {
+    do {
+      localBook = try LocalBook.fetch(bookID: bookID)
+
+      if let localBook {
+        let authors = localBook.authors.map { author in
+          Author(id: author.id, name: author.name)
+        }
+
+        let series = localBook.series.map { series in
+          Series(id: series.id, name: series.name, sequence: series.sequence)
+        }
+
+        updateUI(
+          title: localBook.title,
+          authors: authors,
+          narrators: localBook.narrators,
+          series: series,
+          coverURL: localBook.coverURL,
+          duration: localBook.duration,
+          chapters: localBook.chapters,
+          mediaType: nil
+        )
+
+        if localBook.isDownloaded {
+          downloadState = .downloaded
+        }
+
+        isLoading = false
+      } else if book == nil {
+        isLoading = true
+      }
+    } catch {
+      print("Failed to load local book: \(error)")
+      if book == nil {
+        isLoading = true
+      }
+    }
+  }
+
+  private func loadBookFromAPI() async {
     do {
       let book = try await booksService.fetch(id: bookID)
-      let mediaProgress = try? MediaProgress.fetch(bookID: bookID)
+      self.book = book
 
-      self.title = book.title
-      self.authors = book.media.metadata.authors?.map { Author(id: $0.id, name: $0.name) } ?? []
-      self.series =
-        book.series?.map { series in
-          Series(id: series.id, name: series.name, sequence: series.sequence)
+      let authors =
+        book.media.metadata.authors?.map { apiAuthor in
+          Author(id: apiAuthor.id, name: apiAuthor.name)
         } ?? []
-      self.coverURL = book.coverURL
-      self.chapters = book.chapters?.map { Chapter(from: $0) }
-      self.isEbook = book.mediaType == .ebook
 
-      self.tracks = []
+      let series =
+        book.series?.map { apiSeries in
+          Series(id: apiSeries.id, name: apiSeries.name, sequence: apiSeries.sequence)
+        } ?? []
 
-      self.durationText = Duration.seconds(book.duration).formatted(
-        .units(
-          allowed: [.hours, .minutes],
-          width: .narrow
-        )
+      let narrators = book.media.metadata.narrators ?? []
+
+      updateUI(
+        title: book.title,
+        authors: authors,
+        narrators: narrators,
+        series: series,
+        coverURL: book.coverURL,
+        duration: book.duration,
+        chapters: book.chapters?.map { Chapter(from: $0) },
+        mediaType: book.mediaType
       )
 
-      if let progress = mediaProgress {
-        let remainingTime = book.duration * (1.0 - progress.progress)
-        if remainingTime > 0 && progress.progress > 0 && progress.progress < 1.0 {
-          self.timeRemaining = Duration.seconds(remainingTime).formatted(
-            .units(
-              allowed: [.hours, .minutes],
-              width: .narrow
-            )
-          )
-        }
-      }
-
-      self.isLoading = false
+      error = nil
+      isLoading = false
     } catch {
-      self.isLoading = false
-      Toast(error: "Failed to load book details").show()
+      if localBook == nil {
+        isLoading = false
+        self.error = "Failed to load book details. Please check your connection and try again."
+      }
+    }
+  }
+
+  private func updateUI(
+    title: String,
+    authors: [Author],
+    narrators: [String],
+    series: [Series],
+    coverURL: URL?,
+    duration: TimeInterval,
+    chapters: [Chapter]?,
+    mediaType: Book.MediaType?
+  ) {
+    self.title = title
+    self.authors = authors
+    self.series = series
+    self.narrators = narrators
+    self.coverURL = coverURL
+    self.chapters = chapters
+    self.tracks = []
+
+    if let mediaType {
+      self.isEbook = mediaType == .ebook
+    }
+
+    self.durationText = Duration.seconds(duration).formatted(
+      .units(
+        allowed: [.hours, .minutes],
+        width: .narrow
+      )
+    )
+
+    if let progress = try? MediaProgress.fetch(bookID: bookID) {
+      let remainingTime = duration * (1.0 - progress.progress)
+      if remainingTime > 0 && progress.progress > 0 && progress.progress < 1.0 {
+        self.timeRemaining = Duration.seconds(remainingTime).formatted(
+          .units(
+            allowed: [.hours, .minutes],
+            width: .narrow
+          )
+        )
+      }
     }
   }
 
@@ -119,21 +192,18 @@ final class BookDetailsViewModel: BookDetailsView.Model {
   }
 
   override func onPlayTapped() {
-    Task {
-      do {
-        let book = try await booksService.fetch(id: bookID)
-
-        if book.mediaType == .ebook {
-          openEbookInSafari(book)
-        } else {
-          await MainActor.run {
-            playerManager.setCurrent(book)
-            playerManager.showFullPlayer()
-          }
-        }
-      } catch {
-        Toast(error: "Failed to start playback").show()
+    if let book {
+      if book.mediaType == .ebook {
+        openEbookInSafari(book)
+      } else {
+        playerManager.setCurrent(book)
+        playerManager.showFullPlayer()
       }
+    } else if let localBook {
+      playerManager.setCurrent(localBook)
+      playerManager.showFullPlayer()
+    } else {
+      Toast(error: "Book not available").show()
     }
   }
 
@@ -158,28 +228,29 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     case .downloaded:
       downloadManager.deleteDownload(for: bookID)
     case .notDownloaded:
-      Task {
-        do {
-          let book = try await booksService.fetch(id: bookID)
-          downloadManager.startDownload(for: book.id)
-        } catch {
-          Toast(error: "Failed to start download").show()
-        }
+      if book == nil {
+        Toast(error: "Cannot download without network connection").show()
+        return
       }
+      downloadManager.startDownload(for: bookID)
     }
   }
 
   override func onMarkFinishedTapped() {
+    guard let duration = book?.duration ?? localBook?.duration else {
+      Toast(error: "Book not available").show()
+      return
+    }
+
     Task {
       do {
-        let book = try await booksService.fetch(id: bookID)
         let isFinished = (progress ?? 0) >= 1.0
 
         try await Audiobookshelf.shared.libraries.updateBookFinishedStatus(
           bookID: bookID, isFinished: !isFinished)
 
         try? MediaProgress.updateFinishedStatus(
-          for: bookID, isFinished: !isFinished, duration: book.duration)
+          for: bookID, isFinished: !isFinished, duration: duration)
 
         Toast(success: isFinished ? "Marked as not finished" : "Marked as finished").show()
       } catch {
