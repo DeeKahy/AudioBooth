@@ -27,6 +27,12 @@ final class DownloadManager: NSObject, ObservableObject {
   private var trackDestinations: [URLSessionDownloadTask: URL] = [:]
   private lazy var downloadSession: URLSession = {
     let config = URLSessionConfiguration.default
+    config.timeoutIntervalForRequest = 60
+    config.timeoutIntervalForResource = 3600
+    config.allowsCellularAccess = true
+    config.waitsForConnectivity = true
+    config.allowsExpensiveNetworkAccess = true
+    config.allowsConstrainedNetworkAccess = true
     return URLSession(configuration: config, delegate: self, delegateQueue: nil)
   }()
 
@@ -71,6 +77,7 @@ final class DownloadManager: NSObject, ObservableObject {
 
           try await withCheckedThrowingContinuation { continuation in
             let downloadTask = downloadSession.downloadTask(with: trackURL)
+            downloadTask.countOfBytesClientExpectsToReceive = Int64(track.size ?? 500_000_000)
 
             activeDownloads[downloadTask] = DownloadInfo(
               bookID: bookID,

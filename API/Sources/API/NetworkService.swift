@@ -41,9 +41,18 @@ final class NetworkService {
   init(baseURL: URL, configuration: ((URLSessionConfiguration) -> Void)? = nil) {
     self.baseURL = baseURL
 
-    let sessionConfig = URLSessionConfiguration.default
-    configuration?(sessionConfig)
-    self.session = URLSession(configuration: sessionConfig)
+    let config = URLSessionConfiguration.default
+
+    #if os(watchOS)
+      config.timeoutIntervalForResource = 300
+      config.allowsCellularAccess = true
+      config.waitsForConnectivity = true
+      config.allowsExpensiveNetworkAccess = true
+      config.allowsConstrainedNetworkAccess = true
+    #endif
+
+    configuration?(config)
+    self.session = URLSession(configuration: config)
 
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .custom { decoder in
