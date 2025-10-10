@@ -3,12 +3,10 @@ import SwiftUI
 
 struct SeriesPage: View {
   @StateObject var model: Model
-  @State private var path = NavigationPath()
 
   var body: some View {
-    NavigationStack(path: $path) {
+    NavigationStack {
       content
-        .environment(\.navigationPath, $path)
         .navigationDestination(for: NavigationDestination.self) { destination in
           switch destination {
           case .book(let id):

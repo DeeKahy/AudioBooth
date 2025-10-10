@@ -1,12 +1,9 @@
 import SwiftUI
 
 struct LibraryRootPage: View {
-  @State private var path = NavigationPath()
-
   var body: some View {
-    NavigationStack(path: $path) {
+    NavigationStack {
       LibraryPage(model: LibraryPageModel())
-        .environment(\.navigationPath, $path)
         .navigationDestination(for: NavigationDestination.self) { destination in
           switch destination {
           case .book(let id):
