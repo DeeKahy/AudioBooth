@@ -153,18 +153,15 @@ final class BookDetailsViewModel: BookDetailsView.Model {
   }
 
   private func setupDownloadStateBinding() {
-    downloadManager.$downloadProgress
-      .map { [weak self] progress in
-        guard let self = self else { return .notDownloaded }
-
-        if let downloadProgress = progress[self.bookID] {
-          return .downloading(progress: downloadProgress)
+    downloadManager.$currentProgress
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] progress in
+        guard let self else { return }
+        if let progress = progress[bookID] {
+          self.downloadState = .downloading(progress: progress)
+        } else if self.downloadState != .downloaded {
+          self.downloadState = .notDownloaded
         }
-
-        return .notDownloaded
-      }
-      .sink { [weak self] downloadState in
-        self?.downloadState = downloadState
       }
       .store(in: &cancellables)
   }

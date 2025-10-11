@@ -31,6 +31,10 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
 
   private var cover: UIImage?
 
+  private var recoveryAttempts = 0
+  private var maxRecoveryAttempts = 3
+  private var isRecovering = false
+
   init(_ book: Book) {
     self.item = nil
     do {
@@ -108,9 +112,13 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
 
     switch downloadState {
     case .downloading:
+      downloadState = .notDownloaded
       downloadManager.cancelDownload(for: id)
+
     case .downloaded:
+      downloadState = .notDownloaded
       downloadManager.deleteDownload(for: id)
+
     case .notDownloaded:
       downloadManager.startDownload(for: item.bookID)
     }
@@ -335,13 +343,15 @@ extension BookPlayerModel {
   }
 
   private func setupDownloadStateBinding() {
-    Publishers.CombineLatest(downloadManager.$downloads, downloadManager.$downloadProgress)
-      .map { [weak self] downloads, progress in
+    guard let item = item else { return }
+
+    downloadManager.$currentProgress
+      .receive(on: DispatchQueue.main)
+      .map { [weak self] progressDict in
         guard let item = self?.item else { return .notDownloaded }
 
-        if downloads[item.bookID] == true {
-          let downloadProgress = progress[item.bookID] ?? 0.0
-          return .downloading(progress: downloadProgress)
+        if let progress = progressDict[item.bookID] {
+          return .downloading(progress: progress)
         }
 
         return item.isDownloaded ? .downloaded : .notDownloaded
@@ -351,25 +361,14 @@ extension BookPlayerModel {
       }
       .store(in: &cancellables)
 
-    if let bookID = item?.bookID {
-      itemObservation = Task { [weak self] in
-        for await updatedItem in LocalBook.observe(where: \.bookID, equals: bookID) {
-          guard !Task.isCancelled, let self = self else { continue }
+    itemObservation = Task { [weak self] in
+      for await updatedItem in LocalBook.observe(where: \.bookID, equals: item.bookID) {
+        guard !Task.isCancelled, let self = self else { continue }
 
-          self.item = updatedItem
+        self.item = updatedItem
 
-          // Re-evaluate download state with updated item
-          if downloadManager.downloads[updatedItem.bookID] == true {
-            let progress = downloadManager.downloadProgress[updatedItem.bookID] ?? 0.0
-            self.downloadState = .downloading(progress: progress)
-          } else {
-            self.downloadState =
-              updatedItem.isDownloaded ? .downloaded : .notDownloaded
-          }
-
-          if updatedItem.isDownloaded, self.isPlayerUsingRemoteURL() {
-            self.refreshPlayerForLocalPlayback()
-          }
+        if updatedItem.isDownloaded, self.isPlayerUsingRemoteURL() {
+          self.refreshPlayerForLocalPlayback()
         }
       }
     }
@@ -458,6 +457,7 @@ extension BookPlayerModel {
           switch status {
           case .readyToPlay:
             self?.isLoading = false
+            self?.recoveryAttempts = 0
             let duration = currentItem.duration
             if duration.isValid && !duration.isIndefinite {
             }
@@ -465,8 +465,7 @@ extension BookPlayerModel {
             self?.isLoading = false
             let errorMessage = currentItem.error?.localizedDescription ?? "Unknown error"
             print("Player item failed: \(errorMessage)")
-            Toast(error: "Audio playback failed: \(errorMessage)").show()
-            PlayerManager.shared.clearCurrent()
+            self?.handleStreamFailure(error: currentItem.error)
           case .unknown:
             self?.isLoading = true
           @unknown default:
@@ -474,6 +473,25 @@ extension BookPlayerModel {
           }
         }
         .store(in: &cancellables)
+
+      NotificationCenter.default.publisher(for: .AVPlayerItemPlaybackStalled, object: currentItem)
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in
+          print("Playback stalled - attempting recovery")
+          self?.handleStreamFailure(error: nil)
+        }
+        .store(in: &cancellables)
+
+      NotificationCenter.default.publisher(
+        for: .AVPlayerItemFailedToPlayToEndTime, object: currentItem
+      )
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] notification in
+        let error = notification.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error
+        print("Failed to play to end: \(error?.localizedDescription ?? "Unknown")")
+        self?.handleStreamFailure(error: error)
+      }
+      .store(in: &cancellables)
     }
   }
 
@@ -680,8 +698,23 @@ extension BookPlayerModel {
         mediaProgress.timeListened = 0
       } catch {
         print("Failed to sync session progress: \(error)")
+
+        if isSessionNotFoundError(error) {
+          print("Session not found (404) - triggering recovery")
+          await MainActor.run {
+            handleStreamFailure(error: error)
+          }
+        }
       }
     }
+  }
+
+  private func isSessionNotFoundError(_ error: Error) -> Bool {
+    let errorString = error.localizedDescription.lowercased()
+    let nsError = error as NSError
+
+    return errorString.contains("404") || errorString.contains("file not found")
+      || errorString.contains("-1011") || nsError.code == -1011 || nsError.code == 404
   }
 
   private func updateMediaProgress() {
@@ -704,6 +737,123 @@ extension BookPlayerModel {
       } catch {
         print("Failed to update playback progress: \(error)")
         Toast(error: "Failed to update playback progress").show()
+      }
+    }
+  }
+
+  private func handleStreamFailure(error: Error?) {
+    guard !isRecovering else {
+      print("Already recovering, skipping duplicate recovery attempt")
+      return
+    }
+
+    guard recoveryAttempts < maxRecoveryAttempts else {
+      print("Max recovery attempts reached, giving up")
+      let errorMessage = error?.localizedDescription ?? "Stream unavailable"
+      Toast(error: "Playback failed: \(errorMessage)").show()
+      PlayerManager.shared.clearCurrent()
+      return
+    }
+
+    let isDownloaded = item?.isDownloaded ?? false
+    guard !isDownloaded else {
+      print("Book is downloaded, cannot recover from stream failure")
+      return
+    }
+
+    isRecovering = true
+    recoveryAttempts += 1
+
+    print("Stream failure detected (attempt \(recoveryAttempts)/\(maxRecoveryAttempts))")
+
+    Task {
+      await recoverSession()
+    }
+  }
+
+  private func recoverSession() async {
+    guard let player = player else {
+      isRecovering = false
+      return
+    }
+
+    let currentTime = player.currentTime()
+    let wasPlaying = isPlaying
+
+    await MainActor.run {
+      player.pause()
+      isLoading = true
+      Toast(message: "Reconnecting...").show()
+    }
+
+    let delay = min(pow(2.0, Double(recoveryAttempts - 1)), 8.0)
+    if delay > 0 {
+      try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+    }
+
+    do {
+      try await setupSession()
+
+      guard let item else {
+        throw Audiobookshelf.AudiobookshelfError.networkError("Failed to recreate session")
+      }
+
+      let playerItem: AVPlayerItem
+
+      let tracks = item.orderedTracks
+      if tracks.count > 1 {
+        playerItem = try await createCompositionPlayerItem(from: tracks)
+        print("Recreated composition with \(tracks.count) tracks after recovery")
+      } else {
+        guard let track = item.track(at: 0) else {
+          throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track")
+        }
+
+        let trackURL = session?.url(for: track) ?? track.localPath
+        guard let trackURL else {
+          throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track URL")
+        }
+
+        playerItem = AVPlayerItem(url: trackURL)
+      }
+
+      await MainActor.run {
+        player.replaceCurrentItem(with: playerItem)
+        setupPlayerObservers()
+
+        let rewindTime = CMTimeSubtract(currentTime, CMTime(seconds: 5, preferredTimescale: 1000))
+        let seekTime = CMTimeMaximum(rewindTime, .zero)
+
+        player.seek(to: seekTime) { [weak self] _ in
+          guard let self else { return }
+
+          self.isLoading = false
+          self.isRecovering = false
+
+          if wasPlaying {
+            player.rate = self.speed.playbackSpeed
+          }
+
+          print(
+            "Successfully recovered stream at position: \(CMTimeGetSeconds(seekTime))s (rewound 5s)"
+          )
+          Toast(message: "Reconnected").show()
+        }
+      }
+
+    } catch {
+      print("Failed to recover session: \(error)")
+
+      await MainActor.run {
+        isLoading = false
+        isRecovering = false
+
+        if recoveryAttempts < maxRecoveryAttempts {
+          handleStreamFailure(error: error)
+        } else {
+          Toast(error: "Unable to reconnect. Please try again later.").show()
+          PlayerManager.shared.clearCurrent()
+        }
       }
     }
   }

@@ -17,8 +17,13 @@ public final class SessionService {
     return deviceID
   }
 
+  public static var downloadDeviceID: String {
+    return deviceID + "-download"
+  }
+
   public func start(
-    itemID: String, forceDirectPlay: Bool = false, forceTranscode: Bool = false
+    itemID: String, forceDirectPlay: Bool = false, forceTranscode: Bool = false,
+    isDownload: Bool = false
   ) async throws -> PlaySession {
     guard let networkService = audiobookshelf.networkService else {
       throw Audiobookshelf.AudiobookshelfError.networkError(
@@ -38,7 +43,7 @@ public final class SessionService {
         let deviceId: String
       }
 
-      init(forceDirectPlay: Bool, forceTranscode: Bool) {
+      init(forceDirectPlay: Bool, forceTranscode: Bool, isDownload: Bool) {
         self.forceDirectPlay = forceDirectPlay
         self.forceTranscode = forceTranscode
         self.supportedMimeTypes = [
@@ -55,10 +60,11 @@ public final class SessionService {
           clientVersion = "\(version) (\(build))"
         }
 
+        let deviceID = isDownload ? SessionService.downloadDeviceID : SessionService.deviceID
         self.deviceInfo = DeviceInfo(
           clientName: "AudioBS iOS",
           clientVersion: clientVersion,
-          deviceId: SessionService.deviceID
+          deviceId: deviceID
         )
       }
     }
@@ -66,7 +72,8 @@ public final class SessionService {
     let request = NetworkRequest<PlaySession>(
       path: "/api/items/\(itemID)/play",
       method: .post,
-      body: PlayRequest(forceDirectPlay: forceDirectPlay, forceTranscode: false),
+      body: PlayRequest(
+        forceDirectPlay: forceDirectPlay, forceTranscode: false, isDownload: isDownload),
       timeout: 5
     )
 

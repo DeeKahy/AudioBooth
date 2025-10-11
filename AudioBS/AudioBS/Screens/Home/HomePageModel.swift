@@ -83,7 +83,8 @@ extension HomePageModel {
     var offline = [BookCard.Model]()
 
     for book in availableOffline {
-      if [false, nil].contains(downloadManager.downloads[book.bookID]), !book.isDownloaded,
+      if !downloadManager.isDownloading(for: book.bookID),
+        !book.isDownloaded,
         PlayerManager.shared.current?.id != book.bookID
       {
         try? book.delete()

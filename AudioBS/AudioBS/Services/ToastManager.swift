@@ -10,6 +10,7 @@ public struct Toast {
   enum ToastType {
     case error
     case success
+    case info
   }
 
   private static var toasts = [UUID: Toast]()
@@ -22,6 +23,11 @@ public struct Toast {
   public init(success message: String) {
     self.message = message
     self.type = .success
+  }
+
+  public init(message: String) {
+    self.message = message
+    self.type = .info
   }
 
   public func show() {
@@ -47,7 +53,13 @@ public struct Toast {
       window.rootViewController = rootViewController
       window.isHidden = false
 
-      try? await Task.sleep(for: .seconds(type == .error ? 5 : 3))
+      let duration: TimeInterval =
+        switch type {
+        case .error: 5
+        case .success: 3
+        case .info: 2
+        }
+      try? await Task.sleep(for: .seconds(duration))
       model.visible = false
       try? await Task.sleep(for: .seconds(0.2))
 
@@ -194,6 +206,8 @@ struct ToastView: View {
       return "exclamationmark.triangle.fill"
     case .success:
       return "checkmark.circle.fill"
+    case .info:
+      return "info.circle.fill"
     }
   }
 
@@ -204,6 +218,8 @@ struct ToastView: View {
         return .red
       case .success:
         return .green
+      case .info:
+        return .blue
       }
     } else {
       return .white
@@ -216,6 +232,8 @@ struct ToastView: View {
       return .red
     case .success:
       return .green
+    case .info:
+      return .blue
     }
   }
 }
