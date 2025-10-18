@@ -175,4 +175,24 @@ public final class AuthenticationService {
         "Failed to fetch user data: \(error.localizedDescription)")
     }
   }
+
+  public func fetchListeningStats() async throws -> ListeningStats {
+    guard let networkService = audiobookshelf.networkService else {
+      throw Audiobookshelf.AudiobookshelfError.networkError(
+        "Network service not configured. Please login first.")
+    }
+
+    let request = NetworkRequest<ListeningStats>(
+      path: "/api/me/listening-stats",
+      method: .get
+    )
+
+    do {
+      let response = try await networkService.send(request)
+      return response.value
+    } catch {
+      throw Audiobookshelf.AudiobookshelfError.networkError(
+        "Failed to fetch listening stats: \(error.localizedDescription)")
+    }
+  }
 }

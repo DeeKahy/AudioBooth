@@ -66,27 +66,41 @@ extension Book {
 
     public struct Metadata: Codable, Sendable {
       public let title: String
+      public let subtitle: String?
       public let authors: [Author]?
       public let narrators: [String]?
       public let series: [Series]?
       public let publishedYear: String?
+      public let publishedDate: String?
       public let authorName: String?
       public let publisher: String?
       public let description: String?
       public let descriptionPlain: String?
       public let genres: [String]?
+      public let isbn: String?
+      public let asin: String?
+      public let language: String?
+      public let explicit: Bool?
+      public let abridged: Bool?
 
       public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         title = try container.decode(String.self, forKey: .title)
+        subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
         authors = try container.decodeIfPresent([Author].self, forKey: .authors)
         narrators = try container.decodeIfPresent([String].self, forKey: .narrators)
         publishedYear = try container.decodeIfPresent(String.self, forKey: .publishedYear)
+        publishedDate = try container.decodeIfPresent(String.self, forKey: .publishedDate)
         authorName = try container.decodeIfPresent(String.self, forKey: .authorName)
         publisher = try container.decodeIfPresent(String.self, forKey: .publisher)
         description = try container.decodeIfPresent(String.self, forKey: .description)
         descriptionPlain = try container.decodeIfPresent(String.self, forKey: .descriptionPlain)
         genres = try container.decodeIfPresent([String].self, forKey: .genres)
+        isbn = try container.decodeIfPresent(String.self, forKey: .isbn)
+        asin = try container.decodeIfPresent(String.self, forKey: .asin)
+        language = try container.decodeIfPresent(String.self, forKey: .language)
+        explicit = try container.decodeIfPresent(Bool.self, forKey: .explicit)
+        abridged = try container.decodeIfPresent(Bool.self, forKey: .abridged)
 
         if let seriesArray = try? container.decode([Series].self, forKey: .series) {
           series = seriesArray

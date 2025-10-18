@@ -188,6 +188,10 @@ struct SettingsView: View {
       }
     }
 
+    Section("Preferences") {
+      Toggle("Show Listening Stats", isOn: $model.showListeningStats)
+    }
+
     TipJarView(model: model.tipJar)
 
     Section("Account") {
@@ -264,6 +268,9 @@ extension SettingsView {
     var discoveredServers: [DiscoveredServer]
     var mediaProgressList: MediaProgressListView.Model?
     var isExportingLogs: Bool
+
+    @ObservationIgnored
+    @AppStorage("showListeningStats") var showListeningStats: Bool = false
 
     var isTypingScheme: Bool {
       let lowercased = serverURL.lowercased()

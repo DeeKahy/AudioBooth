@@ -28,6 +28,11 @@ struct HomePage: View {
   var content: some View {
     ScrollView {
       VStack(spacing: 24) {
+        if model.showStats {
+          ListeningStatsCard(model: ListeningStatsCardModel())
+            .padding(.horizontal)
+        }
+
         if let section = model.continueListening {
           sectionContent(section)
         }
@@ -177,6 +182,13 @@ extension HomePage {
     var isLoading: Bool
     var isRoot: Bool
     var title: String
+
+    @ObservationIgnored
+    @AppStorage("showListeningStats") var showListeningStats: Bool = false
+
+    var showStats: Bool {
+      showListeningStats && Audiobookshelf.shared.authentication.isAuthenticated
+    }
 
     struct Section {
       let title: String
