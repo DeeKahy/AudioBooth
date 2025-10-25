@@ -70,6 +70,7 @@ final class PlayerManager: ObservableObject {
     isShowingFullPlayer = false
     UserDefaults.standard.removeObject(forKey: Self.currentBookIDKey)
     watchConnectivity.clearPlaybackState()
+    SessionManager.shared.clearSession()
   }
 
   func showFullPlayer() {

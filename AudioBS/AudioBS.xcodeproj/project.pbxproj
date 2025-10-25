@@ -515,6 +515,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = AudioBS;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "AudioBS needs access to your local network to connect to your Audiobookshelf server and stream audiobooks.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -551,6 +552,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = AudioBS;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "AudioBS needs access to your local network to connect to your Audiobookshelf server and stream audiobooks.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

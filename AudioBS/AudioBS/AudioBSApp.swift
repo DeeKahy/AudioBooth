@@ -8,6 +8,7 @@ struct AudioBSApp: App {
   init() {
     DownloadManager.shared.cleanupOrphanedDownloads()
     _ = WatchConnectivityManager.shared
+    _ = SessionManager.shared
 
     Audiobookshelf.shared.authentication.onAuthenticationChanged = { credentials in
       if let (serverURL, token) = credentials {

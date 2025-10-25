@@ -3,10 +3,12 @@ import Foundation
 
 public struct Session {
   public let id: String
+  public let itemID: String
   public let url: URL
 
-  public init(id: String, url: URL) {
+  public init(id: String, itemID: String, url: URL) {
     self.id = id
+    self.itemID = itemID
     self.url = url
   }
 
@@ -21,6 +23,7 @@ public struct Session {
     }
 
     self.id = playSession.id
+    self.itemID = playSession.libraryItemId
     self.url = url
   }
 

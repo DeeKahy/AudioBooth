@@ -11,20 +11,19 @@ import WatchConnectivity
 
 final class BookPlayerModel: BookPlayer.Model, ObservableObject {
   private let audiobookshelf = Audiobookshelf.shared
+  private let sessionManager = SessionManager.shared
 
   private var player: AVPlayer?
 
   private var timeObserver: Any?
   private var cancellables = Set<AnyCancellable>()
   private var item: LocalBook?
-  private var session: Session?
   private var itemObservation: Task<Void, Never>?
   private var mediaProgress: MediaProgress
   private var timerSecondsCounter = 0
   private var pendingPlay: Bool = false
 
   private var lastPlaybackAt: Date?
-  private var lastSyncAt = Date()
 
   private let downloadManager = DownloadManager.shared
   private let watchConnectivity = WatchConnectivityManager.shared
@@ -34,6 +33,10 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
   private var recoveryAttempts = 0
   private var maxRecoveryAttempts = 3
   private var isRecovering = false
+
+  private var session: Session? {
+    sessionManager.current
+  }
 
   init(_ book: Book) {
     self.item = nil
@@ -88,7 +91,22 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
     if isPlaying {
       player.rate = 0
     } else {
-      player.rate = speed.playbackSpeed
+      if session == nil {
+        print("⚠️ Session was closed, recreating in background for progress sync")
+
+        player.rate = speed.playbackSpeed
+
+        Task {
+          do {
+            try await setupSession()
+            print("✅ Session recreated successfully (playback continued from cache)")
+          } catch {
+            print("❌ Failed to recreate session: \(error)")
+          }
+        }
+      } else {
+        player.rate = speed.playbackSpeed
+      }
     }
   }
 
@@ -127,46 +145,27 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
 
 extension BookPlayerModel {
   private func setupSession() async throws {
-    print("Fetching session from server...")
-
-    let audiobookshelfSession = try await audiobookshelf.sessions.start(
+    let result = try await sessionManager.ensureSession(
       itemID: id,
-      forceTranscode: false
+      item: item,
+      mediaProgress: mediaProgress
     )
 
-    if audiobookshelfSession.currentTime > mediaProgress.currentTime {
-      mediaProgress.currentTime = audiobookshelfSession.currentTime
-      print("Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s")
+    if result.serverCurrentTime > mediaProgress.currentTime {
+      mediaProgress.currentTime = result.serverCurrentTime
+      print("Using server currentTime for cross-device sync: \(result.serverCurrentTime)s")
 
       if let player = self.player {
-        let seekTime = CMTime(seconds: audiobookshelfSession.currentTime, preferredTimescale: 1000)
+        let seekTime = CMTime(seconds: result.serverCurrentTime, preferredTimescale: 1000)
         player.seek(to: seekTime) { _ in
           print("Seeked to server position")
         }
       }
     }
 
-    if let item {
-      self.session = Session(from: audiobookshelfSession)
-      item.chapters = audiobookshelfSession.chapters?.map(Chapter.init) ?? []
-
-      try? MediaProgress.updateProgress(
-        for: item.bookID,
-        currentTime: mediaProgress.currentTime,
-        timeListened: mediaProgress.timeListened,
-        duration: item.duration,
-        progress: mediaProgress.currentTime / item.duration
-      )
-      print("Updated session with chapters")
-    } else {
-      let newItem = LocalBook(from: audiobookshelfSession.libraryItem)
-      item = newItem
-      self.session = Session(from: audiobookshelfSession)
-      try? item?.save()
-      print("Created new item from session")
+    if let updatedItem = result.updatedItem {
+      item = updatedItem
     }
-
-    print("Session setup completed successfully")
   }
 
   private func setupAudioPlayer() async throws -> AVPlayer {
@@ -694,12 +693,17 @@ extension BookPlayerModel {
   }
 
   private func handlePlaybackStateChange(_ isNowPlaying: Bool) {
+    print(
+      "🎵 handlePlaybackStateChange: isNowPlaying=\(isNowPlaying), current isPlaying=\(isPlaying)")
+
     let now = Date()
 
     if isNowPlaying && !isPlaying {
+      print("🎵 State: Starting playback")
       lastPlaybackAt = now
       mediaProgress.lastPlayedAt = Date()
     } else if !isNowPlaying && isPlaying {
+      print("🎵 State: Stopping playback")
       if let last = lastPlaybackAt {
         let timeListened = now.timeIntervalSince(last)
         mediaProgress.timeListened += timeListened
@@ -709,6 +713,8 @@ extension BookPlayerModel {
       lastPlaybackAt = nil
 
       markAsFinishedIfNeeded()
+    } else {
+      print("🎵 State: No change (isNowPlaying=\(isNowPlaying), isPlaying=\(isPlaying))")
     }
 
     try? mediaProgress.save()
@@ -740,23 +746,18 @@ extension BookPlayerModel {
   }
 
   private func syncSessionProgress() {
-    guard let session = self.session else { return }
-
-    let now = Date()
-
-    guard mediaProgress.timeListened >= 20, now.timeIntervalSince(lastSyncAt) >= 10 else { return }
-
-    lastSyncAt = now
+    guard session != nil else { return }
 
     Task {
       do {
-        try await audiobookshelf.sessions.sync(
-          session.id,
+        let didSync = try await sessionManager.syncProgress(
           timeListened: mediaProgress.timeListened,
           currentTime: mediaProgress.currentTime
         )
 
-        mediaProgress.timeListened = 0
+        if didSync {
+          mediaProgress.timeListened = 0
+        }
       } catch {
         print("Failed to sync session progress: \(error)")
 
@@ -838,13 +839,17 @@ extension BookPlayerModel {
 
     let currentTime = player.currentTime()
     let wasPlaying = isPlaying
+    let isDownloaded = item?.isDownloaded ?? false
 
     player.pause()
     isLoading = true
-    Toast(message: "Reconnecting...").show()
+
+    if !isDownloaded {
+      Toast(message: "Reconnecting...").show()
+    }
 
     let delay = min(pow(2.0, Double(recoveryAttempts - 1)), 8.0)
-    if delay > 0 {
+    if delay > 0 && isRecovering {
       try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
     }
 
@@ -855,45 +860,56 @@ extension BookPlayerModel {
         throw Audiobookshelf.AudiobookshelfError.networkError("Failed to recreate session")
       }
 
-      let playerItem: AVPlayerItem
+      if !isDownloaded {
+        let playerItem: AVPlayerItem
 
-      let tracks = item.orderedTracks
-      if tracks.count > 1 {
-        playerItem = try await createCompositionPlayerItem(from: tracks)
-        print("Recreated composition with \(tracks.count) tracks after recovery")
+        let tracks = item.orderedTracks
+        if tracks.count > 1 {
+          playerItem = try await createCompositionPlayerItem(from: tracks)
+          print("Recreated composition with \(tracks.count) tracks after recovery")
+        } else {
+          guard let track = item.track(at: 0) else {
+            throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track")
+          }
+
+          let trackURL = session?.url(for: track) ?? track.localPath
+          guard let trackURL else {
+            throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track URL")
+          }
+
+          playerItem = AVPlayerItem(url: trackURL)
+        }
+
+        player.replaceCurrentItem(with: playerItem)
+        setupPlayerObservers()
+
+        let rewindTime = CMTimeSubtract(currentTime, CMTime(seconds: 5, preferredTimescale: 1000))
+        let seekTime = CMTimeMaximum(rewindTime, .zero)
+
+        player.seek(to: seekTime) { [weak self] _ in
+          guard let self else { return }
+
+          self.isLoading = false
+          self.isRecovering = false
+
+          if wasPlaying {
+            player.rate = self.speed.playbackSpeed
+          }
+
+          print(
+            "Successfully recovered stream at position: \(CMTimeGetSeconds(seekTime))s (rewound 5s)"
+          )
+          Toast(message: "Reconnected").show()
+        }
       } else {
-        guard let track = item.track(at: 0) else {
-          throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track")
-        }
-
-        let trackURL = session?.url(for: track) ?? track.localPath
-        guard let trackURL else {
-          throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track URL")
-        }
-
-        playerItem = AVPlayerItem(url: trackURL)
-      }
-
-      player.replaceCurrentItem(with: playerItem)
-      setupPlayerObservers()
-
-      let rewindTime = CMTimeSubtract(currentTime, CMTime(seconds: 5, preferredTimescale: 1000))
-      let seekTime = CMTimeMaximum(rewindTime, .zero)
-
-      player.seek(to: seekTime) { [weak self] _ in
-        guard let self else { return }
-
-        self.isLoading = false
-        self.isRecovering = false
+        isLoading = false
+        isRecovering = false
 
         if wasPlaying {
-          player.rate = self.speed.playbackSpeed
+          player.rate = speed.playbackSpeed
         }
 
-        print(
-          "Successfully recovered stream at position: \(CMTimeGetSeconds(seekTime))s (rewound 5s)"
-        )
-        Toast(message: "Reconnected").show()
+        print("Session recreated for downloaded book (for progress sync)")
       }
 
     } catch {
@@ -902,7 +918,7 @@ extension BookPlayerModel {
       isLoading = false
       isRecovering = false
 
-      if recoveryAttempts < maxRecoveryAttempts {
+      if recoveryAttempts < maxRecoveryAttempts && !isDownloaded {
         handleStreamFailure(error: error)
       } else {
         Toast(error: "Unable to reconnect. Please try again later.").show()
@@ -921,32 +937,12 @@ extension BookPlayerModel {
   }
 
   func closeSession() {
-    guard let session = self.session else {
-      print("Session already closed or no session to close")
-      return
-    }
-
     Task {
-      if mediaProgress.timeListened > 0 {
-        do {
-          try await audiobookshelf.sessions.sync(
-            session.id,
-            timeListened: mediaProgress.timeListened,
-            currentTime: mediaProgress.currentTime
-          )
-
-          mediaProgress.timeListened = 0
-        } catch {
-          print("Failed to sync session progress: \(error)")
-        }
-      }
-
-      do {
-        try await audiobookshelf.sessions.close(session.id)
-        print("Successfully closed session: \(session.id)")
-      } catch {
-        print("Failed to close session: \(error)")
-      }
+      await sessionManager.closeSession(
+        timeListened: mediaProgress.timeListened,
+        currentTime: mediaProgress.currentTime
+      )
+      mediaProgress.timeListened = 0
     }
   }
 
