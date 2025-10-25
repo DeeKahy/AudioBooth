@@ -725,10 +725,21 @@ extension BookPlayerModel {
 
   private func markAsFinishedIfNeeded() {
     guard !mediaProgress.isFinished else { return }
-    guard let chaptersModel = chapters as? ChapterPickerSheetViewModel else { return }
 
-    let isOnLastChapter = chaptersModel.currentIndex == chaptersModel.chapters.count - 1
-    guard isOnLastChapter else { return }
+    let remainingTime = mediaProgress.duration - mediaProgress.currentTime
+    let isNearEnd = remainingTime <= 120
+
+    var shouldMarkFinished = isNearEnd
+
+    if let chaptersModel = chapters as? ChapterPickerSheetViewModel {
+      let isOnLastChapter = chaptersModel.currentIndex == chaptersModel.chapters.count - 1
+      shouldMarkFinished = isOnLastChapter || isNearEnd
+      print("📖 Chapter check: \(isOnLastChapter), Near end: \(isNearEnd)")
+    } else {
+      print("📖 No chapters, using time-based check. Near end: \(isNearEnd)")
+    }
+
+    guard shouldMarkFinished else { return }
 
     mediaProgress.isFinished = true
     mediaProgress.progress = 1.0
@@ -737,7 +748,9 @@ extension BookPlayerModel {
     Task {
       do {
         try await Audiobookshelf.shared.libraries.updateBookFinishedStatus(
-          bookID: id, isFinished: true)
+          bookID: id,
+          isFinished: true
+        )
         print("Successfully marked book as finished on server")
       } catch {
         print("Failed to update book finished status on server: \(error)")
