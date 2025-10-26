@@ -237,7 +237,7 @@ struct BookDetailsView: View {
         if let publisher = model.publisher {
           HStack {
             Image(systemName: "building.2")
-            Text("Publisher: \(publisher)")
+            Text("**Publisher:** \(publisher)")
           }
           .font(.subheadline)
         }
@@ -245,7 +245,7 @@ struct BookDetailsView: View {
         if let publishedYear = model.publishedYear {
           HStack {
             Image(systemName: "calendar")
-            Text("Published: \(publishedYear)")
+            Text("**Published:** \(publishedYear)")
           }
           .font(.subheadline)
         }
@@ -253,7 +253,7 @@ struct BookDetailsView: View {
         if let duration = model.durationText {
           HStack {
             Image(systemName: "clock")
-            Text("Duration: \(duration)")
+            Text("**Duration:** \(duration)")
           }
           .font(.subheadline)
         }
@@ -261,7 +261,7 @@ struct BookDetailsView: View {
         if let progress = model.progress, progress > 0 {
           HStack {
             Image(systemName: "chart.bar.fill")
-            Text("Progress: \(progress.formatted(.percent.precision(.fractionLength(0))))")
+            Text("**Progress:** \(progress.formatted(.percent.precision(.fractionLength(0))))")
           }
           .font(.subheadline)
         }
@@ -269,7 +269,7 @@ struct BookDetailsView: View {
         if let timeRemaining = model.timeRemaining {
           HStack {
             Image(systemName: "clock.arrow.circlepath")
-            Text("Time remaining: \(timeRemaining)")
+            Text("**Time remaining:** \(timeRemaining)")
           }
           .font(.subheadline)
         }
