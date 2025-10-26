@@ -3,6 +3,7 @@ import AVFoundation
 import Combine
 import Foundation
 import Models
+import OSLog
 import SwiftData
 
 final class DownloadManager: NSObject, ObservableObject {
@@ -104,7 +105,7 @@ extension DownloadManager {
           try? item.save()
         }
       } catch {
-        print("Failed to delete download: \(error.localizedDescription)")
+        AppLogger.download.error("Failed to delete download: \(error.localizedDescription)")
       }
     }
   }
@@ -117,7 +118,7 @@ extension DownloadManager {
         let audiobooksDirectory = documentsPath.appendingPathComponent("audiobooks")
 
         guard FileManager.default.fileExists(atPath: audiobooksDirectory.path) else {
-          print("Audiobooks directory does not exist, nothing to cleanup")
+          AppLogger.download.debug("Audiobooks directory does not exist, nothing to cleanup")
           return
         }
 
@@ -137,7 +138,7 @@ extension DownloadManager {
             guard let item = try? LocalBook.fetch(bookID: bookID) else {
               try FileManager.default.removeItem(at: directory)
               orphanedDirectoriesCount += 1
-              print("Removed orphaned directory for unknown book: \(bookID)")
+              AppLogger.download.info("Removed orphaned directory for unknown book: \(bookID)")
               continue
             }
 
@@ -372,11 +373,11 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
     }
 
     if success {
-      print("Download completed")
+      AppLogger.download.info("Download completed")
     } else if let error = error {
       let isCancelled = (error as? URLError)?.code == .cancelled || error is CancellationError
       if !isCancelled {
-        print("Download failed: \(error.localizedDescription)")
+        AppLogger.download.error("Download failed: \(error.localizedDescription)")
       }
     }
   }

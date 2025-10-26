@@ -2,6 +2,7 @@ import API
 import Combine
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct SettingsView: View {
   @Environment(\.dismiss) var dismiss
@@ -211,6 +212,19 @@ struct SettingsView: View {
         }
       }
 
+      Button(action: model.onExportLogsTapped) {
+        HStack {
+          if model.isExportingLogs {
+            ProgressView()
+              .scaleEffect(0.8)
+          } else {
+            Image(systemName: "square.and.arrow.up")
+          }
+          Text(model.isExportingLogs ? "Exporting..." : "Export Logs")
+        }
+      }
+      .disabled(model.isExportingLogs)
+
       Button("Clear Persistent Storage", action: model.onClearStorageTapped)
         .foregroundColor(.red)
 
@@ -249,6 +263,7 @@ extension SettingsView {
     var tipJar: TipJarView.Model
     var discoveredServers: [DiscoveredServer]
     var mediaProgressList: MediaProgressListView.Model?
+    var isExportingLogs: Bool
 
     var isTypingScheme: Bool {
       let lowercased = serverURL.lowercased()
@@ -269,6 +284,7 @@ extension SettingsView {
     func onClearStorageTapped() {}
     func onDiscoverServersTapped() {}
     func onServerSelected(_ server: DiscoveredServer) {}
+    func onExportLogsTapped() {}
 
     init(
       isAuthenticated: Bool = false,
@@ -283,7 +299,8 @@ extension SettingsView {
       library: LibrariesView.Model,
       tipJar: TipJarView.Model = .mock,
       discoveredServers: [DiscoveredServer] = [],
-      mediaProgressList: MediaProgressListView.Model? = nil
+      mediaProgressList: MediaProgressListView.Model? = nil,
+      isExportingLogs: Bool = false
     ) {
       self.serverURL = serverURL
       self.serverScheme = serverScheme
@@ -298,6 +315,7 @@ extension SettingsView {
       self.tipJar = tipJar
       self.discoveredServers = discoveredServers
       self.mediaProgressList = mediaProgressList
+      self.isExportingLogs = isExportingLogs
     }
   }
 }

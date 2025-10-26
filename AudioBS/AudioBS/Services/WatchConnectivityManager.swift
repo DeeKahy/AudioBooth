@@ -2,6 +2,7 @@ import API
 import Combine
 import Foundation
 import Models
+import OSLog
 import WatchConnectivity
 
 final class WatchConnectivityManager: NSObject, ObservableObject {
@@ -53,7 +54,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     do {
       try session.updateApplicationContext(context)
     } catch {
-      print("Failed to send playback state to watch: \(error)")
+      AppLogger.watchConnectivity.error("Failed to send playback state to watch: \(error)")
     }
   }
 
@@ -85,7 +86,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     do {
       try session.updateApplicationContext(context)
     } catch {
-      print("Failed to clear playback state on watch: \(error)")
+      AppLogger.watchConnectivity.error("Failed to clear playback state on watch: \(error)")
     }
   }
 
@@ -98,9 +99,9 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
     do {
       try session.updateApplicationContext(context)
-      print("Synced auth credentials to watch")
+      AppLogger.watchConnectivity.info("Synced auth credentials to watch")
     } catch {
-      print("Failed to sync auth credentials to watch: \(error)")
+      AppLogger.watchConnectivity.error("Failed to sync auth credentials to watch: \(error)")
     }
   }
 
@@ -113,9 +114,9 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
     do {
       try session.updateApplicationContext(context)
-      print("Cleared auth credentials on watch")
+      AppLogger.watchConnectivity.info("Cleared auth credentials on watch")
     } catch {
-      print("Failed to clear auth credentials on watch: \(error)")
+      AppLogger.watchConnectivity.error("Failed to clear auth credentials on watch: \(error)")
     }
   }
 
@@ -127,9 +128,9 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       context["library"] = libraryData
       do {
         try session.updateApplicationContext(context)
-        print("Synced library to watch: \(library.name)")
+        AppLogger.watchConnectivity.info("Synced library to watch: \(library.name)")
       } catch {
-        print("Failed to sync library to watch: \(error)")
+        AppLogger.watchConnectivity.error("Failed to sync library to watch: \(error)")
       }
     }
   }
@@ -142,9 +143,9 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
     do {
       try session.updateApplicationContext(context)
-      print("Cleared library on watch")
+      AppLogger.watchConnectivity.info("Cleared library on watch")
     } catch {
-      print("Failed to clear library on watch: \(error)")
+      AppLogger.watchConnectivity.error("Failed to clear library on watch: \(error)")
     }
   }
 
@@ -156,23 +157,24 @@ extension WatchConnectivityManager: WCSessionDelegate {
     error: Error?
   ) {
     if let error = error {
-      print("Watch session activation failed: \(error)")
+      AppLogger.watchConnectivity.error("Watch session activation failed: \(error)")
     } else {
-      print("Watch session activated with state: \(activationState.rawValue)")
+      AppLogger.watchConnectivity.info(
+        "Watch session activated with state: \(activationState.rawValue)")
     }
   }
 
   func sessionDidBecomeInactive(_ session: WCSession) {
-    print("Watch session became inactive")
+    AppLogger.watchConnectivity.info("Watch session became inactive")
   }
 
   func sessionDidDeactivate(_ session: WCSession) {
-    print("Watch session deactivated, reactivating...")
+    AppLogger.watchConnectivity.info("Watch session deactivated, reactivating...")
     session.activate()
   }
 
   func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-    print("Received message from watch: \(message)")
+    AppLogger.watchConnectivity.debug("Received message from watch: \(message)")
 
     guard let command = message["command"] as? String else { return }
 
@@ -197,7 +199,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
       case "skipBackward":
         PlayerManager.shared.current?.onSkipBackwardTapped()
       default:
-        print("Unknown command from watch: \(command)")
+        AppLogger.watchConnectivity.warning("Unknown command from watch: \(command)")
       }
     }
   }
@@ -211,7 +213,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
     do {
       try session.updateApplicationContext(context)
     } catch {
-      print("Failed to update playback state context: \(error)")
+      AppLogger.watchConnectivity.error("Failed to update playback state context: \(error)")
     }
   }
 
@@ -223,7 +225,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
           PlayerManager.shared.current?.onTogglePlaybackTapped()
           PlayerManager.shared.showFullPlayer()
         } else {
-          print("Book not found locally, fetching from server...")
+          AppLogger.watchConnectivity.info("Book not found locally, fetching from server...")
           let session = try await Audiobookshelf.shared.sessions.start(
             itemID: bookID,
             forceTranscode: false
@@ -234,7 +236,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
           PlayerManager.shared.showFullPlayer()
         }
       } catch {
-        print("Failed to handle play command: \(error)")
+        AppLogger.watchConnectivity.error("Failed to handle play command: \(error)")
       }
     }
   }

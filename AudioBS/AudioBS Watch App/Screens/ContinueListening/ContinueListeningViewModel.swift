@@ -2,6 +2,7 @@ import API
 import Combine
 import Foundation
 import Models
+import OSLog
 import WatchConnectivity
 
 final class ContinueListeningViewModel: ContinueListeningView.Model {
@@ -28,7 +29,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
       let books = try LocalBook.fetchAll()
       updateBooks(from: books)
     } catch {
-      print("Failed to load cached books: \(error)")
+      AppLogger.viewModel.error("Failed to load cached books: \(error)")
     }
   }
 
@@ -104,7 +105,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
 
       self.books = items
     } catch {
-      print("Failed to fetch continue listening: \(error)")
+      AppLogger.viewModel.error("Failed to fetch continue listening: \(error)")
     }
   }
 
@@ -118,7 +119,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
           playerManager.isShowingFullPlayer = true
         }
       } catch {
-        print("Failed to fetch book: \(error)")
+        AppLogger.viewModel.error("Failed to fetch book: \(error)")
       }
     }
   }

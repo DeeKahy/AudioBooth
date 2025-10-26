@@ -1,5 +1,6 @@
 import AVFoundation
 import Foundation
+import OSLog
 import SwiftUI
 
 final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
@@ -101,7 +102,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     player?.pause()
     current = .none
     stopSleepTimer()
-    print("Timer expired - playback paused")
+    AppLogger.player.info("Timer expired - playback paused")
   }
 
 }

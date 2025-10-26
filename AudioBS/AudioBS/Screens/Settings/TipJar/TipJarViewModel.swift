@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import RevenueCat
 import SwiftUI
 
@@ -23,7 +24,7 @@ final class TipJarViewModel: TipJarView.Model {
         let offerings = try await Purchases.shared.offerings()
 
         guard let currentOffering = offerings.current else {
-          print("No current offering available")
+          AppLogger.viewModel.warning("No current offering available")
           return
         }
 
@@ -53,7 +54,7 @@ final class TipJarViewModel: TipJarView.Model {
           )
         }
       } catch {
-        print("Failed to fetch offerings: \(error.localizedDescription)")
+        AppLogger.viewModel.error("Failed to fetch offerings: \(error.localizedDescription)")
       }
     }
   }
@@ -75,7 +76,7 @@ final class TipJarViewModel: TipJarView.Model {
           }
         }
       } catch {
-        print("Failed to purchase tip: \(error.localizedDescription)")
+        AppLogger.viewModel.error("Failed to purchase tip: \(error.localizedDescription)")
       }
 
       isPurchasing = nil

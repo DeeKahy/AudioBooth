@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 enum HTTPMethod: String {
   case get = "GET"
@@ -115,7 +116,7 @@ final class NetworkService {
       do {
         decodedValue = try decoder.decode(T.self, from: data)
       } catch {
-        print("Failed to decode \(T.self): \(error)")
+        AppLogger.network.error("Failed to decode \(T.self): \(error)")
         throw error
       }
     }

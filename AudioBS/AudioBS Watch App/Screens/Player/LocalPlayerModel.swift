@@ -4,6 +4,7 @@ import Combine
 import Foundation
 import MediaPlayer
 import Models
+import OSLog
 import WatchConnectivity
 
 final class LocalPlayerModel: PlayerView.Model {
@@ -249,12 +250,12 @@ extension LocalPlayerModel {
   private func setupSessionInfo() async throws {
     // If book is already downloaded, use local files (session is optional)
     if item.isDownloaded {
-      print("Book is downloaded, using local files (session optional)")
-      print("Item has \(item.tracks.count) tracks")
+      AppLogger.player.info("Book is downloaded, using local files (session optional)")
+      AppLogger.player.debug("Item has \(self.item.tracks.count) tracks")
 
       // Try to fetch session for streaming URLs, but don't fail if it doesn't work
       do {
-        print("Attempting to fetch session for potential streaming...")
+        AppLogger.player.debug("Attempting to fetch session for potential streaming...")
         let audiobookshelfSession = try await audiobookshelf.sessions.start(
           itemID: item.bookID,
           forceTranscode: false
@@ -263,13 +264,13 @@ extension LocalPlayerModel {
 
         if audiobookshelfSession.currentTime > mediaProgress.currentTime {
           mediaProgress.currentTime = audiobookshelfSession.currentTime
-          print(
+          AppLogger.player.info(
             "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s")
         }
 
-        print("Session available for streaming if needed")
+        AppLogger.player.info("Session available for streaming if needed")
       } catch {
-        print("Session fetch failed, will use local files only: \(error)")
+        AppLogger.player.warning("Session fetch failed, will use local files only: \(error)")
       }
 
       return
@@ -277,7 +278,7 @@ extension LocalPlayerModel {
 
     // Book is not downloaded, session is required
     do {
-      print("Attempting to fetch fresh session from server...")
+      AppLogger.player.info("Attempting to fetch fresh session from server...")
 
       let audiobookshelfSession: PlaySession
       audiobookshelfSession = try await audiobookshelf.sessions.start(
@@ -287,7 +288,7 @@ extension LocalPlayerModel {
 
       if audiobookshelfSession.currentTime > mediaProgress.currentTime {
         mediaProgress.currentTime = audiobookshelfSession.currentTime
-        print(
+        AppLogger.player.info(
           "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s")
       }
 
@@ -316,12 +317,12 @@ extension LocalPlayerModel {
         duration: item.duration,
         progress: mediaProgress.currentTime / item.duration
       )
-      print("Merged fresh session with existing session")
+      AppLogger.player.debug("Merged fresh session with existing session")
 
-      print("Successfully fetched fresh session from server")
+      AppLogger.player.info("Successfully fetched fresh session from server")
 
     } catch {
-      print("Failed to fetch fresh session: \(error)")
+      AppLogger.player.error("Failed to fetch fresh session: \(error)")
       throw Audiobookshelf.AudiobookshelfError.networkError(
         "Cannot play without network connection or downloaded files")
     }
@@ -329,7 +330,7 @@ extension LocalPlayerModel {
 
   private func setupAudioPlayer() async throws -> AVPlayer {
     guard let track = item.track(at: mediaProgress.currentTime) else {
-      print("Failed to get track at time \(mediaProgress.currentTime)")
+      AppLogger.player.error("Failed to get track at time \(self.mediaProgress.currentTime)")
       isLoading = false
       PlayerManager.shared.clearCurrent()
       throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track")
@@ -337,7 +338,7 @@ extension LocalPlayerModel {
 
     let trackURL = session?.url(for: track) ?? track.localPath
     guard let trackURL else {
-      print("No URL available for track")
+      AppLogger.player.error("No URL available for track")
       isLoading = false
       PlayerManager.shared.clearCurrent()
       throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track URL")
@@ -375,13 +376,13 @@ extension LocalPlayerModel {
       let seekTime = CMTime(seconds: mediaProgress.currentTime, preferredTimescale: 1000)
       let currentTime = mediaProgress.currentTime
       player.seek(to: seekTime) { _ in
-        print("Seeked to previously played position: \(currentTime)s")
+        AppLogger.player.debug("Seeked to previously played position: \(currentTime)s")
       }
     }
   }
 
   private func handleLoadError(_ error: Error) {
-    print("Failed to setup player: \(error)")
+    AppLogger.player.error("Failed to setup player: \(error)")
     isLoading = false
     PlayerManager.shared.clearCurrent()
   }
@@ -418,7 +419,7 @@ extension LocalPlayerModel {
 
         try await audioSession.activate()
       } catch {
-        print("Failed to configure audio session: \(error)")
+        AppLogger.player.error("Failed to configure audio session: \(error)")
       }
     }
   }
@@ -489,7 +490,7 @@ extension LocalPlayerModel {
             self?.isLoading = false
             self?.isReadyToPlay = false
             let errorMessage = currentItem.error?.localizedDescription ?? "Unknown error"
-            print("Player item failed: \(errorMessage)")
+            AppLogger.player.error("Player item failed: \(errorMessage)")
             PlayerManager.shared.clearCurrent()
           case .unknown:
             self?.isLoading = true
@@ -519,7 +520,7 @@ extension LocalPlayerModel {
 
     switch type {
     case .began:
-      print("Audio interruption began")
+      AppLogger.player.debug("Audio interruption began")
 
     case .ended:
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
@@ -528,10 +529,10 @@ extension LocalPlayerModel {
 
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
-        print("Audio interruption ended - resuming playback")
+        AppLogger.player.debug("Audio interruption ended - resuming playback")
         player?.rate = 1.0
       } else {
-        print("Audio interruption ended - not resuming")
+        AppLogger.player.debug("Audio interruption ended - not resuming")
       }
 
     @unknown default:
@@ -636,7 +637,7 @@ extension LocalPlayerModel {
 
         mediaProgress.timeListened = 0
       } catch {
-        print("Failed to sync session progress: \(error)")
+        AppLogger.player.error("Failed to sync session progress: \(error)")
       }
     }
   }
@@ -659,7 +660,7 @@ extension LocalPlayerModel {
 
         syncSessionProgress()
       } catch {
-        print("Failed to update played progress: \(error)")
+        AppLogger.player.error("Failed to update played progress: \(error)")
       }
     }
   }

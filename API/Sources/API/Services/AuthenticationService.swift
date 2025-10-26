@@ -1,6 +1,7 @@
 import Foundation
 import KeychainAccess
 import Nuke
+import OSLog
 
 public final class AuthenticationService {
   private let audiobookshelf: Audiobookshelf
@@ -56,7 +57,7 @@ public final class AuthenticationService {
     {
       connection = legacyConnection
       try? legacyKeychain.remove(Keys.connection)
-      print("Migrated keychain from legacy storage")
+      AppLogger.authentication.info("Migrated keychain from legacy storage")
       return
     }
   }

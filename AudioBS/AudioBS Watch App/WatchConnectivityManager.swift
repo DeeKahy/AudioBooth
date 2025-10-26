@@ -1,6 +1,7 @@
 import API
 import Combine
 import Foundation
+import OSLog
 import WatchConnectivity
 
 final class WatchConnectivityManager: NSObject, ObservableObject {
@@ -33,13 +34,13 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
   func sendCommand(_ command: String) {
     guard let session = session, session.isReachable else {
-      print("Cannot send command - session not reachable")
+      AppLogger.watchConnectivity.warning("Cannot send command - session not reachable")
       return
     }
 
     let message = ["command": command]
     session.sendMessage(message, replyHandler: nil) { error in
-      print("Failed to send command to iOS: \(error)")
+      AppLogger.watchConnectivity.error("Failed to send command to iOS: \(error)")
     }
   }
 
@@ -61,7 +62,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
   func playBook(bookID: String) {
     guard let session = session, session.isReachable else {
-      print("Cannot send play command - session not reachable")
+      AppLogger.watchConnectivity.warning("Cannot send play command - session not reachable")
       return
     }
 
@@ -71,7 +72,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     ]
 
     session.sendMessage(message, replyHandler: nil) { error in
-      print("Failed to send play command to iOS: \(error)")
+      AppLogger.watchConnectivity.error("Failed to send play command to iOS: \(error)")
     }
   }
 }
@@ -82,9 +83,10 @@ extension WatchConnectivityManager: WCSessionDelegate {
     error: Error?
   ) {
     if let error = error {
-      print("Watch session activation failed: \(error)")
+      AppLogger.watchConnectivity.error("Watch session activation failed: \(error)")
     } else {
-      print("Watch session activated with state: \(activationState.rawValue)")
+      AppLogger.watchConnectivity.info(
+        "Watch session activated with state: \(activationState.rawValue)")
     }
   }
 

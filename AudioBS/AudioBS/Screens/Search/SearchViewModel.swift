@@ -1,5 +1,6 @@
 import API
 import Foundation
+import OSLog
 
 final class SearchViewModel: SearchView.Model {
   private let audiobookshelf = Audiobookshelf.shared
@@ -58,7 +59,7 @@ final class SearchViewModel: SearchView.Model {
       }
     } catch {
       if !Task.isCancelled {
-        print("Failed to perform search: \(error)")
+        AppLogger.viewModel.error("Failed to perform search: \(error)")
         Toast(error: "Search failed").show()
         clearResults()
       }

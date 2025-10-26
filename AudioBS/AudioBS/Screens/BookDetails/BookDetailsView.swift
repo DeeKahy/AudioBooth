@@ -666,7 +666,6 @@ struct ParallaxHeader<Content: View, Space: Hashable>: View {
         .offset(y: offset)
         .onAppear {
           height = min(370, proxy.size.width)
-          print(height)
         }
         .onChange(of: proxy.size.width) { _, new in height = min(370, new) }
     }

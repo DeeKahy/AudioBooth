@@ -2,6 +2,7 @@ import API
 import Combine
 import Foundation
 import Models
+import OSLog
 import SafariServices
 import UIKit
 
@@ -65,7 +66,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
         isLoading = true
       }
     } catch {
-      print("Failed to load local book: \(error)")
+      AppLogger.viewModel.error("Failed to load local book: \(error)")
       if book == nil {
         isLoading = true
       }

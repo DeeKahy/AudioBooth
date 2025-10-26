@@ -5,6 +5,7 @@ import Combine
 import MediaPlayer
 import Models
 import Nuke
+import OSLog
 import SwiftData
 import SwiftUI
 import WatchConnectivity
@@ -92,16 +93,16 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
       player.rate = 0
     } else {
       if session == nil {
-        print("⚠️ Session was closed, recreating in background for progress sync")
+        AppLogger.player.warning("Session was closed, recreating in background for progress sync")
 
         player.rate = speed.playbackSpeed
 
         Task {
           do {
             try await setupSession()
-            print("✅ Session recreated successfully (playback continued from cache)")
+            AppLogger.player.info("Session recreated successfully (playback continued from cache)")
           } catch {
-            print("❌ Failed to recreate session: \(error)")
+            AppLogger.player.error("Failed to recreate session: \(error)")
           }
         }
       } else {
@@ -153,12 +154,13 @@ extension BookPlayerModel {
 
     if result.serverCurrentTime > mediaProgress.currentTime {
       mediaProgress.currentTime = result.serverCurrentTime
-      print("Using server currentTime for cross-device sync: \(result.serverCurrentTime)s")
+      AppLogger.player.info(
+        "Using server currentTime for cross-device sync: \(result.serverCurrentTime)s")
 
       if let player = self.player {
         let seekTime = CMTime(seconds: result.serverCurrentTime, preferredTimescale: 1000)
         player.seek(to: seekTime) { _ in
-          print("Seeked to server position")
+          AppLogger.player.debug("Seeked to server position")
         }
       }
     }
@@ -178,10 +180,10 @@ extension BookPlayerModel {
     let tracks = item.orderedTracks
     if tracks.count > 1 {
       playerItem = try await createCompositionPlayerItem(from: tracks)
-      print("Created composition with \(tracks.count) tracks")
+      AppLogger.player.debug("Created composition with \(tracks.count) tracks")
     } else {
       guard let track = item.track(at: 0) else {
-        print("Failed to get track at time 0")
+        AppLogger.player.error("Failed to get track at time 0")
         Toast(error: "Failed to get track").show()
         isLoading = false
         PlayerManager.shared.clearCurrent()
@@ -190,7 +192,7 @@ extension BookPlayerModel {
 
       let trackURL = session?.url(for: track) ?? track.localPath
       guard let trackURL else {
-        print("No URL available for track")
+        AppLogger.player.error("No URL available for track")
         Toast(error: "Failed to get streaming URL").show()
         isLoading = false
         PlayerManager.shared.clearCurrent()
@@ -220,10 +222,10 @@ extension BookPlayerModel {
     if let sessionChapters = item?.orderedChapters, !sessionChapters.isEmpty {
       chapters = ChapterPickerSheetViewModel(chapters: sessionChapters, player: player)
       timer.maxRemainingChapters = sessionChapters.count - 1
-      print("Loaded \(sessionChapters.count) chapters from play session info")
+      AppLogger.player.debug("Loaded \(sessionChapters.count) chapters from play session info")
     } else {
       chapters = nil
-      print("No chapters available in play session info")
+      AppLogger.player.debug("No chapters available in play session info")
     }
 
     if let playbackProgress = playbackProgress as? PlaybackProgressViewModel {
@@ -241,13 +243,13 @@ extension BookPlayerModel {
       let seekTime = CMTime(seconds: mediaProgress.currentTime, preferredTimescale: 1000)
       let currentTime = mediaProgress.currentTime
       player.seek(to: seekTime) { _ in
-        print("Seeked to previously played position: \(currentTime)s")
+        AppLogger.player.debug("Seeked to previously played position: \(currentTime)s")
       }
     }
   }
 
   private func handleLoadError(_ error: Error) {
-    print("Failed to setup player: \(error)")
+    AppLogger.player.error("Failed to setup player: \(error)")
     Toast(error: "Failed to setup audio player").show()
     isLoading = false
     PlayerManager.shared.clearCurrent()
@@ -259,10 +261,10 @@ extension BookPlayerModel {
     do {
       if let existingItem = try LocalBook.fetch(bookID: id) {
         self.item = existingItem
-        print("Found existing progress: \(mediaProgress.currentTime)s")
+        AppLogger.player.debug("Found existing progress: \(self.mediaProgress.currentTime)s")
       }
     } catch {
-      print("Failed to fetch local book item: \(error)")
+      AppLogger.player.error("Failed to fetch local book item: \(error)")
       Toast(error: "Failed to load playback progress").show()
     }
   }
@@ -278,11 +280,11 @@ extension BookPlayerModel {
 
       do {
         if isDownloaded {
-          print("Book is downloaded, loading local files instantly")
+          AppLogger.player.info("Book is downloaded, loading local files instantly")
           let progress = try? MediaProgress.fetch(bookID: item?.bookID ?? id)
           if let cachedCurrentTime = progress?.currentTime, cachedCurrentTime > 0 {
             mediaProgress.currentTime = cachedCurrentTime
-            print("Using cached currentTime: \(cachedCurrentTime)s")
+            AppLogger.player.debug("Using cached currentTime: \(cachedCurrentTime)s")
           }
 
           let player = try await setupAudioPlayer()
@@ -301,11 +303,11 @@ extension BookPlayerModel {
             do {
               try await setupSession()
             } catch {
-              print("Background session fetch failed: \(error)")
+              AppLogger.player.error("Background session fetch failed: \(error)")
             }
           }
         } else {
-          print("Book not downloaded, fetching session first")
+          AppLogger.player.info("Book not downloaded, fetching session first")
           try await setupSession()
 
           guard item != nil else {
@@ -336,7 +338,7 @@ extension BookPlayerModel {
         let request = ImageRequest(url: coverURL)
         cover = try await ImagePipeline.shared.image(for: request)
       } catch {
-        print("Failed to load cover image for now playing: \(error)")
+        AppLogger.player.error("Failed to load cover image for now playing: \(error)")
       }
     }
   }
@@ -384,7 +386,7 @@ extension BookPlayerModel {
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
       }
     } catch {
-      print("Failed to configure audio session: \(error)")
+      AppLogger.player.error("Failed to configure audio session: \(error)")
     }
   }
 
@@ -463,7 +465,7 @@ extension BookPlayerModel {
           case .failed:
             self?.isLoading = false
             let errorMessage = currentItem.error?.localizedDescription ?? "Unknown error"
-            print("Player item failed: \(errorMessage)")
+            AppLogger.player.error("Player item failed: \(errorMessage)")
             self?.handleStreamFailure(error: currentItem.error)
           case .unknown:
             self?.isLoading = true
@@ -476,7 +478,7 @@ extension BookPlayerModel {
       NotificationCenter.default.publisher(for: .AVPlayerItemPlaybackStalled, object: currentItem)
         .receive(on: DispatchQueue.main)
         .sink { [weak self] _ in
-          print("Playback stalled - attempting recovery")
+          AppLogger.player.warning("Playback stalled - attempting recovery")
           self?.handleStreamFailure(error: nil)
         }
         .store(in: &cancellables)
@@ -487,7 +489,7 @@ extension BookPlayerModel {
       .receive(on: DispatchQueue.main)
       .sink { [weak self] notification in
         let error = notification.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error
-        print("Failed to play to end: \(error?.localizedDescription ?? "Unknown")")
+        AppLogger.player.error("Failed to play to end: \(error?.localizedDescription ?? "Unknown")")
         self?.handleStreamFailure(error: error)
       }
       .store(in: &cancellables)
@@ -511,7 +513,7 @@ extension BookPlayerModel {
 
     switch type {
     case .began:
-      print("Audio interruption began")
+      AppLogger.player.info("Audio interruption began")
 
     case .ended:
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
@@ -520,10 +522,10 @@ extension BookPlayerModel {
 
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
-        print("Audio interruption ended - resuming playback")
+        AppLogger.player.info("Audio interruption ended - resuming playback")
         player?.rate = speed.playbackSpeed
       } else {
-        print("Audio interruption ended - not resuming")
+        AppLogger.player.info("Audio interruption ended - not resuming")
       }
 
     @unknown default:
@@ -597,7 +599,7 @@ extension BookPlayerModel {
     for track in tracks.sorted(by: { $0.index < $1.index }) {
       let trackURL = session?.url(for: track) ?? track.localPath
       guard let trackURL else {
-        print("Skipping track \(track.index) - no URL")
+        AppLogger.player.warning("Skipping track \(track.index) - no URL")
         continue
       }
 
@@ -605,7 +607,7 @@ extension BookPlayerModel {
       let assetTracks = try await asset.loadTracks(withMediaType: .audio)
 
       guard let assetAudioTrack = assetTracks.first else {
-        print("Skipping track \(track.index) - no audio track")
+        AppLogger.player.warning("Skipping track \(track.index) - no audio track")
         continue
       }
 
@@ -615,9 +617,10 @@ extension BookPlayerModel {
       do {
         try audioTrack.insertTimeRange(timeRange, of: assetAudioTrack, at: currentTime)
         currentTime = CMTimeAdd(currentTime, trackDuration)
-        print("Added track \(track.index) at time \(CMTimeGetSeconds(currentTime))")
+        AppLogger.player.debug(
+          "Added track \(track.index) at time \(CMTimeGetSeconds(currentTime))")
       } catch {
-        print("Failed to insert track \(track.index): \(error)")
+        AppLogger.player.error("Failed to insert track \(track.index): \(error)")
       }
     }
 
@@ -639,11 +642,11 @@ extension BookPlayerModel {
     guard let player = self.player,
       let item
     else {
-      print("Cannot refresh player - missing player or item")
+      AppLogger.player.warning("Cannot refresh player - missing player or item")
       return
     }
 
-    print("Refreshing player to use local files")
+    AppLogger.player.info("Refreshing player to use local files")
 
     let currentTime = player.currentTime()
     let wasPlaying = isPlaying
@@ -657,23 +660,24 @@ extension BookPlayerModel {
         let tracks = item.orderedTracks
         if tracks.count > 1 {
           playerItem = try await createCompositionPlayerItem(from: tracks)
-          print("Recreated composition with local files for \(tracks.count) tracks")
+          AppLogger.player.debug(
+            "Recreated composition with local files for \(tracks.count) tracks")
         } else {
           guard let track = item.track(at: 0) else {
-            print("Failed to get track at time 0")
+            AppLogger.player.error("Failed to get track at time 0")
             Toast(error: "Failed to get track").show()
             return
           }
 
           let trackURL = session?.url(for: track) ?? track.localPath
           guard let trackURL else {
-            print("No URL available for track")
+            AppLogger.player.error("No URL available for track")
             Toast(error: "Failed to get streaming URL").show()
             return
           }
 
           playerItem = AVPlayerItem(url: trackURL)
-          print("Using URL: \(trackURL)")
+          AppLogger.player.debug("Using URL: \(trackURL)")
         }
 
         player.replaceCurrentItem(with: playerItem)
@@ -682,28 +686,30 @@ extension BookPlayerModel {
           if wasPlaying {
             player.play()
           }
-          print("Restored playback position and state after switching to local files")
+          AppLogger.player.info(
+            "Restored playback position and state after switching to local files")
         }
 
       } catch {
-        print("Failed to refresh player for local playback: \(error)")
+        AppLogger.player.error("Failed to refresh player for local playback: \(error)")
         Toast(error: "Failed to switch to downloaded files").show()
       }
     }
   }
 
   private func handlePlaybackStateChange(_ isNowPlaying: Bool) {
-    print(
-      "🎵 handlePlaybackStateChange: isNowPlaying=\(isNowPlaying), current isPlaying=\(isPlaying)")
+    AppLogger.player.debug(
+      "🎵 handlePlaybackStateChange: isNowPlaying=\(isNowPlaying), current isPlaying=\(self.isPlaying)"
+    )
 
     let now = Date()
 
     if isNowPlaying && !isPlaying {
-      print("🎵 State: Starting playback")
+      AppLogger.player.debug("🎵 State: Starting playback")
       lastPlaybackAt = now
       mediaProgress.lastPlayedAt = Date()
     } else if !isNowPlaying && isPlaying {
-      print("🎵 State: Stopping playback")
+      AppLogger.player.debug("🎵 State: Stopping playback")
       if let last = lastPlaybackAt {
         let timeListened = now.timeIntervalSince(last)
         mediaProgress.timeListened += timeListened
@@ -714,7 +720,8 @@ extension BookPlayerModel {
 
       markAsFinishedIfNeeded()
     } else {
-      print("🎵 State: No change (isNowPlaying=\(isNowPlaying), isPlaying=\(isPlaying))")
+      AppLogger.player.debug(
+        "🎵 State: No change (isNowPlaying=\(isNowPlaying), isPlaying=\(self.isPlaying))")
     }
 
     try? mediaProgress.save()
@@ -734,9 +741,9 @@ extension BookPlayerModel {
     if let chaptersModel = chapters as? ChapterPickerSheetViewModel {
       let isOnLastChapter = chaptersModel.currentIndex == chaptersModel.chapters.count - 1
       shouldMarkFinished = isOnLastChapter || isNearEnd
-      print("📖 Chapter check: \(isOnLastChapter), Near end: \(isNearEnd)")
+      AppLogger.player.debug("📖 Chapter check: \(isOnLastChapter), Near end: \(isNearEnd)")
     } else {
-      print("📖 No chapters, using time-based check. Near end: \(isNearEnd)")
+      AppLogger.player.debug("📖 No chapters, using time-based check. Near end: \(isNearEnd)")
     }
 
     guard shouldMarkFinished else { return }
@@ -751,9 +758,9 @@ extension BookPlayerModel {
           bookID: id,
           isFinished: true
         )
-        print("Successfully marked book as finished on server")
+        AppLogger.player.debug("Successfully marked book as finished on server")
       } catch {
-        print("Failed to update book finished status on server: \(error)")
+        AppLogger.player.error("Failed to update book finished status on server: \(error)")
       }
     }
   }
@@ -772,10 +779,10 @@ extension BookPlayerModel {
           mediaProgress.timeListened = 0
         }
       } catch {
-        print("Failed to sync session progress: \(error)")
+        AppLogger.player.error("Failed to sync session progress: \(error)")
 
         if isSessionNotFoundError(error) {
-          print("Session not found (404) - triggering recovery")
+          AppLogger.player.debug("Session not found (404) - triggering recovery")
           handleStreamFailure(error: error)
         }
       }
@@ -808,7 +815,7 @@ extension BookPlayerModel {
 
         syncSessionProgress()
       } catch {
-        print("Failed to update playback progress: \(error)")
+        AppLogger.player.error("Failed to update playback progress: \(error)")
         Toast(error: "Failed to update playback progress").show()
       }
     }
@@ -816,12 +823,12 @@ extension BookPlayerModel {
 
   private func handleStreamFailure(error: Error?) {
     guard !isRecovering else {
-      print("Already recovering, skipping duplicate recovery attempt")
+      AppLogger.player.debug("Already recovering, skipping duplicate recovery attempt")
       return
     }
 
     guard recoveryAttempts < maxRecoveryAttempts else {
-      print("Max recovery attempts reached, giving up")
+      AppLogger.player.warning("Max recovery attempts reached, giving up")
       let errorMessage = error?.localizedDescription ?? "Stream unavailable"
       Toast(error: "Playback failed: \(errorMessage)").show()
       PlayerManager.shared.clearCurrent()
@@ -830,14 +837,15 @@ extension BookPlayerModel {
 
     let isDownloaded = item?.isDownloaded ?? false
     guard !isDownloaded else {
-      print("Book is downloaded, cannot recover from stream failure")
+      AppLogger.player.debug("Book is downloaded, cannot recover from stream failure")
       return
     }
 
     isRecovering = true
     recoveryAttempts += 1
 
-    print("Stream failure detected (attempt \(recoveryAttempts)/\(maxRecoveryAttempts))")
+    AppLogger.player.warning(
+      "Stream failure detected (attempt \(self.recoveryAttempts)/\(self.maxRecoveryAttempts))")
 
     Task {
       await recoverSession()
@@ -879,7 +887,7 @@ extension BookPlayerModel {
         let tracks = item.orderedTracks
         if tracks.count > 1 {
           playerItem = try await createCompositionPlayerItem(from: tracks)
-          print("Recreated composition with \(tracks.count) tracks after recovery")
+          AppLogger.player.debug("Recreated composition with \(tracks.count) tracks after recovery")
         } else {
           guard let track = item.track(at: 0) else {
             throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track")
@@ -909,7 +917,7 @@ extension BookPlayerModel {
             player.rate = self.speed.playbackSpeed
           }
 
-          print(
+          AppLogger.player.debug(
             "Successfully recovered stream at position: \(CMTimeGetSeconds(seekTime))s (rewound 5s)"
           )
           Toast(message: "Reconnected").show()
@@ -922,11 +930,11 @@ extension BookPlayerModel {
           player.rate = speed.playbackSpeed
         }
 
-        print("Session recreated for downloaded book (for progress sync)")
+        AppLogger.player.debug("Session recreated for downloaded book (for progress sync)")
       }
 
     } catch {
-      print("Failed to recover session: \(error)")
+      AppLogger.player.error("Failed to recover session: \(error)")
 
       isLoading = false
       isRecovering = false

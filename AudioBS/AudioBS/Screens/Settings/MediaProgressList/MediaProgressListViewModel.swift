@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import OSLog
 
 @MainActor
 final class MediaProgressListViewModel: MediaProgressListView.Model {
@@ -24,7 +25,7 @@ final class MediaProgressListViewModel: MediaProgressListView.Model {
         )
       }
     } catch {
-      print("Failed to fetch media progress: \(error.localizedDescription)")
+      AppLogger.viewModel.error("Failed to fetch media progress: \(error.localizedDescription)")
       progressItems = []
     }
   }

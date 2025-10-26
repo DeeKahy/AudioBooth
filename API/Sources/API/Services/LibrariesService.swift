@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import Nuke
+import OSLog
 
 public final class LibrariesService: ObservableObject, @unchecked Sendable {
   private let audiobookshelf: Audiobookshelf
@@ -26,7 +27,7 @@ public final class LibrariesService: ObservableObject, @unchecked Sendable {
     if let libraryData = userDefaults.data(forKey: "audiobookshelf_selected_library") {
       userDefaults.set(libraryData, forKey: Keys.library)
       userDefaults.removeObject(forKey: "audiobookshelf_selected_library")
-      print("Migrated library selection to App Group UserDefaults")
+      AppLogger.libraries.info("Migrated library selection to App Group UserDefaults")
     }
   }
 

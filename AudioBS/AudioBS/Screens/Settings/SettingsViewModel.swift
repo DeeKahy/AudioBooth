@@ -1,7 +1,9 @@
 import API
 import Foundation
 import Models
+import OSLog
 import SwiftUI
+import UIKit
 
 final class SettingsViewModel: SettingsView.Model {
   private let audiobookshelf = Audiobookshelf.shared
@@ -46,7 +48,7 @@ final class SettingsViewModel: SettingsView.Model {
         isAuthenticated = true
         navigationPath.append("libraries")
       } catch {
-        print("Login failed: \(error.localizedDescription)")
+        AppLogger.viewModel.error("Login failed: \(error.localizedDescription)")
         Toast(error: "Login failed: \(error.localizedDescription)").show()
         isAuthenticated = false
       }
@@ -84,7 +86,7 @@ final class SettingsViewModel: SettingsView.Model {
         PlayerManager.shared.clearCurrent()
         Toast(success: "Storage cleared successfully").show()
       } catch {
-        print("Failed to clear storage: \(error.localizedDescription)")
+        AppLogger.viewModel.error("Failed to clear storage: \(error.localizedDescription)")
         Toast(error: "Failed to clear storage: \(error.localizedDescription)").show()
       }
     }
@@ -105,6 +107,67 @@ final class SettingsViewModel: SettingsView.Model {
 
   override func onServerSelected(_ server: DiscoveredServer) {
     serverURL = server.serverURL.absoluteString
+  }
+
+  override func onExportLogsTapped() {
+    isExportingLogs = true
+
+    Task {
+      do {
+        let fileURL = try await LogExporter.exportLogs(since: 3600)
+        AppLogger.viewModel.info("Logs exported successfully to: \(fileURL.path)")
+
+        await MainActor.run {
+          presentActivityViewController(for: fileURL)
+        }
+      } catch {
+        AppLogger.viewModel.error("Failed to export logs: \(error)")
+        Toast(error: "Failed to export logs: \(error.localizedDescription)").show()
+      }
+
+      isExportingLogs = false
+    }
+  }
+
+  private func presentActivityViewController(for fileURL: URL) {
+    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+      let window = windowScene.windows.first,
+      var topController = window.rootViewController
+    else {
+      AppLogger.viewModel.error("Could not find root view controller to present share sheet")
+      return
+    }
+
+    while let presentedController = topController.presentedViewController {
+      topController = presentedController
+    }
+
+    let itemProvider = NSItemProvider(contentsOf: fileURL)!
+    let activityVC = UIActivityViewController(
+      activityItems: [itemProvider], applicationActivities: nil)
+
+    activityVC.completionWithItemsHandler = { _, completed, _, _ in
+      if completed {
+        try? FileManager.default.removeItem(at: fileURL)
+        AppLogger.viewModel.info("Log file shared and cleaned up")
+      } else {
+        try? FileManager.default.removeItem(at: fileURL)
+        AppLogger.viewModel.debug("Log file share cancelled, cleaned up temp file")
+      }
+    }
+
+    if let popover = activityVC.popoverPresentationController {
+      popover.sourceView = topController.view
+      popover.sourceRect = CGRect(
+        x: topController.view.bounds.midX,
+        y: topController.view.bounds.midY,
+        width: 0,
+        height: 0
+      )
+      popover.permittedArrowDirections = []
+    }
+
+    topController.present(activityVC, animated: true)
   }
 
   override func onLogoutTapped() {
