@@ -712,6 +712,7 @@ extension BookPlayerModel {
       AppLogger.player.debug("🎵 State: Starting playback")
       lastPlaybackAt = now
       mediaProgress.lastPlayedAt = Date()
+      sessionManager.notifyPlaybackStarted()
     } else if !isNowPlaying && isPlaying {
       AppLogger.player.debug("🎵 State: Stopping playback")
       if let last = lastPlaybackAt {
@@ -723,6 +724,7 @@ extension BookPlayerModel {
       lastPlaybackAt = nil
 
       markAsFinishedIfNeeded()
+      sessionManager.notifyPlaybackStopped()
     } else {
       AppLogger.player.debug(
         "🎵 State: No change (isNowPlaying=\(isNowPlaying), isPlaying=\(self.isPlaying))")

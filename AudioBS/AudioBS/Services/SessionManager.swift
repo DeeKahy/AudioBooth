@@ -15,6 +15,7 @@ final class SessionManager {
 
   private(set) var current: Session?
   private var lastSyncAt = Date()
+  private var inactivityTask: Task<Void, Never>?
 
   private init() {
     registerBackgroundTask()
@@ -221,6 +222,51 @@ final class SessionManager {
   func clearSession() {
     current = nil
     cancelScheduledSessionClose()
+    cancelInactivityTask()
+  }
+
+  func notifyPlaybackStopped() {
+    AppLogger.session.debug("Playback stopped - starting inactivity countdown")
+    startInactivityTask()
+  }
+
+  func notifyPlaybackStarted() {
+    AppLogger.session.debug("Playback started - canceling inactivity countdown")
+    cancelInactivityTask()
+  }
+
+  private func startInactivityTask() {
+    cancelInactivityTask()
+
+    inactivityTask = Task {
+      do {
+        try await Task.sleep(for: .seconds(inactivityTimeout))
+
+        guard !Task.isCancelled else {
+          AppLogger.session.debug("Inactivity task was cancelled")
+          return
+        }
+
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let playbackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+
+        if playbackRate > 0 {
+          AppLogger.session.info(
+            "Inactivity timeout reached but playback is active - not closing session")
+          return
+        }
+
+        AppLogger.session.info("Inactivity timeout reached - closing session")
+        await closeSession()
+      } catch {
+        AppLogger.session.debug("Inactivity task sleep was interrupted: \(error)")
+      }
+    }
+  }
+
+  private func cancelInactivityTask() {
+    inactivityTask?.cancel()
+    inactivityTask = nil
   }
 
   enum SessionError: Error {
