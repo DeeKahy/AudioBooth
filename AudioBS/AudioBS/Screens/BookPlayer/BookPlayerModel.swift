@@ -10,7 +10,7 @@ import SwiftData
 import SwiftUI
 import WatchConnectivity
 
-final class BookPlayerModel: BookPlayer.Model, ObservableObject {
+final class BookPlayerModel: BookPlayer.Model {
   private let audiobookshelf = Audiobookshelf.shared
   private let sessionManager = SessionManager.shared
 
@@ -30,6 +30,7 @@ final class BookPlayerModel: BookPlayer.Model, ObservableObject {
   private let watchConnectivity = WatchConnectivityManager.shared
 
   private var cover: UIImage?
+  private var nowPlayingInfo: [String: Any] = [:]
 
   private var recoveryAttempts = 0
   private var maxRecoveryAttempts = 3
@@ -337,6 +338,7 @@ extension BookPlayerModel {
       do {
         let request = ImageRequest(url: coverURL)
         cover = try await ImagePipeline.shared.image(for: request)
+        setupNowPlayingMetadata()
       } catch {
         AppLogger.player.error("Failed to load cover image for now playing: \(error)")
       }
@@ -416,25 +418,27 @@ extension BookPlayerModel {
     commandCenter.skipForwardCommand.preferredIntervals = [NSNumber(value: 30)]
     commandCenter.skipBackwardCommand.preferredIntervals = [NSNumber(value: 30)]
 
-    updateNowPlayingInfo()
+    setupNowPlayingMetadata()
   }
 
-  private func updateNowPlayingInfo() {
-    var nowPlayingInfo = [String: Any]()
+  private func setupNowPlayingMetadata() {
     nowPlayingInfo[MPMediaItemPropertyTitle] = title
     nowPlayingInfo[MPMediaItemPropertyArtist] = author
-
     nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] =
       playbackProgress.current + playbackProgress.remaining
-
-    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playbackProgress.current
-    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
 
     if let cover {
       nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: cover.size) { _ in
         return cover
       }
     }
+
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+  }
+
+  private func updateNowPlayingInfo() {
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playbackProgress.current
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
 
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
   }

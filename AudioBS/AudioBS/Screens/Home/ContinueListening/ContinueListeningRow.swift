@@ -1,11 +1,12 @@
 import API
+import Combine
 import SwiftUI
 
 struct ContinueListeningRow: View {
-  @Bindable var model: Model
+  @ObservedObject var model: Model
 
   var body: some View {
-    NavigationLink(value: NavigationDestination.book(id: model.bookID)) {
+    NavigationLink(value: NavigationDestination.book(id: model.id)) {
       HStack(spacing: 8) {
         cover
 
@@ -133,8 +134,8 @@ struct ContinueListeningRow: View {
 
 extension ContinueListeningRow {
   @Observable
-  class Model: Comparable, Identifiable {
-    let bookID: String
+  class Model: Comparable, Identifiable, ObservableObject {
+    let id: String
     let title: String
     let author: String?
     let coverURL: URL?
@@ -146,7 +147,7 @@ extension ContinueListeningRow {
     func onRemoveFromListTapped() {}
 
     init(
-      bookID: String = UUID().uuidString,
+      id: String = UUID().uuidString,
       title: String,
       author: String?,
       coverURL: URL?,
@@ -154,7 +155,7 @@ extension ContinueListeningRow {
       lastPlayedAt: Date?,
       timeRemaining: String? = nil
     ) {
-      self.bookID = bookID
+      self.id = id
       self.title = title
       self.author = author
       self.coverURL = coverURL

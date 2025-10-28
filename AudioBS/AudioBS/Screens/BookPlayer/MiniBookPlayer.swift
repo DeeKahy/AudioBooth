@@ -7,7 +7,7 @@ struct MiniBookPlayer: View, Equatable {
 
   @Environment(\.tabViewBottomAccessoryPlacement) var placement
 
-  var player: BookPlayer.Model
+  @ObservedObject var player: BookPlayer.Model
 
   static func == (lhs: MiniBookPlayer, rhs: MiniBookPlayer) -> Bool {
     lhs.player.id == rhs.player.id

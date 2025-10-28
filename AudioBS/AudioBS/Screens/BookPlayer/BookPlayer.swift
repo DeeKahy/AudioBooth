@@ -1,5 +1,6 @@
 import API
 import AVKit
+import Combine
 import SwiftData
 import SwiftUI
 
@@ -327,7 +328,7 @@ struct BookPlayer: View {
 
 extension BookPlayer {
   @Observable
-  class Model {
+  class Model: ObservableObject {
     let id: String
     let title: String
     let author: String?

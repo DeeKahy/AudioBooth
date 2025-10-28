@@ -10,7 +10,7 @@ final class ContinueListeningRowModel: ContinueListeningRow.Model {
     self.book = book
 
     super.init(
-      bookID: book.id,
+      id: book.id,
       title: book.title,
       author: book.authorName,
       coverURL: book.coverURL,
@@ -27,11 +27,11 @@ final class ContinueListeningRowModel: ContinueListeningRow.Model {
   }
 
   private func fetchProgressData() {
-    guard let mediaProgress = try? MediaProgress.fetch(bookID: bookID) else { return }
+    guard let mediaProgress = try? MediaProgress.fetch(bookID: id) else { return }
 
     progress = mediaProgress.progress
 
-    if let current = PlayerManager.shared.current, current.id == bookID, current.isPlaying {
+    if let current = PlayerManager.shared.current, current.id == id, current.isPlaying {
       lastPlayedAt = .distantFuture
     } else {
       lastPlayedAt = mediaProgress.lastPlayedAt
@@ -42,7 +42,7 @@ final class ContinueListeningRowModel: ContinueListeningRow.Model {
 
   override func onRemoveFromListTapped() {
     guard
-      let progress = try? MediaProgress.fetch(bookID: bookID),
+      let progress = try? MediaProgress.fetch(bookID: id),
       let id = progress.id
     else { return }
 
