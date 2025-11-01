@@ -1,6 +1,6 @@
 # Privacy Policy for AudioBS
 
-**Last Updated: January 7, 2025**
+**Last Updated: October 18, 2025**
 
 ## Overview
 
