@@ -7,7 +7,8 @@ final class TipJarViewModel: TipJarView.Model {
   private var packages: [Package] = []
 
   init() {
-    super.init()
+    super.init(isSandbox: [.debug, .testFlight].contains(UIApplication.buildType))
+
     loadOfferings()
   }
 

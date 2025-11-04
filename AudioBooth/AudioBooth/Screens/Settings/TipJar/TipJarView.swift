@@ -8,7 +8,7 @@ struct TipJarView: View {
 
   var body: some View {
     if !model.tips.isEmpty {
-      Section("Support Development") {
+      Section {
         VStack(spacing: 16) {
           HStack(spacing: 12) {
             ForEach(model.tips) { tip in
@@ -61,6 +61,18 @@ struct TipJarView: View {
             .transition(.scale.combined(with: .opacity))
           }
         }
+      } header: {
+        Text("Support Development")
+      } footer: {
+        if model.isSandbox {
+          Group {
+            Text("TestFlight Notice: ").foregroundStyle(.red).bold()
+              + Text(
+                "These are test purchases only. Want to support development? Download from the App Store to leave a real tip. [Open App Store](https://apps.apple.com/us/app/id6753017503)"
+              )
+          }
+          .font(.footnote)
+        }
       }
       .animation(.easeInOut(duration: 0.3), value: model.lastPurchaseSuccess)
       .listRowBackground(Color.clear)
@@ -82,17 +94,20 @@ extension TipJarView {
     var tips: [Tip]
     var isPurchasing: String?
     var lastPurchaseSuccess: Bool
+    var isSandbox: Bool
 
     func onTipSelected(_ tip: Tip) {}
 
     init(
       tips: [Tip] = [],
       isPurchasing: String? = nil,
-      lastPurchaseSuccess: Bool = false
+      lastPurchaseSuccess: Bool = false,
+      isSandbox: Bool = false
     ) {
       self.tips = tips
       self.isPurchasing = isPurchasing
       self.lastPurchaseSuccess = lastPurchaseSuccess
+      self.isSandbox = isSandbox
     }
   }
 }
@@ -121,14 +136,6 @@ extension TipJarView.Model {
     ]
   )
 }
-//
-//#Preview("TipJar - Loading") {
-//  TipJarView(model: .init(isLoading: true))
-//}
-//
-//#Preview("TipJar - Empty") {
-//  TipJarView(model: .init())
-//}
 
 #Preview("TipJar") {
   TipJarView(model: .mock)
