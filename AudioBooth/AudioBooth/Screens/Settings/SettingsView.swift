@@ -82,13 +82,13 @@ struct SettingsView: View {
       }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Button("Close") {
-            dismiss()
+          Button(action: { dismiss() }) {
+            Image(systemName: "xmark")
           }
         }
       }
-      .onChange(of: model.library.selected?.id) { oldValue, newValue in
-        if oldValue == nil, newValue != nil {
+      .onChange(of: model.library.selected?.id) { _, newValue in
+        if newValue != nil && model.isAuthenticated && !model.navigationPath.isEmpty {
           dismiss()
         }
       }
@@ -228,23 +228,6 @@ struct SettingsView: View {
 
   @ViewBuilder
   var account: some View {
-    Section("Library") {
-      NavigationLink(value: "libraries") {
-        HStack {
-          Image(systemName: "books.vertical")
-          Text("Library")
-          Spacer()
-          if let library = model.library.selected {
-            Text(library.name)
-              .foregroundColor(.secondary)
-          } else {
-            Text("None selected")
-              .foregroundColor(.secondary)
-          }
-        }
-      }
-    }
-
     Section("Preferences") {
       Toggle("Show Listening Stats", isOn: $model.showListeningStats)
     }

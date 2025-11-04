@@ -14,7 +14,7 @@ final class HomePageModel: HomePage.Model {
 
   private var books: [Book] = [] {
     didSet {
-      refreshContinueListening()
+      refreshDynamicSections()
 
       Task { @MainActor in
         if playerManager.current == nil, let book = books.first {
@@ -41,12 +41,13 @@ final class HomePageModel: HomePage.Model {
   }
 
   override func onReset(_ shouldRefresh: Bool) {
-    availableOffline = []
     books = []
     others = []
     continueListening = nil
     offline = nil
     isLoading = false
+
+    refreshDynamicSections()
 
     if shouldRefresh {
       onAppear()
@@ -60,12 +61,17 @@ extension HomePageModel {
       for await books in LocalBook.observeAll() {
         guard !Task.isCancelled else { break }
         self?.availableOffline = books
-        self?.refreshContinueListening()
+        self?.refreshDynamicSections()
       }
     }
   }
 
-  private func refreshContinueListening() {
+  private func refreshDynamicSections() {
+    refreshContinueListeningSection()
+    refreshOfflineSection()
+  }
+
+  private func refreshContinueListeningSection() {
     let existingModels: [String: ContinueListeningCardModel]
     if case .continueListening(let items) = continueListening?.items {
       existingModels = Dictionary(
@@ -106,8 +112,10 @@ extension HomePageModel {
     } else {
       self.continueListening = nil
     }
+  }
 
-    var offlineBooks = [(model: BookCard.Model, book: LocalBook)]()
+  private func refreshOfflineSection() {
+    var downloadedBooks: [LocalBook] = []
 
     for book in availableOffline {
       if !downloadManager.isDownloading(for: book.bookID),
@@ -116,67 +124,19 @@ extension HomePageModel {
       {
         try? book.delete()
       } else if book.isDownloaded {
-        let model = BookCardModel(book)
-        offlineBooks.append((model, book))
+        downloadedBooks.append(book)
       }
     }
 
-    if !offlineBooks.isEmpty {
-      let currentBookID = playerManager.current?.id
-      let currentBook = availableOffline.first { $0.bookID == currentBookID }
-      let currentSeriesID = currentBook?.series.first?.id
-      let currentSequence = currentBook?.series.first?.sequence
-
-      offlineBooks.sort { pair1, pair2 in
-        let series1 = pair1.book.series.first
-        let series2 = pair2.book.series.first
-
-        guard let s1 = series1 else { return false }
-        guard let s2 = series2 else { return true }
-
-        let isBook1InCurrentSeries = s1.id == currentSeriesID
-        let isBook2InCurrentSeries = s2.id == currentSeriesID
-
-        if isBook1InCurrentSeries && !isBook2InCurrentSeries {
-          return true
-        }
-        if !isBook1InCurrentSeries && isBook2InCurrentSeries {
-          return false
-        }
-
-        if isBook1InCurrentSeries && isBook2InCurrentSeries, let currentSeq = currentSequence {
-          let seq1Value = Double(s1.sequence) ?? 0
-          let seq2Value = Double(s2.sequence) ?? 0
-          let currentSeqValue = Double(currentSeq) ?? 0
-
-          let isBook1CurrentOrAfter = seq1Value >= currentSeqValue
-          let isBook2CurrentOrAfter = seq2Value >= currentSeqValue
-
-          if isBook1CurrentOrAfter && isBook2CurrentOrAfter {
-            return seq1Value < seq2Value
-          }
-
-          if !isBook1CurrentOrAfter && !isBook2CurrentOrAfter {
-            return seq1Value > seq2Value
-          }
-
-          return isBook1CurrentOrAfter
-        }
-
-        if s1.name != s2.name {
-          return s1.name < s2.name
-        }
-
-        let seq1Value = Double(s1.sequence) ?? 0
-        let seq2Value = Double(s2.sequence) ?? 0
-        return seq1Value < seq2Value
-      }
-
-      let offline = offlineBooks.map { $0.model }
-      self.offline = Section(title: "Available Offline", items: .books(offline))
-    } else {
+    guard !downloadedBooks.isEmpty else {
       self.offline = nil
+      return
     }
+
+    let sortedBooks = downloadedBooks.sorted(current: playerManager.current?.id)
+
+    let models = sortedBooks.map { BookCardModel($0) }
+    self.offline = Section(title: "Available Offline", items: .books(models))
   }
 
   private func processSections(_ personalized: [Personalized.Section]) {
@@ -218,6 +178,7 @@ extension HomePageModel {
     }
 
     processSections(personalized.sections)
+    refreshDynamicSections()
   }
 
   private func fetchRemoteContent() async {
@@ -230,6 +191,7 @@ extension HomePageModel {
 
       let personalized = try await Audiobookshelf.shared.libraries.fetchPersonalized()
       processSections(personalized.sections)
+      refreshDynamicSections()
     } catch {
       AppLogger.viewModel.error("Failed to fetch personalized content: \(error)")
     }

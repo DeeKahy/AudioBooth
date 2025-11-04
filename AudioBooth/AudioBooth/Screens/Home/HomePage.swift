@@ -8,6 +8,7 @@ struct HomePage: View {
 
   @StateObject var model: Model
   @State private var showingSettings = false
+  @State private var showingLibraryPicker = false
 
   @State private var path = NavigationPath()
 
@@ -60,6 +61,17 @@ struct HomePage: View {
     }
     .navigationTitle(model.title)
     .toolbar {
+      if Audiobookshelf.shared.isAuthenticated {
+        ToolbarItem(placement: .navigationBarLeading) {
+          Button {
+            showingLibraryPicker = true
+          } label: {
+            Text(libraries.current?.name ?? "Select Library")
+              .bold()
+          }
+        }
+      }
+
       ToolbarItem(placement: .navigationBarTrailing) {
         Button {
           showingSettings = true
@@ -73,13 +85,21 @@ struct HomePage: View {
         SettingsView(model: SettingsViewModel())
       }
     }
+    .sheet(isPresented: $showingLibraryPicker) {
+      NavigationView {
+        LibrariesView(model: LibrariesViewModel())
+      }
+    }
     .onAppear {
-      if libraries.current == nil {
+      if !Audiobookshelf.shared.isAuthenticated {
         showingSettings = true
+      } else if libraries.current == nil {
+        showingLibraryPicker = true
       }
       model.onAppear()
     }
     .onChange(of: libraries.current) { _, new in
+      showingLibraryPicker = false
       model.onReset(new != nil)
     }
     .refreshable {

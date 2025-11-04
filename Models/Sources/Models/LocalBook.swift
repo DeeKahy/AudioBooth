@@ -168,3 +168,56 @@ extension LocalBook {
     )
   }
 }
+
+extension Array where Element == LocalBook {
+  public func sorted(current: String?) -> [LocalBook] {
+    let currentBook = first { $0.bookID == current }
+    let currentSeriesID = currentBook?.series.first?.id
+    let currentSequence = currentBook?.series.first?.sequence
+
+    return sorted { book1, book2 in
+      let series1 = book1.series.first
+      let series2 = book2.series.first
+
+      guard let s1 = series1 else { return false }
+      guard let s2 = series2 else { return true }
+
+      let isBook1InCurrentSeries = s1.id == currentSeriesID
+      let isBook2InCurrentSeries = s2.id == currentSeriesID
+
+      if isBook1InCurrentSeries && !isBook2InCurrentSeries {
+        return true
+      }
+      if !isBook1InCurrentSeries && isBook2InCurrentSeries {
+        return false
+      }
+
+      if isBook1InCurrentSeries && isBook2InCurrentSeries, let currentSeq = currentSequence {
+        let seq1Value = Double(s1.sequence) ?? 0
+        let seq2Value = Double(s2.sequence) ?? 0
+        let currentSeqValue = Double(currentSeq) ?? 0
+
+        let isBook1CurrentOrAfter = seq1Value >= currentSeqValue
+        let isBook2CurrentOrAfter = seq2Value >= currentSeqValue
+
+        if isBook1CurrentOrAfter && isBook2CurrentOrAfter {
+          return seq1Value < seq2Value
+        }
+
+        if !isBook1CurrentOrAfter && !isBook2CurrentOrAfter {
+          return seq1Value > seq2Value
+        }
+
+        return isBook1CurrentOrAfter
+      }
+
+      if s1.name != s2.name {
+        return s1.name < s2.name
+      }
+
+      let seq1Value = Double(s1.sequence) ?? 0
+      let seq2Value = Double(s2.sequence) ?? 0
+      return seq1Value < seq2Value
+    }
+  }
+}

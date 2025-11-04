@@ -32,6 +32,13 @@ struct LibrariesView: View {
     .tint(.primary)
     .navigationTitle("Select Library")
     .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button(action: { dismiss() }) {
+          Image(systemName: "xmark")
+        }
+      }
+    }
     .onAppear(perform: model.onAppear)
   }
 }
