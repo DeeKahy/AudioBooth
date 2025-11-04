@@ -25,6 +25,8 @@ final class DownloadManager: NSObject, ObservableObject {
   private var progressTasks: [String: Task<Void, Never>] = [:]
   @Published private(set) var currentProgress: [String: Double] = [:]
 
+  var backgroundCompletionHandler: (() -> Void)?
+
   func isDownloading(for bookID: String) -> Bool {
     activeOperations[bookID] != nil
   }
@@ -134,7 +136,10 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
   private var trackDestination: URL?
 
   private lazy var downloadSession: URLSession = {
-    let config = URLSessionConfiguration.default
+    let config = URLSessionConfiguration.background(
+      withIdentifier: "me.jgrenier.AudioBS.download.\(bookID)")
+    config.sessionSendsLaunchEvents = true
+    config.isDiscretionary = false
     return URLSession(configuration: config, delegate: self, delegateQueue: nil)
   }()
 
@@ -278,7 +283,12 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
     _finished = true
 
     progressContinuation.finish()
-    downloadSession.invalidateAndCancel()
+
+    if success {
+      downloadSession.finishTasksAndInvalidate()
+    } else {
+      downloadSession.invalidateAndCancel()
+    }
 
     if let session = session {
       Task {
@@ -352,6 +362,13 @@ extension DownloadOperation: URLSessionDownloadDelegate {
       try trackDownloadCompleted(location: location)
     } catch {
       continuation?.resume(throwing: error)
+    }
+  }
+
+  func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+    if let completionHandler = DownloadManager.shared.backgroundCompletionHandler {
+      DownloadManager.shared.backgroundCompletionHandler = nil
+      completionHandler()
     }
   }
 }

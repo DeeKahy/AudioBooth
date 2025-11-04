@@ -5,6 +5,8 @@ import UIKit
 
 @main
 struct AudioBoothApp: App {
+  @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
   init() {
     DownloadManager.shared.cleanupOrphanedDownloads()
     _ = WatchConnectivityManager.shared
