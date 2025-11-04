@@ -54,7 +54,9 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
       break
     }
     isPresented = false
-    player?.play()
+
+    let speed = UserDefaults.standard.float(forKey: "playbackSpeed")
+    player?.rate = speed > 0 ? speed : 1.0
   }
 
   private func startSleepTimer(duration: TimeInterval) {
