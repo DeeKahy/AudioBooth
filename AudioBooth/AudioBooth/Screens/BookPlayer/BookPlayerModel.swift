@@ -405,6 +405,11 @@ extension BookPlayerModel {
       return .success
     }
 
+    commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+      self?.onTogglePlaybackTapped()
+      return .success
+    }
+
     commandCenter.skipForwardCommand.addTarget { [weak self] event in
       guard let self else { return .commandFailed }
 
