@@ -15,6 +15,7 @@ public final class Audiobookshelf: @unchecked Sendable {
   public lazy var series = SeriesService(audiobookshelf: self)
   public lazy var authors = AuthorsService(audiobookshelf: self)
   public lazy var search = SearchService(audiobookshelf: self)
+  public lazy var playlists = PlaylistsService(audiobookshelf: self)
   public lazy var networkDiscovery = NetworkDiscoveryService(audiobookshelf: self)
 
   public var serverURL: URL? { authentication.serverURL }
