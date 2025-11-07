@@ -9,5 +9,6 @@ enum NavigationDestination: Hashable {
   case genre(name: String)
   case tag(name: String)
   case playlist(id: String)
+  case collection(id: String)
   case offline
 }

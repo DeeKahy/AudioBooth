@@ -76,10 +76,8 @@ final class LibraryPageModel: LibraryPage.Model {
         sortBy: nil,
         title: "Downloaded"
       )
-    case .book:
-      fatalError("LibraryPageModel cannot be initialized with a book destination")
-    case .playlist:
-      fatalError("LibraryPageModel cannot be initialized with a playlist destination")
+    case .book, .playlist, .collection:
+      fatalError("LibraryPageModel cannot be initialized with a \(destination) destination")
     }
 
     self.search = SearchViewModel()

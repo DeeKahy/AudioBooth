@@ -10,6 +10,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
   private var booksService: BooksService { Audiobookshelf.shared.books }
   private var downloadManager: DownloadManager { .shared }
   private var playerManager: PlayerManager { .shared }
+  private var authenticationService: AuthenticationService { Audiobookshelf.shared.authentication }
 
   private var cancellables = Set<AnyCancellable>()
   private var progressObservation: Task<Void, Never>?
@@ -17,6 +18,11 @@ final class BookDetailsViewModel: BookDetailsView.Model {
 
   private var book: Book?
   private var localBook: LocalBook?
+
+  init(bookID: String) {
+    let canManageCollections = Audiobookshelf.shared.authentication.permissions?.update == true
+    super.init(bookID: bookID, canManageCollections: canManageCollections)
+  }
 
   isolated deinit {
     progressObservation?.cancel()

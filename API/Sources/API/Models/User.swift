@@ -2,6 +2,7 @@ import Foundation
 
 public struct User: Codable, Sendable {
   public let mediaProgress: [MediaProgress]
+  public let permissions: Permissions
 }
 
 extension User {
@@ -21,5 +22,10 @@ extension User {
       self.currentTime = currentTime
       self.lastUpdate = lastUpdate
     }
+  }
+
+  public struct Permissions: Codable, Sendable {
+    public let update: Bool
+    public let delete: Bool
   }
 }

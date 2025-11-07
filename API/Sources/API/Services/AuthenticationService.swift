@@ -11,6 +11,7 @@ public final class AuthenticationService {
 
   enum Keys {
     static let connection = "audiobookshelf_server_connection"
+    static let permissions = "audiobookshelf_user_permissions"
   }
 
   public struct Connection: Codable {
@@ -51,6 +52,21 @@ public final class AuthenticationService {
 
   public var serverURL: URL? { connection?.serverURL }
   public var isAuthenticated: Bool { connection != nil }
+
+  public var permissions: User.Permissions? {
+    get {
+      guard let data = UserDefaults.standard.data(forKey: Keys.permissions) else { return nil }
+      return try? JSONDecoder().decode(User.Permissions.self, from: data)
+    }
+    set {
+      if let newValue = newValue {
+        guard let data = try? JSONEncoder().encode(newValue) else { return }
+        UserDefaults.standard.set(data, forKey: Keys.permissions)
+      } else {
+        UserDefaults.standard.removeObject(forKey: Keys.permissions)
+      }
+    }
+  }
 
   init(audiobookshelf: Audiobookshelf) {
     self.audiobookshelf = audiobookshelf
@@ -148,6 +164,7 @@ public final class AuthenticationService {
 
   public func logout() {
     connection = nil
+    permissions = nil
     audiobookshelf.libraries.current = nil
     ImagePipeline.shared.cache.removeAll()
     onAuthenticationChanged(nil)
@@ -166,7 +183,9 @@ public final class AuthenticationService {
 
     do {
       let response = try await networkService.send(request)
-      return response.value
+      let user = response.value
+      permissions = user.permissions
+      return user
     } catch {
       throw Audiobookshelf.AudiobookshelfError.networkError(
         "Failed to fetch user data: \(error.localizedDescription)")

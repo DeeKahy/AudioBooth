@@ -1,7 +1,7 @@
 import Combine
 import SwiftUI
 
-struct PlaylistRow: View {
+struct CollectionRow: View {
   @ObservedObject var model: Model
 
   private var gridCovers: [URL] {
@@ -76,7 +76,7 @@ struct PlaylistRow: View {
   }
 }
 
-extension PlaylistRow {
+extension CollectionRow {
   @Observable
   class Model: ObservableObject, Identifiable {
     let id: String
@@ -101,12 +101,12 @@ extension PlaylistRow {
   }
 }
 
-#Preview("PlaylistRow - Empty") {
+#Preview("CollectionRow - Empty") {
   List {
-    PlaylistRow(
+    CollectionRow(
       model: .init(
-        name: "Empty Playlist",
-        description: "A playlist with no books",
+        name: "Empty Collection",
+        description: "A collection with no books",
         count: 0,
         covers: []
       )
@@ -114,12 +114,12 @@ extension PlaylistRow {
   }
 }
 
-#Preview("PlaylistRow - One Book") {
+#Preview("CollectionRow - One Book") {
   List {
-    PlaylistRow(
+    CollectionRow(
       model: .init(
         name: "Single Book",
-        description: "A playlist with one book",
+        description: "A collection with one book",
         count: 1,
         covers: [
           URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg")!
@@ -129,12 +129,12 @@ extension PlaylistRow {
   }
 }
 
-#Preview("PlaylistRow - Two Books") {
+#Preview("CollectionRow - Two Books") {
   List {
-    PlaylistRow(
+    CollectionRow(
       model: .init(
         name: "Two Books",
-        description: "A playlist with two books",
+        description: "A collection with two books",
         count: 2,
         covers: [
           URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg")!,
@@ -145,12 +145,12 @@ extension PlaylistRow {
   }
 }
 
-#Preview("PlaylistRow - Three Books") {
+#Preview("CollectionRow - Three Books") {
   List {
-    PlaylistRow(
+    CollectionRow(
       model: .init(
         name: "Three Books",
-        description: "A playlist with three books",
+        description: "A collection with three books",
         count: 3,
         covers: [
           URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg")!,
@@ -162,9 +162,9 @@ extension PlaylistRow {
   }
 }
 
-#Preview("PlaylistRow - Four+ Books") {
+#Preview("CollectionRow - Four+ Books") {
   List {
-    PlaylistRow(
+    CollectionRow(
       model: .init(
         name: "Science Fiction Collection",
         description: "My favorite sci-fi audiobooks",
@@ -180,9 +180,9 @@ extension PlaylistRow {
   }
 }
 
-#Preview("PlaylistRow - No Description") {
+#Preview("CollectionRow - No Description") {
   List {
-    PlaylistRow(
+    CollectionRow(
       model: .init(
         name: "Currently Reading",
         description: nil,

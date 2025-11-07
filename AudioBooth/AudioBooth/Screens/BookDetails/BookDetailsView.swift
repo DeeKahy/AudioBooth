@@ -7,7 +7,7 @@ import SwiftUI
 struct BookDetailsView: View {
   @ObservedObject var model: Model
   @Environment(\.verticalSizeClass) private var verticalSizeClass
-  @State private var showPlaylistSelector = false
+  @State private var collectionSelector: CollectionMode?
 
   private enum CoordinateSpaces {
     case scrollView
@@ -43,7 +43,13 @@ struct BookDetailsView: View {
     .toolbar {
       ToolbarItem(placement: .navigationBarTrailing) {
         Menu {
-          Button(action: { showPlaylistSelector = true }) {
+          if model.canManageCollections {
+            Button(action: { collectionSelector = .collections }) {
+              Label("Collections", systemImage: "square.stack.3d.up.fill")
+            }
+          }
+
+          Button(action: { collectionSelector = .playlists }) {
             Label("Your Playlists", systemImage: "music.note.list")
           }
 
@@ -59,9 +65,9 @@ struct BookDetailsView: View {
         }
       }
     }
-    .sheet(isPresented: $showPlaylistSelector) {
-      PlaylistSelectorSheet(
-        model: PlaylistSelectorSheetModel(bookID: model.bookID)
+    .sheet(item: $collectionSelector) { mode in
+      CollectionSelectorSheet(
+        model: CollectionSelectorSheetModel(bookID: model.bookID, mode: mode)
       )
     }
     .onAppear(perform: model.onAppear)
@@ -561,6 +567,7 @@ extension BookDetailsView {
     var genres: [String]?
     var tags: [String]?
     var description: String?
+    var canManageCollections: Bool
 
     func onAppear() {}
     func onPlayTapped() {}
@@ -588,7 +595,8 @@ extension BookDetailsView {
       publishedYear: String? = nil,
       genres: [String]? = nil,
       tags: [String]? = nil,
-      description: String? = nil
+      description: String? = nil,
+      canManageCollections: Bool = false
     ) {
       self.bookID = bookID
       self.title = title
@@ -611,6 +619,7 @@ extension BookDetailsView {
       self.genres = genres
       self.tags = tags
       self.description = description
+      self.canManageCollections = canManageCollections
     }
   }
 }

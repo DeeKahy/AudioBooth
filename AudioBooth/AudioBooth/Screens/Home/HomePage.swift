@@ -21,7 +21,7 @@ struct HomePage: View {
             BookDetailsView(model: BookDetailsViewModel(bookID: id))
           case .series, .author, .narrator, .genre, .tag, .offline:
             LibraryPage(model: LibraryPageModel(destination: destination))
-          case .playlist:
+          case .playlist, .collection:
             EmptyView()
           }
         }
