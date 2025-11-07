@@ -185,15 +185,11 @@ extension WatchConnectivityManager: WCSessionDelegate {
           handlePlayCommand(bookID: bookID)
         } else {
           updatePlaybackStateContext(isPlaying: true)
-          if PlayerManager.shared.current?.isPlaying == false {
-            PlayerManager.shared.current?.onTogglePlaybackTapped()
-          }
+          PlayerManager.shared.current?.onPlayTapped()
         }
       case "pause":
         updatePlaybackStateContext(isPlaying: false)
-        if PlayerManager.shared.current?.isPlaying == true {
-          PlayerManager.shared.current?.onTogglePlaybackTapped()
-        }
+        PlayerManager.shared.current?.onPauseTapped()
       case "skipForward":
         PlayerManager.shared.current?.onSkipForwardTapped(seconds: 30)
       case "skipBackward":
@@ -222,7 +218,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
       do {
         if let book = try LocalBook.fetch(bookID: bookID) {
           PlayerManager.shared.setCurrent(book)
-          PlayerManager.shared.current?.onTogglePlaybackTapped()
+          PlayerManager.shared.current?.onPlayTapped()
           PlayerManager.shared.showFullPlayer()
         } else {
           AppLogger.watchConnectivity.info("Book not found locally, fetching from server...")
@@ -232,7 +228,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
           )
 
           PlayerManager.shared.setCurrent(session.libraryItem)
-          PlayerManager.shared.current?.onTogglePlaybackTapped()
+          PlayerManager.shared.current?.onPlayTapped()
           PlayerManager.shared.showFullPlayer()
         }
       } catch {

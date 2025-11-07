@@ -54,13 +54,14 @@ final class LocalPlayerModel: PlayerView.Model {
     }
   }
 
-  init(_ item: LocalBook) {
+  init?(_ item: LocalBook) {
     self.item = item
 
     do {
       self.mediaProgress = try MediaProgress.getOrCreate(for: item.bookID)
     } catch {
-      fatalError("Failed to create MediaProgress for item \(item.bookID): \(error)")
+      AppLogger.player.error("Failed to create MediaProgress for item \(item.bookID): \(error)")
+      return nil
     }
 
     super.init(
@@ -80,14 +81,15 @@ final class LocalPlayerModel: PlayerView.Model {
     onLoad()
   }
 
-  init(_ book: Book) {
+  init?(_ book: Book) {
     let existingItem = try? LocalBook.fetch(bookID: book.id)
     self.item = existingItem ?? LocalBook(from: book)
 
     do {
       self.mediaProgress = try MediaProgress.getOrCreate(for: book.id)
     } catch {
-      fatalError("Failed to create MediaProgress for book \(book.id): \(error)")
+      AppLogger.player.error("Failed to create MediaProgress for book \(book.id): \(error)")
+      return nil
     }
 
     super.init(

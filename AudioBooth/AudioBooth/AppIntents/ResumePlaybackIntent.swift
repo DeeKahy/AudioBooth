@@ -14,11 +14,7 @@ struct ResumePlaybackIntent: AppIntent {
         throw AppIntentError.noAudiobookPlaying
       }
 
-      guard !currentPlayer.isPlaying else {
-        throw AppIntentError.playbackAlreadyActive
-      }
-
-      currentPlayer.onTogglePlaybackTapped()
+      currentPlayer.onPlayTapped()
     }
 
     return .result()

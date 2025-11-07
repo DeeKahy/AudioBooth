@@ -2,6 +2,7 @@ import API
 import Combine
 import Foundation
 import Models
+import OSLog
 
 final class PlayerManager: ObservableObject {
   @Published var current: PlayerView.Model?
@@ -23,7 +24,11 @@ final class PlayerManager: ObservableObject {
       return
     } else {
       clearCurrent()
-      current = LocalPlayerModel(item)
+      guard let playerModel = LocalPlayerModel(item) else {
+        AppLogger.player.error("Failed to create player model for item \(item.bookID)")
+        return
+      }
+      current = playerModel
       UserDefaults.standard.set(item.bookID, forKey: Self.currentBookIDKey)
     }
   }
@@ -35,7 +40,11 @@ final class PlayerManager: ObservableObject {
       return
     } else {
       clearCurrent()
-      current = LocalPlayerModel(book)
+      guard let playerModel = LocalPlayerModel(book) else {
+        AppLogger.player.error("Failed to create player model for book \(book.id)")
+        return
+      }
+      current = playerModel
       UserDefaults.standard.set(book.id, forKey: Self.currentBookIDKey)
     }
   }

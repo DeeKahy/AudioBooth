@@ -372,6 +372,8 @@ extension BookPlayer {
     }
 
     func onTogglePlaybackTapped() {}
+    func onPauseTapped() {}
+    func onPlayTapped() {}
     func onSkipForwardTapped(seconds: Double) {}
     func onSkipBackwardTapped(seconds: Double) {}
     func onProgressChanged(to progress: Double) {}

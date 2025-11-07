@@ -112,6 +112,37 @@ final class BookPlayerModel: BookPlayer.Model {
     }
   }
 
+  override func onPauseTapped() {
+    guard let player = player, player.status == .readyToPlay else {
+      return
+    }
+    player.rate = 0
+  }
+
+  override func onPlayTapped() {
+    guard let player = player, player.status == .readyToPlay else {
+      pendingPlay = true
+      return
+    }
+
+    if session == nil {
+      AppLogger.player.warning("Session was closed, recreating in background for progress sync")
+
+      player.rate = speed.playbackSpeed
+
+      Task {
+        do {
+          try await setupSession()
+          AppLogger.player.info("Session recreated successfully (playback continued from cache)")
+        } catch {
+          AppLogger.player.error("Failed to recreate session: \(error)")
+        }
+      }
+    } else {
+      player.rate = speed.playbackSpeed
+    }
+  }
+
   override func onSkipForwardTapped(seconds: Double) {
     guard let player = player else { return }
     let currentTime = player.currentTime()
@@ -396,12 +427,12 @@ extension BookPlayerModel {
     let commandCenter = MPRemoteCommandCenter.shared()
 
     commandCenter.playCommand.addTarget { [weak self] _ in
-      self?.onTogglePlaybackTapped()
+      self?.onPlayTapped()
       return .success
     }
 
     commandCenter.pauseCommand.addTarget { [weak self] _ in
-      self?.onTogglePlaybackTapped()
+      self?.onPauseTapped()
       return .success
     }
 
@@ -590,11 +621,13 @@ extension BookPlayerModel {
     AppLogger.player.warning(
       "Media services were reset - reconfiguring audio session and remote commands")
 
-    if isPlaying {
-      onTogglePlaybackTapped()
-    }
-
+    let wasPlaying = isPlaying
     configureAudioSession()
+    setupRemoteCommandCenter()
+
+    if wasPlaying {
+      onPlayTapped()
+    }
   }
 
   private func setupTimeObserver() {

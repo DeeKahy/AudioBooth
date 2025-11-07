@@ -14,11 +14,7 @@ struct PausePlaybackIntent: AppIntent {
         throw AppIntentError.noAudiobookPlaying
       }
 
-      guard currentPlayer.isPlaying else {
-        throw AppIntentError.playbackAlreadyPaused
-      }
-
-      currentPlayer.onTogglePlaybackTapped()
+      currentPlayer.onPauseTapped()
     }
 
     return .result()

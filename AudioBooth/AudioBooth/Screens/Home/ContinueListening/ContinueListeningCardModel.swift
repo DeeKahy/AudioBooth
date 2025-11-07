@@ -46,15 +46,20 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
       _ = current.isPlaying
       _ = current.playbackProgress.progress
     } onChange: { [weak self] in
-      Task { @MainActor [weak self] in
-        guard let self else { return }
-        self.updateLastPlayedStatus()
-
+      RunLoop.current.perform {
+        let isPlaying = current.isPlaying
         let total = Double(current.playbackProgress.total)
         let totalTimeRemaining = Double(current.playbackProgress.totalTimeRemaining)
-        progress = (total - totalTimeRemaining) / total
 
-        self.observePlayerState(PlayerManager.shared.current)
+        if isPlaying {
+          self?.lastPlayedAt = .distantFuture
+        } else {
+          self?.lastPlayedAt = Date()
+        }
+
+        self?.progress = (total - totalTimeRemaining) / total
+
+        self?.observePlayerState(PlayerManager.shared.current)
       }
     }
   }

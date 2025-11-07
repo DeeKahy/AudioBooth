@@ -251,7 +251,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
       } else {
         playerManager.setCurrent(book)
         if let currentPlayer = playerManager.current as? BookPlayerModel {
-          currentPlayer.onTogglePlaybackTapped()
+          currentPlayer.onPlayTapped()
         }
       }
     } else if let localBook {
@@ -262,7 +262,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
       } else {
         playerManager.setCurrent(localBook)
         if let currentPlayer = playerManager.current as? BookPlayerModel {
-          currentPlayer.onTogglePlaybackTapped()
+          currentPlayer.onPlayTapped()
         }
       }
     } else {
