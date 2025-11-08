@@ -6,9 +6,7 @@ struct ItemRow: View {
 
   var body: some View {
     HStack(spacing: 12) {
-      CoverImage(url: model.coverURL)
-        .frame(width: 50, height: 50)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+      cover
 
       VStack(alignment: .leading, spacing: 4) {
         Text(model.title)
@@ -21,16 +19,36 @@ struct ItemRow: View {
             .foregroundStyle(.secondary)
             .lineLimit(1)
         }
-
-        if let progress = model.progress, progress > 0 {
-          ProgressView(value: progress)
-            .tint(.accentColor)
-        }
       }
-
-      Spacer(minLength: 0)
     }
+    .frame(maxWidth: .infinity, alignment: .leading)
     .contentShape(Rectangle())
+    .onAppear(perform: model.onAppear)
+  }
+
+  var cover: some View {
+    CoverImage(url: model.coverURL)
+      .overlay(alignment: .bottom) { progressBar }
+      .frame(width: 60, height: 60)
+      .clipShape(RoundedRectangle(cornerRadius: 6))
+      .overlay(
+        RoundedRectangle(cornerRadius: 6)
+          .stroke(.gray.opacity(0.3), lineWidth: 1)
+      )
+  }
+
+  @ViewBuilder
+  var progressBar: some View {
+    if let progress = model.progress, progress > 0 {
+      GeometryReader { geometry in
+        let progressColor: Color = progress >= 1.0 ? .green : .orange
+
+        Rectangle()
+          .fill(progressColor)
+          .frame(width: geometry.size.width * progress, height: 4)
+      }
+      .frame(height: 4)
+    }
   }
 }
 
