@@ -39,7 +39,7 @@ final class BookPlayerModel: BookPlayer.Model {
   private var isRecovering = false
 
   private var session: Session? {
-    sessionManager.current
+    sessionManager.current?.itemID == item?.bookID ? sessionManager.current : nil
   }
 
   init(_ book: Book) {
@@ -217,26 +217,14 @@ extension BookPlayerModel {
       mediaProgress: mediaProgress
     )
 
-    let timeToUse: TimeInterval
     if let pendingSeekTime = pendingSeekTime {
-      timeToUse = pendingSeekTime
       mediaProgress.currentTime = pendingSeekTime
       self.pendingSeekTime = nil
       AppLogger.player.info("Using pending seek time: \(pendingSeekTime)s")
     } else if result.serverCurrentTime > mediaProgress.currentTime {
-      timeToUse = result.serverCurrentTime
       mediaProgress.currentTime = result.serverCurrentTime
       AppLogger.player.info(
         "Using server currentTime for cross-device sync: \(result.serverCurrentTime)s")
-    } else {
-      timeToUse = mediaProgress.currentTime
-    }
-
-    if let player = self.player {
-      let seekTime = CMTime(seconds: timeToUse, preferredTimescale: 1000)
-      player.seek(to: seekTime) { _ in
-        AppLogger.player.debug("Seeked to position: \(timeToUse)s")
-      }
     }
 
     if let updatedItem = result.updatedItem {
@@ -244,7 +232,7 @@ extension BookPlayerModel {
     }
   }
 
-  private func setupAudioPlayer() async throws -> AVPlayer {
+  private func setupAudioPlayer() async throws {
     guard let item else {
       throw Audiobookshelf.AudiobookshelfError.networkError("No item available")
     }
@@ -267,9 +255,6 @@ extension BookPlayerModel {
       let trackURL = session?.url(for: track) ?? track.localPath
       guard let trackURL else {
         AppLogger.player.error("No URL available for track")
-        Toast(error: "Failed to get streaming URL").show()
-        isLoading = false
-        PlayerManager.shared.clearCurrent()
         throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track URL")
       }
 
@@ -279,7 +264,21 @@ extension BookPlayerModel {
     let player = AVPlayer(playerItem: playerItem)
     self.player = player
 
-    return player
+    if mediaProgress.currentTime > 0 {
+      let seekTime = CMTime(seconds: mediaProgress.currentTime, preferredTimescale: 1000)
+      player.seek(to: seekTime) { _ in
+        AppLogger.player.debug("Seeked to position: \(self.mediaProgress.currentTime)s")
+      }
+    }
+
+    configurePlayerComponents(player: player)
+
+    sendWatchUpdate()
+
+    if pendingPlay {
+      player.rate = speed.playbackSpeed
+      pendingPlay = false
+    }
   }
 
   private func configurePlayerComponents(player: AVPlayer) {
@@ -316,34 +315,22 @@ extension BookPlayerModel {
     }
   }
 
-  private func seekToLastPosition(player: AVPlayer) {
-    if mediaProgress.currentTime > 0 {
-      let seekTime = CMTime(seconds: mediaProgress.currentTime, preferredTimescale: 1000)
-      let currentTime = mediaProgress.currentTime
-      player.seek(to: seekTime) { _ in
-        AppLogger.player.debug("Seeked to previously played position: \(currentTime)s")
-      }
-    }
-  }
-
-  private func handleLoadError(_ error: Error) {
-    AppLogger.player.error("Failed to setup player: \(error)")
-    Toast(error: "Failed to setup audio player").show()
-    isLoading = false
-    PlayerManager.shared.clearCurrent()
-  }
-
-  private func checkForExistingLocalBook() {
-    guard item == nil else { return }
-
+  private func loadLocalBookIfAvailable() async {
     do {
       if let existingItem = try LocalBook.fetch(bookID: id) {
+        AppLogger.player.info("Book is downloaded, loading local files instantly")
+
         self.item = existingItem
         AppLogger.player.debug("Found existing progress: \(self.mediaProgress.currentTime)s")
+
+        if existingItem.isDownloaded {
+          try await setupAudioPlayer()
+        }
       }
     } catch {
-      AppLogger.player.error("Failed to fetch local book item: \(error)")
-      Toast(error: "Failed to load playback progress").show()
+      downloadManager.deleteDownload(for: id)
+      AppLogger.player.error("Failed to load local book item: \(error)")
+      Toast(error: "Can‘t access download. Streaming instead.").show()
     }
   }
 
@@ -351,62 +338,27 @@ extension BookPlayerModel {
     Task {
       isLoading = true
 
-      checkForExistingLocalBook()
       loadCover()
 
-      let isDownloaded = item?.isDownloaded ?? false
+      await loadLocalBookIfAvailable()
 
       do {
-        if isDownloaded {
-          AppLogger.player.info("Book is downloaded, loading local files instantly")
-          let progress = try? MediaProgress.fetch(bookID: item?.bookID ?? id)
-          if let cachedCurrentTime = progress?.currentTime, cachedCurrentTime > 0 {
-            mediaProgress.currentTime = cachedCurrentTime
-            AppLogger.player.debug("Using cached currentTime: \(cachedCurrentTime)s")
-          }
-
-          let player = try await setupAudioPlayer()
-          configurePlayerComponents(player: player)
-          seekToLastPosition(player: player)
-
-          isLoading = false
-          sendWatchUpdate()
-
-          if pendingPlay {
-            player.rate = speed.playbackSpeed
-            pendingPlay = false
-          }
-
-          Task {
-            do {
-              try await setupSession()
-            } catch {
-              AppLogger.player.error("Background session fetch failed: \(error)")
-            }
-          }
-        } else {
-          AppLogger.player.info("Book not downloaded, fetching session first")
-          try await setupSession()
-
-          guard item != nil else {
-            throw Audiobookshelf.AudiobookshelfError.networkError("Failed to obtain session")
-          }
-
-          let player = try await setupAudioPlayer()
-          configurePlayerComponents(player: player)
-          seekToLastPosition(player: player)
-
-          isLoading = false
-          sendWatchUpdate()
-
-          if pendingPlay {
-            player.rate = speed.playbackSpeed
-            pendingPlay = false
-          }
-        }
+        try await setupSession()
       } catch {
-        handleLoadError(error)
+        AppLogger.player.error("Background session fetch failed: \(error)")
       }
+
+      if player == nil {
+        do {
+          try await setupAudioPlayer()
+        } catch {
+          AppLogger.player.error("Failed to setup player: \(error)")
+          Toast(error: "Failed to setup audio player").show()
+          PlayerManager.shared.clearCurrent()
+        }
+      }
+
+      isLoading = false
     }
   }
 
@@ -554,7 +506,7 @@ extension BookPlayerModel {
   }
 
   private func setupPlayerObservers() {
-    guard let player = player else { return }
+    guard let player else { return }
 
     player.publisher(for: \.rate)
       .receive(on: DispatchQueue.main)
@@ -782,9 +734,7 @@ extension BookPlayerModel {
   }
 
   private func refreshPlayerForLocalPlayback() {
-    guard let player = self.player,
-      let item
-    else {
+    guard let player, let item else {
       AppLogger.player.warning("Cannot refresh player - missing player or item")
       return
     }

@@ -31,12 +31,14 @@ extension PersistentModel {
 
           let inserts = (userInfo[NSInsertedObjectsKey] as? [PersistentIdentifier]) ?? []
           let updates = (userInfo[NSUpdatedObjectsKey] as? [PersistentIdentifier]) ?? []
+          let deletes = (userInfo[NSDeletedObjectsKey] as? [PersistentIdentifier]) ?? []
 
           let allChanges = inserts + updates
 
           for identifier in allChanges {
             guard
               identifier.entityName == entityName,
+              !deletes.contains(where: { $0.id == identifier.id }),
               let model = modelContext.model(for: identifier) as? Self,
               !model.isDeleted,
               model[keyPath: keyPath] == value

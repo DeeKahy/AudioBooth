@@ -120,19 +120,16 @@ public final class ModelContextProvider {
     AppLogger.persistence.info("Migrating audiobooks folder to App Group container...")
 
     do {
-      try fileManager.copyItem(at: oldAudiobooksURL, to: newAudiobooksURL)
+      try fileManager.moveItem(at: oldAudiobooksURL, to: newAudiobooksURL)
       AppLogger.persistence.info("Audiobooks folder migration completed successfully")
 
       var resourceValues = URLResourceValues()
       resourceValues.isExcludedFromBackup = true
       try? newAudiobooksURL.setResourceValues(resourceValues)
       AppLogger.persistence.info("Excluded audiobooks folder from iCloud backup")
-
-      try fileManager.removeItem(at: oldAudiobooksURL)
-      AppLogger.persistence.info("Cleaned up old audiobooks folder")
     } catch {
       AppLogger.persistence.error("Audiobooks folder migration failed: \(error)")
-      AppLogger.persistence.info("Downloaded books may need to be re-downloaded")
+      AppLogger.persistence.info("Old audiobooks folder remains in place - files still accessible")
     }
   }
 }
