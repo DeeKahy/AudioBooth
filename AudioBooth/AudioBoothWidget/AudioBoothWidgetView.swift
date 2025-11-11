@@ -187,10 +187,10 @@ struct AudioBoothWidgetView: View {
     VStack(spacing: 8) {
       Image(systemName: "book.circle")
         .font(.system(size: 30))
-        .foregroundStyle(.black.opacity(0.5))
+        .foregroundStyle(.primary.opacity(0.5))
       Text("Select a book to begin")
         .font(.caption2)
-        .foregroundStyle(.black.opacity(0.7))
+        .foregroundStyle(.primary.opacity(0.7))
     }
     .containerBackground(for: .widget) {
       Color.clear
