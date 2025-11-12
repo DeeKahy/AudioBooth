@@ -2,10 +2,13 @@ import AVFoundation
 import SwiftUI
 
 final class SpeedPickerSheetViewModel: SpeedPickerSheet.Model {
+  private let sharedDefaults = UserDefaults(suiteName: "group.me.jgrenier.audioBS")
+
   let player: AVPlayer
 
   init(player: AVPlayer) {
     let speed = UserDefaults.standard.float(forKey: "playbackSpeed")
+    sharedDefaults?.set(speed, forKey: "playbackSpeed")
 
     self.player = player
     super.init(playbackSpeed: speed > 0 ? speed : 1.0)
@@ -25,6 +28,7 @@ final class SpeedPickerSheetViewModel: SpeedPickerSheet.Model {
     let roundedSpeed = round(speed / 0.05) * 0.05
     playbackSpeed = roundedSpeed
     UserDefaults.standard.set(playbackSpeed, forKey: "playbackSpeed")
+    sharedDefaults?.set(playbackSpeed, forKey: "playbackSpeed")
 
     if player.rate > 0 {
       player.rate = roundedSpeed

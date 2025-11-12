@@ -4,35 +4,32 @@ import SwiftUI
 final class PlaybackProgressViewModel: PlaybackProgressView.Model {
   private var player: AVPlayer?
   private var chapters: ChapterPickerSheet.Model?
+  private var speed: SpeedPickerSheet.Model?
   private var totalDuration: TimeInterval?
   private var currentTime: TimeInterval = 0
   private var isPlayerLoading: Bool = false
 
-  override init(
-    progress: CGFloat = 0,
-    current: TimeInterval = 0,
-    remaining: TimeInterval = 0,
-    total: TimeInterval = 0,
-    totalTimeRemaining: TimeInterval = 0,
-    isLoading: Bool = false
-  ) {
+  init() {
     super.init(
-      progress: progress,
-      current: current,
-      remaining: remaining,
-      total: total,
-      totalTimeRemaining: totalTimeRemaining,
-      isLoading: isLoading
+      progress: 0,
+      current: 0,
+      remaining: 0,
+      total: 0,
+      totalProgress: 0,
+      totalTimeRemaining: 0,
+      isLoading: false
     )
   }
 
   func configure(
     player: AVPlayer?,
     chapters: ChapterPickerSheet.Model?,
+    speed: SpeedPickerSheet.Model,
     totalDuration: TimeInterval?
   ) {
     self.player = player
     self.chapters = chapters
+    self.speed = speed
     self.totalDuration = totalDuration
     updateProgress()
   }
@@ -47,12 +44,13 @@ final class PlaybackProgressViewModel: PlaybackProgressView.Model {
     self.isLoading = isLoading
   }
 
-  private func updateProgress() {
+  func updateProgress() {
     guard let totalDuration = totalDuration else {
       progress = 0
       current = 0
       remaining = 0
       total = 0
+      totalProgress = 0
       totalTimeRemaining = 0
       return
     }
@@ -76,7 +74,12 @@ final class PlaybackProgressViewModel: PlaybackProgressView.Model {
     self.current = current
     self.remaining = remaining
     self.total = totalDuration
-    self.totalTimeRemaining = totalDuration - currentTime
+    self.totalProgress = currentTime / totalDuration
+    var totalTimeRemaining = (totalDuration - currentTime)
+    if let speed {
+      totalTimeRemaining /= Double(speed.playbackSpeed)
+    }
+    self.totalTimeRemaining = totalTimeRemaining
     self.isLoading = isPlayerLoading
   }
 

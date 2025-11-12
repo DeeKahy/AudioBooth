@@ -62,6 +62,7 @@ final class BookPlayerModel: BookPlayer.Model {
     )
 
     setupDownloadStateBinding(bookID: book.id)
+    observeSpeedChanged()
     onLoad()
   }
 
@@ -85,6 +86,7 @@ final class BookPlayerModel: BookPlayer.Model {
     )
 
     setupDownloadStateBinding(bookID: item.bookID)
+    observeSpeedChanged()
     onLoad()
   }
 
@@ -310,6 +312,7 @@ extension BookPlayerModel {
       playbackProgress.configure(
         player: player,
         chapters: chapters,
+        speed: speed,
         totalDuration: totalDuration
       )
     }
@@ -331,6 +334,21 @@ extension BookPlayerModel {
       downloadManager.deleteDownload(for: id)
       AppLogger.player.error("Failed to load local book item: \(error)")
       Toast(error: "Can‘t access download. Streaming instead.").show()
+    }
+  }
+
+  private func observeSpeedChanged() {
+    withObservationTracking {
+      _ = speed.playbackSpeed
+    } onChange: { [weak self] in
+      RunLoop.current.perform {
+        if let playbackProgress = self?.playbackProgress as? PlaybackProgressViewModel {
+          playbackProgress.updateProgress()
+          WidgetCenter.shared.reloadAllTimelines()
+        }
+
+        self?.observeSpeedChanged()
+      }
     }
   }
 

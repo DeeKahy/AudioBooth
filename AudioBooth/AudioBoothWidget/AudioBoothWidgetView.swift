@@ -166,7 +166,7 @@ struct AudioBoothWidgetView: View {
   }
 
   private func formatTime(_ seconds: TimeInterval) -> String {
-    Duration.seconds(seconds).formatted(
+    Duration.seconds(seconds / entry.speed).formatted(
       .units(
         allowed: [.hours, .minutes],
         width: .narrow

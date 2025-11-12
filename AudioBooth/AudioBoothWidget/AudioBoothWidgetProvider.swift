@@ -9,13 +9,21 @@ struct AudioBoothWidgetEntry: TimelineEntry {
   let date: Date
   let book: LocalBook?
   let progress: MediaProgress?
+  let speed: Double
   let coverImage: UIImage?
   let isPlaying: Bool
 }
 
 struct AudioBoothWidgetProvider: TimelineProvider {
   func placeholder(in context: Context) -> AudioBoothWidgetEntry {
-    AudioBoothWidgetEntry(date: Date(), book: nil, progress: nil, coverImage: nil, isPlaying: false)
+    AudioBoothWidgetEntry(
+      date: Date(),
+      book: nil,
+      progress: nil,
+      speed: 1,
+      coverImage: nil,
+      isPlaying: false
+    )
   }
 
   func getSnapshot(in context: Context, completion: @escaping (AudioBoothWidgetEntry) -> Void) {
@@ -41,7 +49,13 @@ struct AudioBoothWidgetProvider: TimelineProvider {
 
     guard let currentBookID = sharedDefaults?.string(forKey: "currentBookID") else {
       return AudioBoothWidgetEntry(
-        date: Date(), book: nil, progress: nil, coverImage: nil, isPlaying: false)
+        date: Date(),
+        book: nil,
+        progress: nil,
+        speed: 1,
+        coverImage: nil,
+        isPlaying: false
+      )
     }
 
     let isPlaying = sharedDefaults?.bool(forKey: "isPlaying") ?? false
@@ -56,7 +70,13 @@ struct AudioBoothWidgetProvider: TimelineProvider {
 
       guard let book = books.first else {
         return AudioBoothWidgetEntry(
-          date: Date(), book: nil, progress: nil, coverImage: nil, isPlaying: false)
+          date: Date(),
+          book: nil,
+          progress: nil,
+          speed: 1,
+          coverImage: nil,
+          isPlaying: false
+        )
       }
 
       let progressDescriptor = FetchDescriptor<MediaProgress>(
@@ -79,11 +99,28 @@ struct AudioBoothWidgetProvider: TimelineProvider {
         }
       }
 
+      var speed: Double = 1
+      if let value = sharedDefaults?.double(forKey: "playbackSpeed"), value > 0 {
+        speed = value
+      }
+
       return AudioBoothWidgetEntry(
-        date: Date(), book: book, progress: progress, coverImage: coverImage, isPlaying: isPlaying)
+        date: Date(),
+        book: book,
+        progress: progress,
+        speed: speed,
+        coverImage: coverImage,
+        isPlaying: isPlaying
+      )
     } catch {
       return AudioBoothWidgetEntry(
-        date: Date(), book: nil, progress: nil, coverImage: nil, isPlaying: false)
+        date: Date(),
+        book: nil,
+        progress: nil,
+        speed: 1,
+        coverImage: nil,
+        isPlaying: false
+      )
     }
   }
 }

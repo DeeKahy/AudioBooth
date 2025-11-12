@@ -45,11 +45,10 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
     withObservationTracking {
       _ = current.isPlaying
       _ = current.playbackProgress.progress
+      _ = current.playbackProgress.totalTimeRemaining
     } onChange: { [weak self] in
       RunLoop.current.perform {
         let isPlaying = current.isPlaying
-        let total = Double(current.playbackProgress.total)
-        let totalTimeRemaining = Double(current.playbackProgress.totalTimeRemaining)
 
         if isPlaying {
           self?.lastPlayedAt = .distantFuture
@@ -57,7 +56,15 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
           self?.lastPlayedAt = Date()
         }
 
-        self?.progress = (total - totalTimeRemaining) / total
+        self?.progress = current.playbackProgress.totalProgress
+
+        self?.timeRemaining =
+          Duration.seconds(current.playbackProgress.totalTimeRemaining).formatted(
+            .units(
+              allowed: [.hours, .minutes],
+              width: .narrow
+            )
+          ) + " left"
 
         self?.observePlayerState(PlayerManager.shared.current)
       }
@@ -85,7 +92,9 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
       lastPlayedAt = mediaProgress.lastPlayedAt
     }
 
-    timeRemaining = Self.formatTimeRemaining(from: book, progress: mediaProgress)
+    if timeRemaining == nil {
+      timeRemaining = Self.formatTimeRemaining(from: book, progress: mediaProgress)
+    }
   }
 
   override func onRemoveFromListTapped() {
@@ -101,9 +110,7 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
   }
 
   private static func formatTimeRemaining(from book: Book, progress: MediaProgress) -> String? {
-    guard progress.progress > 0,
-      progress.progress < 1.0
-    else { return nil }
+    guard progress.progress > 0, progress.progress < 1.0 else { return nil }
     let remainingTime = book.duration * (1.0 - progress.progress)
     guard remainingTime > 0 else { return nil }
     return Duration.seconds(remainingTime).formatted(

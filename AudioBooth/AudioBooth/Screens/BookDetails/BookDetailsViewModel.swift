@@ -178,12 +178,24 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     if let progress = try? MediaProgress.fetch(bookID: bookID) {
       let remainingTime = duration * (1.0 - progress.progress)
       if remainingTime > 0 && progress.progress > 0 && progress.progress < 1.0 {
-        self.timeRemaining = Duration.seconds(remainingTime).formatted(
-          .units(
-            allowed: [.hours, .minutes],
-            width: .narrow
+        if let current = PlayerManager.shared.current,
+          [book?.id, localBook?.bookID].contains(current.id)
+        {
+          self.timeRemaining = Duration.seconds(current.playbackProgress.totalTimeRemaining)
+            .formatted(
+              .units(
+                allowed: [.hours, .minutes],
+                width: .narrow
+              )
+            )
+        } else {
+          self.timeRemaining = Duration.seconds(remainingTime).formatted(
+            .units(
+              allowed: [.hours, .minutes],
+              width: .narrow
+            )
           )
-        )
+        }
       }
     }
 

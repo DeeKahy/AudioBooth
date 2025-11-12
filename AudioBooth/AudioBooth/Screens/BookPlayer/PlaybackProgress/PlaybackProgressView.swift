@@ -70,18 +70,20 @@ struct PlaybackProgressView: View {
 
 extension PlaybackProgressView {
   @Observable class Model {
-    var progress: CGFloat
+    var progress: Double
     var current: TimeInterval
     var remaining: TimeInterval
     var total: TimeInterval
+    var totalProgress: Double
     var totalTimeRemaining: TimeInterval
     var isLoading: Bool
 
     init(
-      progress: CGFloat,
+      progress: Double,
       current: TimeInterval,
       remaining: TimeInterval,
       total: TimeInterval,
+      totalProgress: Double,
       totalTimeRemaining: TimeInterval,
       isLoading: Bool
     ) {
@@ -89,6 +91,7 @@ extension PlaybackProgressView {
       self.current = current
       self.remaining = remaining
       self.total = total
+      self.totalProgress = totalProgress
       self.totalTimeRemaining = totalTimeRemaining
       self.isLoading = isLoading
     }
@@ -104,6 +107,7 @@ extension PlaybackProgressView.Model {
       current: 600,
       remaining: 1200,
       total: 3600,
+      totalProgress: 0,
       totalTimeRemaining: 3000,
       isLoading: false
     )
