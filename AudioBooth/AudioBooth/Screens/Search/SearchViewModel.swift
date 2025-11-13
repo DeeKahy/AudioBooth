@@ -28,6 +28,9 @@ final class SearchViewModel: SearchView.Model {
     books = []
     series = []
     authors = []
+    narrators = []
+    tags = []
+    genres = []
     isLoading = false
   }
 
@@ -53,6 +56,18 @@ final class SearchViewModel: SearchView.Model {
 
         authors = searchResult.authors.map { author in
           AuthorCardModel(author: author)
+        }
+
+        narrators = searchResult.narrators.map { narrator in
+          narrator.name
+        }
+
+        tags = searchResult.tags.map { tag in
+          tag.name
+        }
+
+        genres = searchResult.genres.map { genre in
+          genre.name
         }
 
         isLoading = false

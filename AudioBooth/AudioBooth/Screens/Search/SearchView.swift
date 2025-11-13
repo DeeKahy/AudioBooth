@@ -42,7 +42,9 @@ struct SearchView: View {
       emptyState
     } else if model.isLoading {
       loadingState
-    } else if model.books.isEmpty && model.series.isEmpty && model.authors.isEmpty {
+    } else if model.books.isEmpty, model.series.isEmpty, model.authors.isEmpty,
+      model.narrators.isEmpty, model.tags.isEmpty, model.genres.isEmpty
+    {
       noResultsState
     } else {
       resultsView
@@ -55,11 +57,13 @@ struct SearchView: View {
         .font(.system(size: 48))
         .foregroundColor(.secondary)
 
-      Text("Search for books, series, and authors")
+      Text("Search for books, series, authors, narrators, tags, or genres")
         .font(.headline)
         .foregroundColor(.secondary)
+        .multilineTextAlignment(.center)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .padding()
   }
 
   var loadingState: some View {
@@ -104,6 +108,18 @@ struct SearchView: View {
 
         if !model.authors.isEmpty {
           authorsSection
+        }
+
+        if !model.narrators.isEmpty {
+          narratorsSection
+        }
+
+        if !model.tags.isEmpty {
+          tagsSection
+        }
+
+        if !model.genres.isEmpty {
+          genresSection
         }
       }
       .padding()
@@ -163,6 +179,93 @@ struct SearchView: View {
       AuthorsView(authors: model.authors)
     }
   }
+
+  var narratorsSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack {
+        Text("Narrators")
+          .font(.title2)
+          .fontWeight(.bold)
+
+        Spacer()
+
+        Text("\(model.narrators.count)")
+          .font(.caption)
+          .foregroundColor(.secondary)
+      }
+
+      FlowLayout(spacing: 8) {
+        ForEach(model.narrators, id: \.self) { narrator in
+          NavigationLink(value: NavigationDestination.narrator(name: narrator)) {
+            Chip(
+              title: narrator,
+              icon: "person.wave.2.fill",
+              color: .blue,
+              mode: .large
+            )
+          }
+        }
+      }
+    }
+  }
+
+  var tagsSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack {
+        Text("Tags")
+          .font(.title2)
+          .fontWeight(.bold)
+
+        Spacer()
+
+        Text("\(model.tags.count)")
+          .font(.caption)
+          .foregroundColor(.secondary)
+      }
+
+      FlowLayout(spacing: 8) {
+        ForEach(model.tags, id: \.self) { tag in
+          NavigationLink(value: NavigationDestination.tag(name: tag)) {
+            Chip(
+              title: tag,
+              icon: "tag.fill",
+              color: .gray,
+              mode: .large
+            )
+          }
+        }
+      }
+    }
+  }
+
+  var genresSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack {
+        Text("Genres")
+          .font(.title2)
+          .fontWeight(.bold)
+
+        Spacer()
+
+        Text("\(model.genres.count)")
+          .font(.caption)
+          .foregroundColor(.secondary)
+      }
+
+      FlowLayout(spacing: 8) {
+        ForEach(model.genres, id: \.self) { genre in
+          NavigationLink(value: NavigationDestination.genre(name: genre)) {
+            Chip(
+              title: genre,
+              icon: "theatermasks.fill",
+              color: .gray,
+              mode: .large
+            )
+          }
+        }
+      }
+    }
+  }
 }
 
 extension SearchView {
@@ -172,6 +275,9 @@ extension SearchView {
     var books: [BookCard.Model] = []
     var series: [SeriesCard.Model] = []
     var authors: [AuthorCard.Model] = []
+    var narrators: [String] = []
+    var tags: [String] = []
+    var genres: [String] = []
 
     func onSearchChanged(_ searchText: String) {}
   }
