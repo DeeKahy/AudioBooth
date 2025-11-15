@@ -27,6 +27,9 @@ struct AudioBoothApp: App {
     Audiobookshelf.shared.libraries.onLibraryChanged = { library in
       if let library {
         WatchConnectivityManager.shared.syncLibrary(library)
+        Task {
+          try? await Audiobookshelf.shared.libraries.fetchFilterData()
+        }
       } else {
         WatchConnectivityManager.shared.clearLibrary()
       }
@@ -39,6 +42,9 @@ struct AudioBoothApp: App {
 
     if let library = Audiobookshelf.shared.libraries.current {
       WatchConnectivityManager.shared.syncLibrary(library)
+      Task {
+        try? await Audiobookshelf.shared.libraries.fetchFilterData()
+      }
     }
 
     Purchases.logLevel = .error

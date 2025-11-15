@@ -116,6 +116,15 @@ final class LibraryPageModel: LibraryPage.Model {
     hasMorePages = true
     fetched.removeAll()
     books.removeAll()
+
+    if isRoot {
+      do {
+        filterData = try await audiobookshelf.libraries.fetchFilterData()
+      } catch {
+        print("Failed to fetch filter data: \(error)")
+      }
+    }
+
     await loadBooks()
   }
 
