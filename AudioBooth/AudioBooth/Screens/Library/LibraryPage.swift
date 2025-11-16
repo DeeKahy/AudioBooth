@@ -4,6 +4,7 @@ import SwiftUI
 
 struct LibraryPage: View {
   @StateObject var model: Model
+  @ObservedObject private var preferences = UserPreferences.shared
 
   var body: some View {
     if model.isRoot {
@@ -52,9 +53,9 @@ struct LibraryPage: View {
             LazyVStack {
               LibraryView(
                 books: model.books,
-                displayMode: model.displayMode == .card ? .grid : .list
+                displayMode: preferences.libraryDisplayMode == .card ? .grid : .list
               )
-              .environment(\.bookCardDisplayMode, model.displayMode)
+              .environment(\.bookCardDisplayMode, preferences.libraryDisplayMode)
               .padding(.horizontal)
 
               Color.clear
@@ -89,9 +90,9 @@ struct LibraryPage: View {
         Menu {
           Toggle(
             isOn: Binding(
-              get: { model.displayMode == .card },
+              get: { preferences.libraryDisplayMode == .card },
               set: { isOn in
-                if isOn && model.displayMode != .card {
+                if isOn && preferences.libraryDisplayMode != .card {
                   model.onDisplayModeTapped()
                 }
               }
@@ -102,9 +103,9 @@ struct LibraryPage: View {
 
           Toggle(
             isOn: Binding(
-              get: { model.displayMode == .row },
+              get: { preferences.libraryDisplayMode == .row },
               set: { isOn in
-                if isOn && model.displayMode != .row {
+                if isOn && preferences.libraryDisplayMode != .row {
                   model.onDisplayModeTapped()
                 }
               }
@@ -170,9 +171,6 @@ extension LibraryPage {
 
     var sortBy: BooksService.SortBy?
     var ascending: Bool = true
-
-    @ObservationIgnored
-    @AppStorage("libraryDisplayMode") var displayMode: BookCard.DisplayMode = .card
 
     var title: String
 

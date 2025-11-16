@@ -14,6 +14,8 @@ struct SettingsView: View {
   @Environment(\.dismiss) var dismiss
   @FocusState private var focusedField: FocusField?
 
+  @ObservedObject var preferences = UserPreferences.shared
+
   @StateObject var model: Model
 
   var body: some View {
@@ -62,7 +64,7 @@ struct SettingsView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture(count: 5) {
-          model.showDebugSection.toggle()
+          preferences.showDebugSection.toggle()
         }
       }
       .navigationTitle("Settings")
@@ -229,7 +231,7 @@ struct SettingsView: View {
   @ViewBuilder
   var account: some View {
     Section("Preferences") {
-      Toggle("Show Listening Stats", isOn: $model.showListeningStats)
+      Toggle("Show Listening Stats", isOn: $preferences.showListeningStats)
         .bold()
     }
 
@@ -248,7 +250,7 @@ struct SettingsView: View {
             VStack(spacing: .zero) {
               Text("Back").bold()
 
-              Picker("Back", selection: $model.skipBackwardInterval) {
+              Picker("Back", selection: $preferences.skipBackwardInterval) {
                 Text("10s").tag(10.0)
                 Text("15s").tag(15.0)
                 Text("30s").tag(30.0)
@@ -261,7 +263,7 @@ struct SettingsView: View {
             VStack(spacing: .zero) {
               Text("Forward").bold()
 
-              Picker("Forward", selection: $model.skipForwardInterval) {
+              Picker("Forward", selection: $preferences.skipForwardInterval) {
                 Text("10s").tag(10.0)
                 Text("15s").tag(15.0)
                 Text("30s").tag(30.0)
@@ -276,7 +278,7 @@ struct SettingsView: View {
         },
         label: {
           Text(
-            "Back \(Int(model.skipBackwardInterval))s Forward \(Int(model.skipForwardInterval))s"
+            "Back \(Int(preferences.skipBackwardInterval))s Forward \(Int(preferences.skipForwardInterval))s"
           )
           .bold()
         }
@@ -294,7 +296,7 @@ struct SettingsView: View {
       }
       .font(.caption)
 
-      Picker("Back", selection: $model.smartRewindInterval) {
+      Picker("Back", selection: $preferences.smartRewindInterval) {
         Text("Off").tag(0.0)
         Text("5s").tag(5.0)
         Text("10s").tag(10.0)
@@ -326,7 +328,7 @@ struct SettingsView: View {
 
   @ViewBuilder
   var debug: some View {
-    if model.showDebugSection {
+    if preferences.showDebugSection {
       Section("Debug") {
         Button(action: model.onExportLogsTapped) {
           HStack {
@@ -392,21 +394,6 @@ extension SettingsView {
     var discoveredServers: [DiscoveredServer]
     var mediaProgressList: MediaProgressListView.Model?
     var isExportingLogs: Bool
-
-    @ObservationIgnored
-    @AppStorage("showListeningStats") var showListeningStats: Bool = false
-
-    @ObservationIgnored
-    @AppStorage("showDebugSection") var showDebugSection: Bool = false
-
-    @ObservationIgnored
-    @AppStorage("skipBackwardInterval") var skipBackwardInterval: Double = 30
-
-    @ObservationIgnored
-    @AppStorage("skipForwardInterval") var skipForwardInterval: Double = 30
-
-    @ObservationIgnored
-    @AppStorage("smartRewindInterval") var smartRewindInterval: Double = 30
 
     var isTypingScheme: Bool {
       let lowercased = serverURL.lowercased()

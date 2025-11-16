@@ -63,6 +63,7 @@ final class BookPlayerModel: BookPlayer.Model {
 
     setupDownloadStateBinding(bookID: book.id)
     observeSpeedChanged()
+    observeSkipIntervalChanges()
     onLoad()
   }
 
@@ -87,6 +88,7 @@ final class BookPlayerModel: BookPlayer.Model {
 
     setupDownloadStateBinding(bookID: item.bookID)
     observeSpeedChanged()
+    observeSkipIntervalChanges()
     onLoad()
   }
 
@@ -239,7 +241,7 @@ extension BookPlayerModel {
   }
 
   private func applySmartRewind() {
-    let smartRewindInterval = UserDefaults.standard.double(forKey: "smartRewindInterval")
+    let smartRewindInterval = UserPreferences.shared.smartRewindInterval
 
     guard smartRewindInterval > 0 else {
       AppLogger.player.debug("Smart rewind is disabled")
@@ -384,6 +386,33 @@ extension BookPlayerModel {
     }
   }
 
+  private func observeSkipIntervalChanges() {
+    let preferences = UserPreferences.shared
+
+    preferences.objectWillChange
+      .debounce(for: .milliseconds(100), scheduler: RunLoop.main)
+      .sink { [weak self] _ in
+        self?.updateCommandCenterIntervals()
+      }
+      .store(in: &cancellables)
+  }
+
+  private func updateCommandCenterIntervals() {
+    let commandCenter = MPRemoteCommandCenter.shared()
+    let preferences = UserPreferences.shared
+
+    commandCenter.skipForwardCommand.preferredIntervals = [
+      NSNumber(value: preferences.skipForwardInterval)
+    ]
+    commandCenter.skipBackwardCommand.preferredIntervals = [
+      NSNumber(value: preferences.skipBackwardInterval)
+    ]
+
+    AppLogger.player.debug(
+      "Updated skip intervals - forward: \(preferences.skipForwardInterval)s, backward: \(preferences.skipBackwardInterval)s"
+    )
+  }
+
   private func onLoad() {
     Task {
       isLoading = true
@@ -473,6 +502,7 @@ extension BookPlayerModel {
 
   private func setupRemoteCommandCenter() {
     let commandCenter = MPRemoteCommandCenter.shared()
+    let preferences = UserPreferences.shared
 
     commandCenter.playCommand.addTarget { [weak self] _ in
       self?.onPlayTapped()
@@ -489,9 +519,6 @@ extension BookPlayerModel {
       return .success
     }
 
-    let skipForwardInterval = UserDefaults.standard.double(forKey: "skipForwardInterval")
-    let skipBackwardInterval = UserDefaults.standard.double(forKey: "skipBackwardInterval")
-
     commandCenter.skipForwardCommand.addTarget { [weak self] event in
       guard let self else { return .commandFailed }
 
@@ -499,7 +526,7 @@ extension BookPlayerModel {
       if let skipEvent = event as? MPSkipIntervalCommandEvent, skipEvent.interval > 0 {
         interval = skipEvent.interval
       } else {
-        interval = skipForwardInterval
+        interval = preferences.skipForwardInterval
       }
 
       self.onSkipForwardTapped(seconds: interval)
@@ -513,7 +540,7 @@ extension BookPlayerModel {
       if let skipEvent = event as? MPSkipIntervalCommandEvent, skipEvent.interval > 0 {
         interval = skipEvent.interval
       } else {
-        interval = skipBackwardInterval
+        interval = preferences.skipBackwardInterval
       }
 
       self.onSkipBackwardTapped(seconds: interval)
@@ -521,17 +548,21 @@ extension BookPlayerModel {
     }
 
     commandCenter.nextTrackCommand.addTarget { [weak self] _ in
-      self?.onSkipForwardTapped(seconds: skipForwardInterval)
+      self?.onSkipForwardTapped(seconds: preferences.skipForwardInterval)
       return .success
     }
 
     commandCenter.previousTrackCommand.addTarget { [weak self] _ in
-      self?.onSkipBackwardTapped(seconds: skipBackwardInterval)
+      self?.onSkipBackwardTapped(seconds: preferences.skipBackwardInterval)
       return .success
     }
 
-    commandCenter.skipForwardCommand.preferredIntervals = [NSNumber(value: skipForwardInterval)]
-    commandCenter.skipBackwardCommand.preferredIntervals = [NSNumber(value: skipBackwardInterval)]
+    commandCenter.skipForwardCommand.preferredIntervals = [
+      NSNumber(value: preferences.skipForwardInterval)
+    ]
+    commandCenter.skipBackwardCommand.preferredIntervals = [
+      NSNumber(value: preferences.skipBackwardInterval)
+    ]
 
     setupNowPlayingMetadata()
   }

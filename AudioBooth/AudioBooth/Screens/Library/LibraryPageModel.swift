@@ -158,7 +158,8 @@ final class LibraryPageModel: LibraryPage.Model {
   }
 
   override func onDisplayModeTapped() {
-    displayMode = displayMode == .card ? .row : .card
+    let preferences = UserPreferences.shared
+    preferences.libraryDisplayMode = preferences.libraryDisplayMode == .card ? .row : .card
   }
 
   private func loadBooks() async {

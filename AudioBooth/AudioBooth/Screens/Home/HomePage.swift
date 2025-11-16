@@ -5,6 +5,7 @@ import SwiftUI
 
 struct HomePage: View {
   @ObservedObject private var libraries = Audiobookshelf.shared.libraries
+  @ObservedObject private var preferences = UserPreferences.shared
 
   @StateObject var model: Model
   @State private var showingSettings = false
@@ -33,7 +34,7 @@ struct HomePage: View {
   var content: some View {
     ScrollView {
       VStack(spacing: 24) {
-        if model.showStats {
+        if preferences.showListeningStats {
           ListeningStatsCard(model: ListeningStatsCardModel())
             .padding(.horizontal)
         }
@@ -232,13 +233,6 @@ extension HomePage {
     var isLoading: Bool
     var isRoot: Bool
     var title: String
-
-    @ObservationIgnored
-    @AppStorage("showListeningStats") var showListeningStats: Bool = false
-
-    var showStats: Bool {
-      showListeningStats && Audiobookshelf.shared.authentication.isAuthenticated
-    }
 
     struct Section {
       let title: String

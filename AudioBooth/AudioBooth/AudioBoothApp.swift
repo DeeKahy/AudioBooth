@@ -15,8 +15,7 @@ struct AudioBoothApp: App {
     DownloadManager.shared.cleanupOrphanedDownloads()
     _ = WatchConnectivityManager.shared
     _ = SessionManager.shared
-
-    registerPreferences()
+    _ = UserPreferences.shared
 
     observeAuthentication()
     observeLibrary()
@@ -26,16 +25,6 @@ struct AudioBoothApp: App {
 
     let player: PlayerManagerProtocol = PlayerManager.shared
     AppDependencyManager.shared.add(dependency: player)
-  }
-
-  private func registerPreferences() {
-    UserDefaults.standard.register(
-      defaults: [
-        "skipBackwardInterval": 30.0,
-        "skipForwardInterval": 30.0,
-        "smartRewindInterval": 30.0,
-      ]
-    )
   }
 
   private func observeAuthentication() {
