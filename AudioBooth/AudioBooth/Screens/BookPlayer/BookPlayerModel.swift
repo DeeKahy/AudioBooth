@@ -226,12 +226,44 @@ extension BookPlayerModel {
     } else if result.serverCurrentTime > mediaProgress.currentTime {
       mediaProgress.currentTime = result.serverCurrentTime
       AppLogger.player.info(
-        "Using server currentTime for cross-device sync: \(result.serverCurrentTime)s")
+        "Using server currentTime for cross-device sync: \(result.serverCurrentTime)s"
+      )
+      applySmartRewind()
+    } else {
+      applySmartRewind()
     }
 
     if let updatedItem = result.updatedItem {
       item = updatedItem
     }
+  }
+
+  private func applySmartRewind() {
+    let smartRewindInterval = UserDefaults.standard.double(forKey: "smartRewindInterval")
+
+    guard smartRewindInterval > 0 else {
+      AppLogger.player.debug("Smart rewind is disabled")
+      return
+    }
+
+    let lastPlayedAt = mediaProgress.lastPlayedAt
+
+    let timeSinceLastPlayed = Date().timeIntervalSince(lastPlayedAt)
+    let tenMinutes: TimeInterval = 10 * 60
+
+    guard timeSinceLastPlayed >= tenMinutes else {
+      AppLogger.player.debug(
+        "Smart rewind not applied - only \(Int(timeSinceLastPlayed / 60)) minutes since last playback"
+      )
+      return
+    }
+
+    let newTime = max(0, mediaProgress.currentTime - smartRewindInterval)
+    mediaProgress.currentTime = newTime
+
+    AppLogger.player.info(
+      "Smart rewind applied: rewound \(Int(smartRewindInterval))s after \(Int(timeSinceLastPlayed / 60)) minutes of pause"
+    )
   }
 
   private func setupAudioPlayer() async throws {
@@ -457,6 +489,9 @@ extension BookPlayerModel {
       return .success
     }
 
+    let skipForwardInterval = UserDefaults.standard.double(forKey: "skipForwardInterval")
+    let skipBackwardInterval = UserDefaults.standard.double(forKey: "skipBackwardInterval")
+
     commandCenter.skipForwardCommand.addTarget { [weak self] event in
       guard let self else { return .commandFailed }
 
@@ -464,7 +499,7 @@ extension BookPlayerModel {
       if let skipEvent = event as? MPSkipIntervalCommandEvent, skipEvent.interval > 0 {
         interval = skipEvent.interval
       } else {
-        interval = 30
+        interval = skipForwardInterval
       }
 
       self.onSkipForwardTapped(seconds: interval)
@@ -478,7 +513,7 @@ extension BookPlayerModel {
       if let skipEvent = event as? MPSkipIntervalCommandEvent, skipEvent.interval > 0 {
         interval = skipEvent.interval
       } else {
-        interval = 30
+        interval = skipBackwardInterval
       }
 
       self.onSkipBackwardTapped(seconds: interval)
@@ -486,17 +521,17 @@ extension BookPlayerModel {
     }
 
     commandCenter.nextTrackCommand.addTarget { [weak self] _ in
-      self?.onSkipForwardTapped(seconds: 30)
+      self?.onSkipForwardTapped(seconds: skipForwardInterval)
       return .success
     }
 
     commandCenter.previousTrackCommand.addTarget { [weak self] _ in
-      self?.onSkipBackwardTapped(seconds: 30)
+      self?.onSkipBackwardTapped(seconds: skipBackwardInterval)
       return .success
     }
 
-    commandCenter.skipForwardCommand.preferredIntervals = [NSNumber(value: 30)]
-    commandCenter.skipBackwardCommand.preferredIntervals = [NSNumber(value: 30)]
+    commandCenter.skipForwardCommand.preferredIntervals = [NSNumber(value: skipForwardInterval)]
+    commandCenter.skipBackwardCommand.preferredIntervals = [NSNumber(value: skipBackwardInterval)]
 
     setupNowPlayingMetadata()
   }

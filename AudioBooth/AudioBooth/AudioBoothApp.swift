@@ -16,6 +16,29 @@ struct AudioBoothApp: App {
     _ = WatchConnectivityManager.shared
     _ = SessionManager.shared
 
+    registerPreferences()
+
+    observeAuthentication()
+    observeLibrary()
+
+    Purchases.logLevel = .error
+    Purchases.configure(withAPIKey: "appl_AuBdFKRrOngbJsXGkkxDKGNbGRW")
+
+    let player: PlayerManagerProtocol = PlayerManager.shared
+    AppDependencyManager.shared.add(dependency: player)
+  }
+
+  private func registerPreferences() {
+    UserDefaults.standard.register(
+      defaults: [
+        "skipBackwardInterval": 30.0,
+        "skipForwardInterval": 30.0,
+        "smartRewindInterval": 30.0,
+      ]
+    )
+  }
+
+  private func observeAuthentication() {
     Audiobookshelf.shared.authentication.onAuthenticationChanged = { credentials in
       if let (serverURL, token) = credentials {
         WatchConnectivityManager.shared.syncAuthCredentials(serverURL: serverURL, token: token)
@@ -24,6 +47,13 @@ struct AudioBoothApp: App {
       }
     }
 
+    if let connection = Audiobookshelf.shared.authentication.connection {
+      WatchConnectivityManager.shared.syncAuthCredentials(
+        serverURL: connection.serverURL, token: connection.token)
+    }
+  }
+
+  private func observeLibrary() {
     Audiobookshelf.shared.libraries.onLibraryChanged = { library in
       if let library {
         WatchConnectivityManager.shared.syncLibrary(library)
@@ -35,23 +65,12 @@ struct AudioBoothApp: App {
       }
     }
 
-    if let connection = Audiobookshelf.shared.authentication.connection {
-      WatchConnectivityManager.shared.syncAuthCredentials(
-        serverURL: connection.serverURL, token: connection.token)
-    }
-
     if let library = Audiobookshelf.shared.libraries.current {
       WatchConnectivityManager.shared.syncLibrary(library)
       Task {
         try? await Audiobookshelf.shared.libraries.fetchFilterData()
       }
     }
-
-    Purchases.logLevel = .error
-    Purchases.configure(withAPIKey: "appl_AuBdFKRrOngbJsXGkkxDKGNbGRW")
-
-    let player: PlayerManagerProtocol = PlayerManager.shared
-    AppDependencyManager.shared.add(dependency: player)
   }
 
   var body: some Scene {

@@ -230,7 +230,84 @@ struct SettingsView: View {
   var account: some View {
     Section("Preferences") {
       Toggle("Show Listening Stats", isOn: $model.showListeningStats)
+        .bold()
     }
+
+    Section("Player") {
+      VStack(alignment: .leading) {
+        Text("Skip forward and back".uppercased())
+          .bold()
+
+        Text("Choose how far to skip forward and back while listening.")
+      }
+      .font(.caption)
+
+      DisclosureGroup(
+        content: {
+          HStack {
+            VStack(spacing: .zero) {
+              Text("Back").bold()
+
+              Picker("Back", selection: $model.skipBackwardInterval) {
+                Text("10s").tag(10.0)
+                Text("15s").tag(15.0)
+                Text("30s").tag(30.0)
+                Text("60s").tag(60.0)
+                Text("90s").tag(90.0)
+              }
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+
+            VStack(spacing: .zero) {
+              Text("Forward").bold()
+
+              Picker("Forward", selection: $model.skipForwardInterval) {
+                Text("10s").tag(10.0)
+                Text("15s").tag(15.0)
+                Text("30s").tag(30.0)
+                Text("60s").tag(60.0)
+                Text("90s").tag(90.0)
+              }
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+          }
+          .pickerStyle(.wheel)
+          .labelsHidden()
+        },
+        label: {
+          Text(
+            "Back \(Int(model.skipBackwardInterval))s Forward \(Int(model.skipForwardInterval))s"
+          )
+          .bold()
+        }
+      )
+    }
+    .listRowSeparator(.hidden)
+    .listSectionSpacing(.custom(12))
+
+    Section {
+      VStack(alignment: .leading) {
+        Text("Smart Rewind".uppercased())
+          .bold()
+
+        Text("Rewind after being paused for 10 minutes.")
+      }
+      .font(.caption)
+
+      Picker("Back", selection: $model.smartRewindInterval) {
+        Text("Off").tag(0.0)
+        Text("5s").tag(5.0)
+        Text("10s").tag(10.0)
+        Text("15s").tag(15.0)
+        Text("30s").tag(30.0)
+        Text("45s").tag(45.0)
+        Text("60s").tag(60.0)
+        Text("75s").tag(75.0)
+        Text("90s").tag(90.0)
+      }
+      .bold()
+    }
+    .listRowSeparator(.hidden)
 
     TipJarView(model: model.tipJar)
 
@@ -239,6 +316,7 @@ struct SettingsView: View {
         Image(systemName: "checkmark.circle.fill")
           .foregroundColor(.green)
         Text("Authenticated")
+          .bold()
         Spacer()
         Button("Logout", action: model.onLogoutTapped)
           .foregroundColor(.red)
@@ -320,6 +398,15 @@ extension SettingsView {
 
     @ObservationIgnored
     @AppStorage("showDebugSection") var showDebugSection: Bool = false
+
+    @ObservationIgnored
+    @AppStorage("skipBackwardInterval") var skipBackwardInterval: Double = 30
+
+    @ObservationIgnored
+    @AppStorage("skipForwardInterval") var skipForwardInterval: Double = 30
+
+    @ObservationIgnored
+    @AppStorage("smartRewindInterval") var smartRewindInterval: Double = 30
 
     var isTypingScheme: Bool {
       let lowercased = serverURL.lowercased()

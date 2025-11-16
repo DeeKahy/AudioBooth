@@ -63,6 +63,7 @@ struct TipJarView: View {
         }
       } header: {
         Text("Support Development")
+          .padding(.horizontal)
       } footer: {
         if model.isSandbox {
           Group {

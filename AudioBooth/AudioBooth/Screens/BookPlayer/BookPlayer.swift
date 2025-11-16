@@ -9,6 +9,8 @@ struct BookPlayer: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.verticalSizeClass) private var verticalSizeClass
   @StateObject private var playerManager = PlayerManager.shared
+  @AppStorage("skipBackwardInterval") private var skipBackwardInterval: Double = 30
+  @AppStorage("skipForwardInterval") private var skipForwardInterval: Double = 30
 
   var body: some View {
     NavigationStack {
@@ -200,8 +202,8 @@ struct BookPlayer: View {
         .disabled(model.isLoading || isFirstChapter)
       }
 
-      Button(action: { model.onSkipBackwardTapped(seconds: 30) }) {
-        Image(systemName: "30.arrow.trianglehead.counterclockwise")
+      Button(action: { model.onSkipBackwardTapped(seconds: skipBackwardInterval) }) {
+        Image(systemName: "\(Int(skipBackwardInterval)).arrow.trianglehead.counterclockwise")
           .font(.system(size: 40, weight: .thin))
           .foregroundColor(model.isLoading ? .white.opacity(0.3) : .white)
       }
@@ -228,8 +230,8 @@ struct BookPlayer: View {
       }
       .disabled(model.isLoading)
 
-      Button(action: { model.onSkipForwardTapped(seconds: 30) }) {
-        Image(systemName: "30.arrow.trianglehead.clockwise")
+      Button(action: { model.onSkipForwardTapped(seconds: skipForwardInterval) }) {
+        Image(systemName: "\(Int(skipForwardInterval)).arrow.trianglehead.clockwise")
           .font(.system(size: 40, weight: .thin))
           .foregroundColor(model.isLoading ? .white.opacity(0.3) : .white)
       }
