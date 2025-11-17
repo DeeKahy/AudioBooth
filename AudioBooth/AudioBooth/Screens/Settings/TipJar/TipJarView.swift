@@ -29,16 +29,15 @@ struct TipJarView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                 }
-                .allowsTightening(true)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.vertical, 20)
                 .padding(.horizontal, 8)
                 .background(
-                  RoundedRectangle(cornerRadius: 16)
+                  RoundedRectangle(cornerRadius: 22)
                     .fill(Color(.systemBackground))
                 )
                 .overlay(
-                  RoundedRectangle(cornerRadius: 16)
+                  RoundedRectangle(cornerRadius: 22)
                     .strokeBorder(Color(.systemGray5), lineWidth: 1)
                 )
               }
