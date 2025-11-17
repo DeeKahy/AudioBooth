@@ -1,5 +1,6 @@
 import API
 import Combine
+import CoreNFC
 import Models
 import RichText
 import SwiftUI
@@ -70,6 +71,14 @@ struct BookDetailsView: View {
           } else {
             Button(action: model.onMarkFinishedTapped) {
               Label("Mark as Finished", systemImage: "checkmark.shield")
+            }
+          }
+
+          if NFCNDEFReaderSession.readingAvailable {
+            Divider()
+
+            Button(action: model.onWriteTagTapped) {
+              Label("Write NFC tag", systemImage: "sensor.tag.radiowaves.forward")
             }
           }
         } label: {
@@ -648,6 +657,7 @@ extension BookDetailsView {
     func onDownloadTapped() {}
     func onMarkFinishedTapped() {}
     func onResetProgressTapped() {}
+    func onWriteTagTapped() {}
     func onSupplementaryEbookTapped(_ ebook: SupplementaryEbook) {}
 
     init(

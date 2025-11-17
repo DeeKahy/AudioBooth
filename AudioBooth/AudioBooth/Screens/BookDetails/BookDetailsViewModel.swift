@@ -379,6 +379,12 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     }
   }
 
+  override func onWriteTagTapped() {
+    Task {
+      await NFCWriter.write(bookID: bookID)
+    }
+  }
+
   override func onSupplementaryEbookTapped(_ ebook: BookDetailsView.Model.SupplementaryEbook) {
     guard let serverURL = Audiobookshelf.shared.serverURL,
       let token = Audiobookshelf.shared.authentication.connection?.token
