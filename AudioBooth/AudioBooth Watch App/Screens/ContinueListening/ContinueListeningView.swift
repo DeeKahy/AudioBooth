@@ -8,7 +8,9 @@ struct ContinueListeningView: View {
 
   var body: some View {
     Group {
-      if model.isLoading && model.books.isEmpty {
+      if model.isLoading && model.continueListeningRows.isEmpty
+        && model.availableOfflineRows.isEmpty
+      {
         ProgressView()
       } else {
         content
@@ -22,19 +24,34 @@ struct ContinueListeningView: View {
 
   private var content: some View {
     ScrollView {
-      VStack {
-        ForEach(model.books) { item in
-          Button {
-            model.playBook(bookID: item.id)
-          } label: {
-            ContinueListeningRow(item: item)
+      VStack(alignment: .leading, spacing: 16) {
+        if !model.continueListeningRows.isEmpty {
+          sectionHeader("Continue Listening")
+          ForEach(model.continueListeningRows) { rowModel in
+            ContinueListeningRow(model: rowModel)
           }
-          .buttonStyle(.plain)
+        }
+
+        if !model.availableOfflineRows.isEmpty {
+          sectionHeader("Available Offline")
+          ForEach(model.availableOfflineRows) { rowModel in
+            ContinueListeningRow(model: rowModel)
+          }
         }
 
         refresh
       }
     }
+  }
+
+  private func sectionHeader(_ title: String) -> some View {
+    Text(title)
+      .font(.caption)
+      .fontWeight(.semibold)
+      .foregroundStyle(.secondary)
+      .textCase(.uppercase)
+      .padding(.horizontal)
+      .padding(.top, 8)
   }
 
   private var refresh: some View {
@@ -53,74 +70,21 @@ struct ContinueListeningView: View {
 extension ContinueListeningView {
   @Observable
   class Model: ObservableObject {
-    struct BookItem: Identifiable {
-      let id: String
-      let title: String
-      let author: String?
-      let coverURL: URL?
-      let timeRemaining: Double
-      let isDownloaded: Bool
-    }
-
-    var books: [BookItem]
+    var continueListeningRows: [ContinueListeningRow.Model]
+    var availableOfflineRows: [ContinueListeningRow.Model]
     var isLoading: Bool
 
     func fetch() async {}
-    func playBook(bookID: String) {}
 
-    init(books: [BookItem] = [], isLoading: Bool = false) {
-      self.books = books
+    init(
+      continueListeningRows: [ContinueListeningRow.Model] = [],
+      availableOfflineRows: [ContinueListeningRow.Model] = [],
+      isLoading: Bool = false
+    ) {
+      self.continueListeningRows = continueListeningRows
+      self.availableOfflineRows = availableOfflineRows
       self.isLoading = isLoading
     }
-  }
-}
-
-private struct ContinueListeningRow: View {
-  let item: ContinueListeningView.Model.BookItem
-
-  var body: some View {
-    HStack(spacing: 12) {
-      Cover(url: item.coverURL, state: .downloaded)
-        .frame(width: 50, height: 50)
-
-      VStack(alignment: .leading, spacing: 4) {
-        Text(item.title)
-          .font(.caption2)
-          .fontWeight(.medium)
-          .lineLimit(2)
-          .frame(maxWidth: .infinity, alignment: .leading)
-
-        if let author = item.author {
-          Text(author)
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-        }
-
-        if item.timeRemaining > 0 {
-          Text(formatTimeRemaining(item.timeRemaining))
-            .font(.footnote)
-            .foregroundStyle(.orange)
-            .lineLimit(1)
-        }
-      }
-    }
-    .padding()
-    .background(Color(red: 0.1, green: 0.1, blue: 0.2))
-    .clipShape(RoundedRectangle(cornerRadius: 16))
-    .overlay(
-      RoundedRectangle(cornerRadius: 16)
-        .stroke(Color(red: 0.2, green: 0.2, blue: 0.4), lineWidth: 1)
-    )
-  }
-
-  private func formatTimeRemaining(_ duration: Double) -> String {
-    Duration.seconds(duration).formatted(
-      .units(
-        allowed: [.hours, .minutes],
-        width: .narrow
-      )
-    ) + " left"
   }
 }
 
@@ -128,31 +92,30 @@ private struct ContinueListeningRow: View {
   NavigationStack {
     ContinueListeningView(
       model: ContinueListeningView.Model(
-        books: [
-          .init(
+        continueListeningRows: [
+          ContinueListeningRow.Model(
             id: "1",
             title: "The Lord of the Rings",
             author: "J.R.R. Tolkien",
             coverURL: URL(string: "https://m.media-amazon.com/images/I/51YHc7SK5HL._SL500_.jpg"),
-            timeRemaining: 420,
-            isDownloaded: true
+            timeRemaining: "7 hr left"
           ),
-          .init(
+          ContinueListeningRow.Model(
             id: "2",
             title: "Dune",
             author: "Frank Herbert",
             coverURL: URL(string: "https://m.media-amazon.com/images/I/41rrXYM-wHL._SL500_.jpg"),
-            timeRemaining: 42000,
-            isDownloaded: false
+            timeRemaining: "700 hr left"
           ),
-          .init(
+        ],
+        availableOfflineRows: [
+          ContinueListeningRow.Model(
             id: "3",
             title: "The Foundation",
             author: "Isaac Asimov",
             coverURL: URL(string: "https://m.media-amazon.com/images/I/51I5xPlDi9L._SL500_.jpg"),
-            timeRemaining: 38000,
-            isDownloaded: true
-          ),
+            timeRemaining: "633 hr left"
+          )
         ]
       )
     )

@@ -1,6 +1,7 @@
 import API
 import Combine
 import Foundation
+import KeychainAccess
 import OSLog
 import WatchConnectivity
 
@@ -21,15 +22,51 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
   @Published var hasActivePlayer: Bool = false
 
   private var session: WCSession?
+  private let keychain = Keychain(service: "me.jgrenier.AudioBS")
+
+  private enum Keys {
+    static let authServerURL = "watch_auth_server_url"
+    static let authToken = "watch_auth_token"
+    static let library = "watch_library"
+  }
 
   private override init() {
     super.init()
+
+    loadPersistedAuth()
+    loadPersistedLibrary()
 
     if WCSession.isSupported() {
       session = WCSession.default
       session?.delegate = self
       session?.activate()
     }
+  }
+
+  private func loadPersistedAuth() {
+    guard let serverURLString = try? keychain.get(Keys.authServerURL),
+      let token = try? keychain.get(Keys.authToken),
+      let serverURL = URL(string: serverURLString)
+    else {
+      return
+    }
+
+    Audiobookshelf.shared.authentication.connection = AuthenticationService.Connection(
+      serverURL: serverURL,
+      token: token
+    )
+    AppLogger.watchConnectivity.info("Loaded persisted auth credentials")
+  }
+
+  private func loadPersistedLibrary() {
+    guard let libraryData = try? keychain.getData(Keys.library),
+      let library = try? JSONDecoder().decode(Library.self, from: libraryData)
+    else {
+      return
+    }
+
+    Audiobookshelf.shared.libraries.current = library
+    AppLogger.watchConnectivity.info("Loaded persisted library: \(library.name)")
   }
 
   func sendCommand(_ command: String) {
@@ -74,6 +111,20 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     session.sendMessage(message, replyHandler: nil) { error in
       AppLogger.watchConnectivity.error("Failed to send play command to iOS: \(error)")
     }
+  }
+
+  func requestFullContext() {
+    guard let session = session, session.isReachable else {
+      AppLogger.watchConnectivity.warning("Cannot request context - session not reachable")
+      return
+    }
+
+    let message = ["command": "requestContext"]
+    session.sendMessage(message, replyHandler: nil) { error in
+      AppLogger.watchConnectivity.error("Failed to request context from iOS: \(error)")
+    }
+
+    AppLogger.watchConnectivity.info("Requested full context from iPhone")
   }
 }
 
@@ -158,10 +209,19 @@ extension WatchConnectivityManager: WCSessionDelegate {
       let token = context["authToken"] as? String,
       let serverURL = URL(string: serverURLString)
     {
+      try? keychain.set(serverURLString, key: Keys.authServerURL)
+      try? keychain.set(token, key: Keys.authToken)
+
       Audiobookshelf.shared.authentication.connection = AuthenticationService.Connection(
         serverURL: serverURL, token: token)
+
+      AppLogger.watchConnectivity.info("Received and persisted auth credentials")
     } else if context["authServerURL"] == nil && context["authToken"] == nil {
+      try? keychain.remove(Keys.authServerURL)
+      try? keychain.remove(Keys.authToken)
+
       Audiobookshelf.shared.authentication.logout()
+      AppLogger.watchConnectivity.info("Cleared persisted auth credentials")
     }
   }
 
@@ -169,9 +229,13 @@ extension WatchConnectivityManager: WCSessionDelegate {
     if let libraryData = context["library"] as? Data,
       let library = try? JSONDecoder().decode(Library.self, from: libraryData)
     {
+      try? keychain.set(libraryData, key: Keys.library)
       Audiobookshelf.shared.libraries.current = library
+      AppLogger.watchConnectivity.info("Received and persisted library: \(library.name)")
     } else if context["library"] == nil {
+      try? keychain.remove(Keys.library)
       Audiobookshelf.shared.libraries.current = nil
+      AppLogger.watchConnectivity.info("Cleared persisted library")
     }
   }
 }

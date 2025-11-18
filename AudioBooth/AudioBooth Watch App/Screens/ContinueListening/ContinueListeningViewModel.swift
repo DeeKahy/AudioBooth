@@ -6,12 +6,10 @@ import OSLog
 import WatchConnectivity
 
 final class ContinueListeningViewModel: ContinueListeningView.Model {
-  private var connectivityManager: WatchConnectivityManager { .shared }
-  private var playerManager: PlayerManager { .shared }
   private var cancellables = Set<AnyCancellable>()
 
-  override init(books: [BookItem] = [], isLoading: Bool = false) {
-    super.init(books: books, isLoading: isLoading)
+  init() {
+    super.init()
     loadCachedBooks()
     observeChanges()
   }
@@ -33,25 +31,20 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
     }
   }
 
-  private func updateBooks(from books: [LocalBook]) {
-    let items = books.compactMap { book -> BookItem? in
-      guard let mediaProgress = try? MediaProgress.getOrCreate(for: book.bookID) else {
+  private func updateBooks(from localBooks: [LocalBook]) {
+    let rowModels = localBooks.compactMap { localBook -> ContinueListeningRow.Model? in
+      guard localBook.isDownloaded,
+        let mediaProgress = try? MediaProgress.getOrCreate(for: localBook.bookID)
+      else {
         return nil
       }
 
-      let timeRemaining = max(0, book.duration - mediaProgress.currentTime)
+      let timeRemaining = max(0, localBook.duration - mediaProgress.currentTime)
 
-      return BookItem(
-        id: book.bookID,
-        title: book.title,
-        author: book.authorNames,
-        coverURL: book.coverURL,
-        timeRemaining: timeRemaining,
-        isDownloaded: book.isDownloaded
-      )
+      return ContinueListeningRowModel(localBook, timeRemaining: timeRemaining)
     }
 
-    self.books = items
+    self.availableOfflineRows = rowModels
   }
 
   override func fetch() async {
@@ -76,7 +69,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
         uniqueKeysWithValues: userData.mediaProgress.map { ($0.libraryItemId, $0) }
       )
 
-      let items = await MainActor.run {
+      let rowModels = await MainActor.run {
         continueListeningBooks.map { book in
           let timeRemaining: Double
           if let progress = progressByBookID[book.id] {
@@ -92,35 +85,15 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
             isDownloaded = false
           }
 
-          return BookItem(
-            id: book.id,
-            title: book.title,
-            author: book.authorName ?? "",
-            coverURL: book.coverURL,
-            timeRemaining: timeRemaining,
-            isDownloaded: isDownloaded
-          )
+          return ContinueListeningRowModel(
+            book, timeRemaining: timeRemaining, isDownloaded: isDownloaded)
         }
       }
 
-      self.books = items
+      self.continueListeningRows = rowModels
     } catch {
       AppLogger.viewModel.error("Failed to fetch continue listening: \(error)")
     }
   }
 
-  override func playBook(bookID: String) {
-    Task {
-      do {
-        let book = try await Audiobookshelf.shared.books.fetch(id: bookID)
-
-        await MainActor.run {
-          playerManager.setCurrent(book)
-          playerManager.isShowingFullPlayer = true
-        }
-      } catch {
-        AppLogger.viewModel.error("Failed to fetch book: \(error)")
-      }
-    }
-  }
 }

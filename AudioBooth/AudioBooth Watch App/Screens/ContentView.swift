@@ -8,17 +8,38 @@ struct ContentView: View {
   @ObservedObject var playerManager = PlayerManager.shared
   @ObservedObject var libraries = Audiobookshelf.shared.libraries
 
-  @StateObject private var model: Model = Model()
+  @StateObject private var model: Model = ContentViewModel()
 
   var body: some View {
     if Audiobookshelf.shared.authentication.connection == nil || libraries.current == nil {
-      VStack {
-        ProgressView()
-          .controlSize(.large)
-        Text("Authenticating...")
-          .font(.caption)
-          .foregroundColor(.secondary)
-          .padding(.top, 8)
+      VStack(spacing: 16) {
+        if !model.authTimeout {
+          ProgressView()
+            .controlSize(.large)
+          Text("Authenticating...")
+            .font(.caption)
+            .foregroundColor(.secondary)
+        } else {
+          Image(systemName: "exclamationmark.triangle")
+            .font(.largeTitle)
+            .foregroundColor(.orange)
+
+          Text("Authentication Timeout")
+            .font(.caption)
+            .fontWeight(.medium)
+
+          Text("Make sure your iPhone is nearby and the app is open")
+            .font(.caption2)
+            .foregroundColor(.secondary)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal)
+
+          Button("Retry", action: model.retryAuth)
+            .buttonStyle(.borderedProminent)
+        }
+      }
+      .task {
+        await model.onAuthenticationWait()
       }
     } else {
       NavigationStack {
@@ -39,7 +60,10 @@ struct ContentView: View {
 
   @ToolbarContentBuilder
   var toolbar: some ToolbarContent {
-    if connectivityManager.hasActivePlayer && !playerManager.isPlayingLocally {
+    if connectivityManager.hasActivePlayer
+      && !playerManager.isPlayingLocally
+      && !connectivityManager.bookID.isEmpty
+    {
       ToolbarItem(placement: .topBarTrailing) {
         Button(
           action: {
@@ -69,6 +93,15 @@ extension ContentView {
   @Observable
   class Model: ObservableObject {
     var player: PlayerView.Model?
+    var authTimeout: Bool
+
+    func onAuthenticationWait() async {}
+    func retryAuth() {}
+
+    init(player: PlayerView.Model? = nil, authTimeout: Bool = false) {
+      self.player = player
+      self.authTimeout = authTimeout
+    }
   }
 }
 

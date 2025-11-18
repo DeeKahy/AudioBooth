@@ -196,9 +196,37 @@ extension WatchConnectivityManager: WCSessionDelegate {
       case "skipBackward":
         let interval = UserDefaults.standard.double(forKey: "skipBackwardInterval")
         PlayerManager.shared.current?.onSkipBackwardTapped(seconds: interval)
+      case "requestContext":
+        handleRequestContext()
       default:
         AppLogger.watchConnectivity.warning("Unknown command from watch: \(command)")
       }
+    }
+  }
+
+  private func handleRequestContext() {
+    guard let session = session else { return }
+
+    AppLogger.watchConnectivity.info("Watch requested full context, sending auth and library")
+
+    var context = session.applicationContext
+
+    if let connection = Audiobookshelf.shared.authentication.connection {
+      context["authServerURL"] = connection.serverURL.absoluteString
+      context["authToken"] = connection.token
+    }
+
+    if let library = Audiobookshelf.shared.libraries.current,
+      let libraryData = try? JSONEncoder().encode(library)
+    {
+      context["library"] = libraryData
+    }
+
+    do {
+      try session.updateApplicationContext(context)
+      AppLogger.watchConnectivity.info("Sent full context to watch")
+    } catch {
+      AppLogger.watchConnectivity.error("Failed to send full context to watch: \(error)")
     }
   }
 
