@@ -182,7 +182,7 @@ struct HomePage: View {
       switch section.items {
       case .continueListening(let items):
         ScrollView(.horizontal, showsIndicators: false) {
-          LazyHStack(spacing: 16) {
+          LazyHStack(alignment: .top, spacing: 16) {
             ForEach(items) { item in
               ContinueListeningCard(model: item)
             }
@@ -192,7 +192,7 @@ struct HomePage: View {
 
       case .books(let items):
         ScrollView(.horizontal, showsIndicators: false) {
-          LazyHStack(spacing: 16) {
+          LazyHStack(alignment: .top, spacing: 16) {
             ForEach(items, id: \.id) { book in
               BookCard(model: book)
                 .frame(width: 120)
@@ -203,7 +203,7 @@ struct HomePage: View {
 
       case .series(let items):
         ScrollView(.horizontal, showsIndicators: false) {
-          LazyHStack(spacing: 16) {
+          LazyHStack(alignment: .top, spacing: 16) {
             ForEach(items, id: \.id) { series in
               SeriesCard(model: series, titleFont: .footnote)
                 .frame(width: 240)
@@ -214,7 +214,7 @@ struct HomePage: View {
 
       case .authors(let items):
         ScrollView(.horizontal, showsIndicators: false) {
-          LazyHStack(spacing: 16) {
+          LazyHStack(alignment: .top, spacing: 16) {
             ForEach(items, id: \.id) { author in
               AuthorCard(model: author)
                 .frame(width: 80)

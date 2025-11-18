@@ -198,7 +198,7 @@ extension ContinueListeningCard.Model {
 #Preview("ContinueListeningCard") {
   NavigationStack {
     ScrollView(.horizontal) {
-      LazyHStack(spacing: 16) {
+      LazyHStack(alignment: .top, spacing: 16) {
         ContinueListeningCard(model: .mock)
         ContinueListeningCard(
           model: ContinueListeningCard.Model(

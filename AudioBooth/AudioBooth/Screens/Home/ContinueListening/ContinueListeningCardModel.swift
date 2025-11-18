@@ -52,7 +52,7 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
 
         if isPlaying {
           self?.lastPlayedAt = .distantFuture
-        } else {
+        } else if self?.lastPlayedAt == .distantFuture {
           self?.lastPlayedAt = Date()
         }
 

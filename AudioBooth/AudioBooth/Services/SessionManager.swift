@@ -46,14 +46,6 @@ final class SessionManager {
 
     if let item {
       item.chapters = audiobookshelfSession.chapters?.map(Chapter.init) ?? []
-
-      try? MediaProgress.updateProgress(
-        for: item.bookID,
-        currentTime: mediaProgress.currentTime,
-        timeListened: mediaProgress.timeListened,
-        duration: item.duration,
-        progress: mediaProgress.currentTime / item.duration
-      )
       updatedItem = item
       AppLogger.session.debug("Updated session with chapters")
     } else {
