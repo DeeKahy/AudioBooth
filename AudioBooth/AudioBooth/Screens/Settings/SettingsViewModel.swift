@@ -8,80 +8,12 @@ import UIKit
 
 final class SettingsViewModel: SettingsView.Model {
   private let audiobookshelf = Audiobookshelf.shared
-  private var oidcAuthManager: OIDCAuthenticationManager?
-  private var playerManager: PlayerManager { .shared }
 
   init() {
-    let isAuthenticated = audiobookshelf.isAuthenticated
-    let serverURL = audiobookshelf.serverURL?.absoluteString ?? ""
-    let existingHeaders = audiobookshelf.authentication.connection?.customHeaders ?? [:]
-
     super.init(
-      isAuthenticated: isAuthenticated,
-      serverURL: serverURL,
-      username: "",
-      password: "",
-      customHeaders: CustomHeadersViewModel(initialHeaders: existingHeaders),
-      library: LibrariesViewModel(),
       tipJar: TipJarViewModel(),
       mediaProgressList: MediaProgressListViewModel()
     )
-
-  }
-
-  override func onLoginTapped() {
-    guard !serverURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-      !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-      !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    else {
-      return
-    }
-
-    isLoading = true
-    let normalizedURL = buildFullServerURL()
-    let headers = (customHeaders as? CustomHeadersViewModel)?.getHeadersDictionary() ?? [:]
-
-    Task {
-      do {
-        try await audiobookshelf.authentication.login(
-          serverURL: normalizedURL,
-          username: username.trimmingCharacters(in: .whitespacesAndNewlines),
-          password: password,
-          customHeaders: headers
-        )
-        password = ""
-        isAuthenticated = true
-        navigationPath.append("libraries")
-      } catch {
-        AppLogger.viewModel.error("Login failed: \(error.localizedDescription, privacy: .public)")
-        Toast(error: "Login failed: \(error.localizedDescription)").show()
-        isAuthenticated = false
-      }
-
-      isLoading = false
-    }
-  }
-
-  override func onOIDCLoginTapped() {
-    guard !serverURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-      return
-    }
-
-    let normalizedURL = buildFullServerURL()
-    let headers = (customHeaders as? CustomHeadersViewModel)?.getHeadersDictionary() ?? [:]
-
-    isLoading = true
-
-    let authManager = OIDCAuthenticationManager(serverURL: normalizedURL, customHeaders: headers)
-    authManager.delegate = self
-    self.oidcAuthManager = authManager
-
-    authManager.start()
-  }
-
-  func showError(_ message: String) {
-    Toast(error: message).show()
-    isLoading = false
   }
 
   override func onClearStorageTapped() {
@@ -95,35 +27,9 @@ final class SettingsViewModel: SettingsView.Model {
       try? keychain.removeAll()
 
       audiobookshelf.logout()
-      isAuthenticated = false
-      username = ""
-      password = ""
-      discoveredServers = []
-      library = LibrariesViewModel()
 
       Toast(success: "All app data cleared successfully").show()
     }
-  }
-
-  override func onDiscoverServersTapped() {
-    showDiscoveryPortAlert = true
-  }
-
-  func performDiscovery() {
-    isDiscovering = true
-    discoveredServers = []
-
-    Task {
-      let port = Int(discoveryPort) ?? 13378
-      let servers = await audiobookshelf.networkDiscovery.discoverServers(port: port)
-      discoveredServers = servers
-
-      isDiscovering = false
-    }
-  }
-
-  override func onServerSelected(_ server: DiscoveredServer) {
-    serverURL = server.serverURL.absoluteString
   }
 
   override func onExportLogsTapped() {
@@ -185,45 +91,5 @@ final class SettingsViewModel: SettingsView.Model {
     }
 
     topController.present(activityVC, animated: true)
-  }
-
-  override func onLogoutTapped() {
-    playerManager.current = nil
-    try? LocalBook.deleteAll()
-    try? MediaProgress.deleteAll()
-    DownloadManager.shared.cleanupOrphanedDownloads()
-
-    audiobookshelf.logout()
-    isAuthenticated = false
-    username = ""
-    password = ""
-    discoveredServers = []
-    library = LibrariesViewModel()
-  }
-
-  private func buildFullServerURL() -> String {
-    let trimmedURL = serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
-
-    if trimmedURL.hasPrefix("http://") || trimmedURL.hasPrefix("https://") {
-      return trimmedURL
-    }
-
-    return serverScheme.rawValue + trimmedURL
-  }
-}
-
-extension SettingsViewModel: OIDCAuthenticationDelegate {
-  func oidcAuthenticationDidSucceed() {
-    isAuthenticated = true
-    navigationPath.append("libraries")
-    isLoading = false
-    oidcAuthManager = nil
-    Toast(success: "Successfully authenticated with SSO").show()
-  }
-
-  func oidcAuthentication(didFailWithError error: Error) {
-    showError("SSO login failed: \(error.localizedDescription)")
-    isLoading = false
-    oidcAuthManager = nil
   }
 }

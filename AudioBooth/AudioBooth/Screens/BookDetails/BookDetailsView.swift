@@ -7,6 +7,7 @@ import SwiftUI
 
 struct BookDetailsView: View {
   @ObservedObject var model: Model
+  @ObservedObject var preferences = UserPreferences.shared
   @Environment(\.verticalSizeClass) private var verticalSizeClass
   @State private var collectionSelector: CollectionMode?
 
@@ -74,7 +75,7 @@ struct BookDetailsView: View {
             }
           }
 
-          if NFCNDEFReaderSession.readingAvailable {
+          if preferences.showNFCTagWriting {
             Divider()
 
             Button(action: model.onWriteTagTapped) {

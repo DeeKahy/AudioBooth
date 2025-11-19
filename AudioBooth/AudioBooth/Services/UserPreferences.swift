@@ -14,6 +14,7 @@ final class UserPreferences: ObservableObject {
   @AppStorage("libraryDisplayMode") var libraryDisplayMode: BookCard.DisplayMode = .card
   @AppStorage("autoDownloadBooks") var autoDownloadBooks: Bool = false
   @AppStorage("removeDownloadOnCompletion") var removeDownloadOnCompletion: Bool = false
+  @AppStorage("showNFCTagWriting") var showNFCTagWriting: Bool = false
 
   private init() {}
 }

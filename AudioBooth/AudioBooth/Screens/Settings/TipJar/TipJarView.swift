@@ -15,7 +15,7 @@ struct TipJarView: View {
               Button(action: { model.onTipSelected(tip) }) {
                 VStack(spacing: 8) {
                   Text(tip.title)
-                    .font(.headline)
+                    .font(.callout)
                     .foregroundStyle(.primary)
                     .multilineTextAlignment(.center)
 

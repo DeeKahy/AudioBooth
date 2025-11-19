@@ -34,7 +34,6 @@ final class TipJarViewModel: TipJarView.Model {
         }
 
         tips = packages.map { package in
-
           var title = package.storeProduct.localizedTitle
           switch package.identifier {
           case "tip_small":

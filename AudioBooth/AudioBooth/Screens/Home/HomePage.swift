@@ -9,7 +9,7 @@ struct HomePage: View {
 
   @StateObject var model: Model
   @State private var showingSettings = false
-  @State private var showingLibraryPicker = false
+  @State private var showingServerPicker = false
 
   @State private var path = NavigationPath()
 
@@ -66,14 +66,12 @@ struct HomePage: View {
     }
     .navigationTitle(model.title)
     .toolbar {
-      if Audiobookshelf.shared.isAuthenticated {
-        ToolbarItem(placement: .navigationBarLeading) {
-          Button {
-            showingLibraryPicker = true
-          } label: {
-            Text(libraries.current?.name ?? "Select Library")
-              .bold()
-          }
+      ToolbarItem(placement: .navigationBarLeading) {
+        Button {
+          showingServerPicker = true
+        } label: {
+          Text(libraries.current?.name ?? "Server")
+            .bold()
         }
       }
 
@@ -90,21 +88,21 @@ struct HomePage: View {
         SettingsView(model: SettingsViewModel())
       }
     }
-    .sheet(isPresented: $showingLibraryPicker) {
+    .sheet(isPresented: $showingServerPicker) {
       NavigationView {
-        LibrariesView(model: LibrariesViewModel())
+        ServerView(model: ServerViewModel())
       }
     }
     .onAppear {
       if !Audiobookshelf.shared.isAuthenticated {
-        showingSettings = true
+        showingServerPicker = true
       } else if libraries.current == nil {
-        showingLibraryPicker = true
+        showingServerPicker = true
       }
       model.onAppear()
     }
     .onChange(of: libraries.current) { _, new in
-      showingLibraryPicker = false
+      showingServerPicker = false
       model.onReset(new != nil)
     }
     .refreshable {
