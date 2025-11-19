@@ -100,17 +100,11 @@ public final class AuthenticationService {
       body: loginRequest
     )
 
-    do {
-      let response = try await loginService.send(request)
-      let token = response.value.user.token
+    let response = try await loginService.send(request)
+    let token = response.value.user.token
 
-      self.connection = Connection(serverURL: baseURL, token: token, customHeaders: customHeaders)
-      onAuthenticationChanged((baseURL, token))
-
-    } catch {
-      throw Audiobookshelf.AudiobookshelfError.networkError(
-        "Login failed: \(error.localizedDescription)")
-    }
+    self.connection = Connection(serverURL: baseURL, token: token, customHeaders: customHeaders)
+    onAuthenticationChanged((baseURL, token))
   }
 
   public func loginWithOIDC(

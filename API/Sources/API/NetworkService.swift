@@ -9,6 +9,34 @@ enum HTTPMethod: String {
   case delete = "DELETE"
 }
 
+enum NetworkError: LocalizedError {
+  case httpError(statusCode: Int, message: String?)
+  case invalidResponse
+  case decodingError(Error)
+
+  var errorDescription: String? {
+    switch self {
+    case .httpError(let statusCode, let message):
+      switch statusCode {
+      case 401:
+        return "Invalid username or password. Please check your credentials and try again."
+      case 403:
+        return "Access forbidden. Please check your credentials."
+      case 404:
+        return "Server not found. Please check the server URL and try again."
+      case 500...599:
+        return "Server error. Please try again later or contact your server administrator."
+      default:
+        return message ?? "HTTP error \(statusCode)"
+      }
+    case .invalidResponse:
+      return "Invalid server response"
+    case .decodingError(let error):
+      return "Failed to decode server response: \(error.localizedDescription)"
+    }
+  }
+}
+
 struct NetworkRequest<T: Decodable> {
   let path: String
   let method: HTTPMethod
@@ -105,7 +133,7 @@ final class NetworkService {
 
     guard let httpResponse = response as? HTTPURLResponse else {
       AppLogger.network.error("Received non-HTTP response")
-      throw URLError(.badServerResponse)
+      throw NetworkError.invalidResponse
     }
 
     AppLogger.network.info("Received HTTP \(httpResponse.statusCode) response")
@@ -114,20 +142,20 @@ final class NetworkService {
       let responseBody = String(data: data, encoding: .utf8) ?? "Unable to decode response body"
       AppLogger.network.error(
         "HTTP \(httpResponse.statusCode) error. Response body: \(responseBody)")
-      throw URLError(.badServerResponse)
+      throw NetworkError.httpError(statusCode: httpResponse.statusCode, message: responseBody)
     }
 
     let decodedValue: T
     if T.self == Data.self {
       decodedValue = data as! T
     } else if data.isEmpty {
-      throw URLError(.cannotDecodeContentData)
+      throw NetworkError.decodingError(URLError(.cannotDecodeContentData))
     } else {
       do {
         decodedValue = try decoder.decode(T.self, from: data)
       } catch {
         AppLogger.network.error("Failed to decode \(T.self): \(error)")
-        throw error
+        throw NetworkError.decodingError(error)
       }
     }
     return NetworkResponse(value: decodedValue)
