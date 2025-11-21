@@ -33,6 +33,13 @@ final class BookCardModel: BookCard.Model {
     )
 
     setupDownloadProgressObserver()
+
+    contextMenu = BookCardContextMenuModel(
+      item,
+      onProgressChanged: { [weak self] progress in
+        self?.progress = progress
+      }
+    )
   }
 
   init(
@@ -109,6 +116,13 @@ final class BookCardModel: BookCard.Model {
     )
 
     setupDownloadProgressObserver()
+
+    contextMenu = BookCardContextMenuModel(
+      item,
+      onProgressChanged: { [weak self] progress in
+        self?.progress = progress
+      }
+    )
   }
 
   private func setupDownloadProgressObserver() {
@@ -135,22 +149,5 @@ final class BookCardModel: BookCard.Model {
     }.reduce(0, +)
 
     return totalProgress / Double(libraryItemIds.count)
-  }
-
-  override func contextMenu() -> BookCardContextMenu.Model {
-    switch item {
-    case .local(let localBook):
-      BookCardContextMenuModel(
-        localBook,
-        onProgressChanged: { [weak self] progress in
-          self?.progress = progress
-        })
-    case .remote(let book):
-      BookCardContextMenuModel(
-        book,
-        onProgressChanged: { [weak self] progress in
-          self?.progress = progress
-        })
-    }
   }
 }

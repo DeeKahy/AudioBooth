@@ -74,10 +74,8 @@ struct LibraryPage: View {
     .toolbar {
       if model.isRoot {
         ToolbarItem(placement: .navigationBarTrailing) {
-          if let viewModel = model as? LibraryPageModel,
-            let filterModel = viewModel.filterPickerModel
-          {
-            FilterPicker(model: filterModel)
+          if let filters = model.filters {
+            FilterPicker(model: filters)
           }
         }
 
@@ -190,6 +188,8 @@ extension LibraryPage {
     var books: [BookCard.Model]
     var search: SearchView.Model
 
+    var filters: FilterPicker.Model?
+
     func onAppear() {}
     func refresh() async {}
     func onSortByTapped(_ sortBy: BooksService.SortBy) {}
@@ -204,6 +204,7 @@ extension LibraryPage {
       sortBy: BooksService.SortBy? = .title,
       books: [BookCard.Model] = [],
       search: SearchView.Model = SearchView.Model(),
+      filters: FilterPicker.Model? = nil,
       title: String = "Library"
     ) {
       self.isLoading = isLoading

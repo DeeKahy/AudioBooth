@@ -16,7 +16,9 @@ struct BookCard: View {
     }
     .buttonStyle(.plain)
     .contextMenu {
-      BookCardContextMenu(model: model.contextMenu())
+      if let model = model.contextMenu {
+        BookCardContextMenu(model: model)
+      }
     }
     .onAppear(perform: model.onAppear)
   }
@@ -250,9 +252,9 @@ extension BookCard {
     let publishedYear: String?
     var downloadProgress: Double?
     let bookCount: Int?
+    var contextMenu: BookCardContextMenu.Model?
 
     func onAppear() {}
-    func contextMenu() -> BookCardContextMenu.Model { fatalError("Must be overridden") }
 
     init(
       id: String = UUID().uuidString,
@@ -265,7 +267,8 @@ extension BookCard {
       narrator: String? = nil,
       publishedYear: String? = nil,
       downloadProgress: Double? = nil,
-      bookCount: Int? = nil
+      bookCount: Int? = nil,
+      contextMenu: BookCardContextMenu.Model? = nil
     ) {
       self.id = id
       self.title = title
@@ -278,6 +281,7 @@ extension BookCard {
       self.publishedYear = publishedYear
       self.downloadProgress = downloadProgress
       self.bookCount = bookCount
+      self.contextMenu = contextMenu
     }
   }
 }

@@ -90,19 +90,21 @@ struct BookCardContextMenu: View {
         }
       }
     }
+    .onAppear(perform: model.onAppear)
   }
 }
 
 extension BookCardContextMenu {
   @Observable
   class Model: ObservableObject {
-    let downloadState: DownloadManager.DownloadState
-    let hasProgress: Bool
-    let isFinished: Bool
+    var downloadState: DownloadManager.DownloadState
+    var hasProgress: Bool
+    var isFinished: Bool
     let authorInfo: BookCard.Author?
     let narratorInfo: BookCard.Narrator?
     let seriesInfo: BookCard.Series?
 
+    func onAppear() {}
     func onDownloadTapped() {}
     func onCancelDownloadTapped() {}
     func onRemoveDownloadTapped() {}

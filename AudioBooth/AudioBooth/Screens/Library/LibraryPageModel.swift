@@ -34,8 +34,6 @@ final class LibraryPageModel: LibraryPage.Model {
     }
   }
 
-  var filterPickerModel: FilterPickerModel?
-
   init() {
     self.filter = nil
 
@@ -288,7 +286,7 @@ final class LibraryPageModel: LibraryPage.Model {
       publishedDecades: []
     )
 
-    filterPickerModel = FilterPickerModel(
+    filters = FilterPickerModel(
       filterData: filterData ?? emptyFilterData,
       currentFilter: filter,
       onFilterApplied: { [weak self] newFilter in
@@ -301,18 +299,16 @@ final class LibraryPageModel: LibraryPage.Model {
   }
 
   private func updateFilterOptions() {
-    guard let filterPickerModel = filterPickerModel,
-      let filterData = filterData
-    else { return }
+    guard let filters, let filterData else { return }
 
-    filterPickerModel.authors = filterData.authors
-    filterPickerModel.genres = filterData.genres.sorted()
-    filterPickerModel.narrators = filterData.narrators.sorted()
-    filterPickerModel.series = filterData.series
-    filterPickerModel.tags = filterData.tags.sorted()
-    filterPickerModel.languages = filterData.languages.sorted()
-    filterPickerModel.publishers = filterData.publishers.sorted()
-    filterPickerModel.publishedDecades = filterData.publishedDecades.sorted(by: >)
+    filters.authors = filterData.authors
+    filters.genres = filterData.genres.sorted()
+    filters.narrators = filterData.narrators.sorted()
+    filters.series = filterData.series
+    filters.tags = filterData.tags.sorted()
+    filters.languages = filterData.languages.sorted()
+    filters.publishers = filterData.publishers.sorted()
+    filters.publishedDecades = filterData.publishedDecades.sorted(by: >)
   }
 
   private func applyFilter(_ newFilter: Filter) {

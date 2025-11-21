@@ -113,14 +113,9 @@ final class BookCardContextMenuModel: BookCardContextMenu.Model {
       return nil
     }()
 
-    let localBook = try? LocalBook.fetch(bookID: item.id)
-    let isDownloaded = localBook?.isDownloaded ?? false
-
     let downloadState: DownloadManager.DownloadState
     if let progress = DownloadManager.shared.currentProgress[item.id] {
       downloadState = .downloading(progress: progress)
-    } else if isDownloaded {
-      downloadState = .downloaded
     } else {
       downloadState = .notDownloaded
     }
@@ -135,6 +130,32 @@ final class BookCardContextMenuModel: BookCardContextMenu.Model {
       narratorInfo: narratorInfo,
       seriesInfo: seriesInfo
     )
+  }
+
+  override func onAppear() {
+    var bookID: String
+
+    switch item {
+    case .local(let localBook):
+      bookID = localBook.bookID
+    case .remote(let book):
+      bookID = book.id
+    }
+
+    let progress = MediaProgress.progress(for: bookID)
+    let localBook = try? LocalBook.fetch(bookID: bookID)
+    let isDownloaded = localBook?.isDownloaded ?? false
+
+    if let progress = DownloadManager.shared.currentProgress[bookID] {
+      downloadState = .downloading(progress: progress)
+    } else if isDownloaded {
+      downloadState = .downloaded
+    } else {
+      downloadState = .notDownloaded
+    }
+
+    hasProgress = progress > 0
+    isFinished = progress == 1.0
   }
 
   override func onDownloadTapped() {
