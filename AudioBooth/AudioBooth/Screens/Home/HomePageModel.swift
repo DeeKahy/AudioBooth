@@ -249,7 +249,7 @@ extension HomePageModel {
       let personalized = try await Audiobookshelf.shared.libraries.fetchPersonalized()
       processSections(personalized.sections)
     } catch {
-      AppLogger.viewModel.error("Failed to fetch personalized content: \(error)")
+      AppLogger.viewModel.error("Failed to fetch personalized content: \(error, privacy: .public)")
     }
 
     isLoading = false

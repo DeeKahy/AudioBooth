@@ -79,24 +79,25 @@ final class SessionManager {
         )
         AppLogger.session.debug("Synced final progress before closing session")
       } catch {
-        AppLogger.session.error("Failed to sync session progress before close: \(error)")
+        AppLogger.session.error(
+          "Failed to sync session progress before close: \(error, privacy: .public)")
       }
     }
 
     do {
       try await audiobookshelf.sessions.close(sessionID)
-      AppLogger.session.info("Successfully closed session: \(sessionID)")
+      AppLogger.session.info("Successfully closed session: \(sessionID, privacy: .public)")
       current = nil
       UserDefaults.standard.removeObject(forKey: sessionIDKey)
       UserDefaults.standard.removeObject(forKey: retryCountKey)
       cancelScheduledSessionClose()
     } catch {
-      AppLogger.session.error("Failed to close session: \(error)")
+      AppLogger.session.error("Failed to close session: \(error, privacy: .public)")
 
       let retryCount = UserDefaults.standard.integer(forKey: retryCountKey)
       guard let backoffDelay = calculateBackoffDelay(retryCount: retryCount) else {
         AppLogger.session.warning(
-          "Maximum retry attempts reached. Giving up on closing session \(sessionID). Session will auto-expire on server after 24h."
+          "Maximum retry attempts reached. Giving up on closing session \(sessionID, privacy: .public). Session will auto-expire on server after 24h."
         )
         current = nil
         UserDefaults.standard.removeObject(forKey: sessionIDKey)
@@ -109,7 +110,7 @@ final class SessionManager {
       UserDefaults.standard.set(newRetryCount, forKey: retryCountKey)
 
       AppLogger.session.info(
-        "Rescheduling session close with backoff delay: \(backoffDelay)s (retry: \(newRetryCount))"
+        "Rescheduling session close with backoff delay: \(backoffDelay, privacy: .public)s (retry: \(newRetryCount, privacy: .public))"
       )
 
       scheduleSessionClose(customDelay: backoffDelay)
@@ -124,7 +125,7 @@ final class SessionManager {
   ) async throws -> (session: Session, updatedItem: LocalBook?, serverCurrentTime: TimeInterval) {
     if let existingSession = current, existingSession.itemID == itemID {
       AppLogger.session.debug(
-        "Session already exists for this book, reusing: \(existingSession.id)")
+        "Session already exists for this book, reusing: \(existingSession.id, privacy: .public)")
       return (existingSession, item, mediaProgress.currentTime)
     }
 
@@ -192,10 +193,11 @@ final class SessionManager {
 
     if success {
       AppLogger.session.info(
-        "Background task handler registered successfully for: \(self.taskIdentifier)")
+        "Background task handler registered successfully for: \(self.taskIdentifier, privacy: .public)"
+      )
     } else {
       AppLogger.session.warning(
-        "Failed to register background task handler for: \(self.taskIdentifier)")
+        "Failed to register background task handler for: \(self.taskIdentifier, privacy: .public)")
       AppLogger.session.debug(
         "Note: This is normal if registration was already done, or if running in certain environments"
       )
@@ -217,14 +219,15 @@ final class SessionManager {
     do {
       try BGTaskScheduler.shared.submit(request)
       AppLogger.session.info(
-        "Scheduled background task to close session \(sessionID) after \(delay)s")
+        "Scheduled background task to close session \(sessionID, privacy: .public) after \(delay, privacy: .public)s"
+      )
     } catch let error as NSError {
       if error.code == 1 {
         AppLogger.session.warning(
           "Background tasks unavailable (Background App Refresh may be disabled). Session will close on foreground instead."
         )
       } else {
-        AppLogger.session.error("Failed to schedule background task: \(error)")
+        AppLogger.session.error("Failed to schedule background task: \(error, privacy: .public)")
       }
     }
   }
@@ -238,7 +241,8 @@ final class SessionManager {
   private func handleBackgroundTask(_ task: BGAppRefreshTask) {
     let retryCount = UserDefaults.standard.integer(forKey: retryCountKey)
     AppLogger.session.info(
-      "Background task executing - checking if session should be closed (retry: \(retryCount))")
+      "Background task executing - checking if session should be closed (retry: \(retryCount, privacy: .public))"
+    )
 
     let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
     let playbackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
@@ -302,7 +306,7 @@ final class SessionManager {
         AppLogger.session.info("Inactivity timeout reached - closing session")
         try? await closeSession()
       } catch {
-        AppLogger.session.debug("Inactivity task sleep was interrupted: \(error)")
+        AppLogger.session.debug("Inactivity task sleep was interrupted: \(error, privacy: .public)")
       }
     }
   }

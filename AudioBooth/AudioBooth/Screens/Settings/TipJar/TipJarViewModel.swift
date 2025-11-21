@@ -54,7 +54,8 @@ final class TipJarViewModel: TipJarView.Model {
           )
         }
       } catch {
-        AppLogger.viewModel.error("Failed to fetch offerings: \(error.localizedDescription)")
+        AppLogger.viewModel.error(
+          "Failed to fetch offerings: \(error.localizedDescription, privacy: .public)")
       }
     }
   }
@@ -76,7 +77,8 @@ final class TipJarViewModel: TipJarView.Model {
           }
         }
       } catch {
-        AppLogger.viewModel.error("Failed to purchase tip: \(error.localizedDescription)")
+        AppLogger.viewModel.error(
+          "Failed to purchase tip: \(error.localizedDescription, privacy: .public)")
       }
 
       isPurchasing = nil

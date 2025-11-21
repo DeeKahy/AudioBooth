@@ -145,8 +145,9 @@ public final class AuthenticationService {
     ]
 
     AppLogger.authentication.info("Sending OIDC callback request to /auth/openid/callback")
-    AppLogger.authentication.debug("Query parameters: \(query.keys.joined(separator: ", "))")
-    AppLogger.authentication.debug("Cookie header: \(cookieString)")
+    AppLogger.authentication.debug(
+      "Query parameters: \(query.keys.joined(separator: ", "), privacy: .public)")
+    AppLogger.authentication.debug("Cookie header: \(cookieString, privacy: .public)")
 
     let request = NetworkRequest<Response>(
       path: "/auth/openid/callback",

@@ -74,7 +74,7 @@ final class SearchViewModel: SearchView.Model {
       }
     } catch {
       if !Task.isCancelled {
-        AppLogger.viewModel.error("Failed to perform search: \(error)")
+        AppLogger.viewModel.error("Failed to perform search: \(error, privacy: .public)")
         Toast(error: "Search failed").show()
         clearResults()
       }

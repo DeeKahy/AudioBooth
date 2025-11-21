@@ -73,7 +73,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
         isLoading = true
       }
     } catch {
-      AppLogger.viewModel.error("Failed to load local book: \(error)")
+      AppLogger.viewModel.error("Failed to load local book: \(error, privacy: .public)")
       if book == nil {
         isLoading = true
       }

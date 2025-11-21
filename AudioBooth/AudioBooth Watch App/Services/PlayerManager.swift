@@ -25,7 +25,8 @@ final class PlayerManager: ObservableObject {
     } else {
       clearCurrent()
       guard let playerModel = LocalPlayerModel(item) else {
-        AppLogger.player.error("Failed to create player model for item \(item.bookID)")
+        AppLogger.player.error(
+          "Failed to create player model for item \(item.bookID, privacy: .public)")
         return
       }
       current = playerModel
@@ -41,7 +42,8 @@ final class PlayerManager: ObservableObject {
     } else {
       clearCurrent()
       guard let playerModel = LocalPlayerModel(book) else {
-        AppLogger.player.error("Failed to create player model for book \(book.id)")
+        AppLogger.player.error(
+          "Failed to create player model for book \(book.id, privacy: .public)")
         return
       }
       current = playerModel

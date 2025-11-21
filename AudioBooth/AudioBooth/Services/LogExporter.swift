@@ -10,12 +10,14 @@ enum LogExporter {
 
     let entries = try logStore.getEntries(at: position)
       .compactMap { $0 as? OSLogEntryLog }
-      .filter { $0.subsystem == subsystem }
+      .filter { log in
+        log.level.rawValue > OSLogEntryLog.Level.debug.rawValue
+          && log.subsystem.hasPrefix(subsystem)
+      }
 
     var logText = "AudioBooth Log Export\n"
     logText += "Generated: \(Date.now.formatted())\n"
     logText += "Period: Last \(Int(since / 60)) minutes\n"
-    logText += "Subsystem: \(subsystem)\n"
     logText += String(repeating: "=", count: 80) + "\n\n"
 
     for entry in entries {
@@ -27,7 +29,6 @@ enum LogExporter {
       logText += "[\(timestamp)] [\(level)] [\(category)] \(message)\n"
     }
 
-    // Use a temporary file with proper UTI
     let tempDirectory = FileManager.default.temporaryDirectory
     let fileName = "audiobooth-logs-\(Int(Date.now.timeIntervalSince1970)).txt"
     let fileURL = tempDirectory.appendingPathComponent(fileName)

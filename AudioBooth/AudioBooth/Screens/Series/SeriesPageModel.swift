@@ -61,7 +61,7 @@ final class SeriesPageModel: SeriesPage.Model {
       hasMorePages = (currentPage * itemsPerPage) < response.total
 
     } catch {
-      AppLogger.viewModel.error("Failed to fetch series: \(error)")
+      AppLogger.viewModel.error("Failed to fetch series: \(error, privacy: .public)")
       if currentPage == 0 {
         fetchedSeries = []
         series = []

@@ -38,13 +38,13 @@ final class SettingsViewModel: SettingsView.Model {
     Task {
       do {
         let fileURL = try await LogExporter.exportLogs(since: 3600)
-        AppLogger.viewModel.info("Logs exported successfully to: \(fileURL.path)")
+        AppLogger.viewModel.info("Logs exported successfully to: \(fileURL.path, privacy: .public)")
 
         await MainActor.run {
           presentActivityViewController(for: fileURL)
         }
       } catch {
-        AppLogger.viewModel.error("Failed to export logs: \(error)")
+        AppLogger.viewModel.error("Failed to export logs: \(error, privacy: .public)")
         Toast(error: "Failed to export logs: \(error.localizedDescription)").show()
       }
 

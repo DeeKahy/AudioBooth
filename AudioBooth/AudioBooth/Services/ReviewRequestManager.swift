@@ -23,7 +23,7 @@ final class ReviewRequestManager {
     let currentCount = UserDefaults.standard.integer(forKey: booksCompletedCountKey)
     UserDefaults.standard.set(currentCount + 1, forKey: booksCompletedCountKey)
 
-    AppLogger.general.info("Book completion recorded. Total: \(currentCount + 1)")
+    AppLogger.general.info("Book completion recorded. Total: \(currentCount + 1, privacy: .public)")
 
     checkAndRequestReviewIfEligible()
   }
@@ -95,7 +95,8 @@ final class ReviewRequestManager {
     UserDefaults.standard.set(requestCount + 1, forKey: reviewRequestCountKey)
     UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastReviewRequestDateKey)
 
-    AppLogger.general.info("Review requested successfully. Total requests: \(requestCount + 1)")
+    AppLogger.general.info(
+      "Review requested successfully. Total requests: \(requestCount + 1, privacy: .public)")
   }
 
   private func recordFirstLaunchIfNeeded() {

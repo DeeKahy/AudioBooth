@@ -30,7 +30,8 @@ public final class ModelContextProvider {
       self.container = try ModelContainer(for: schema, configurations: configuration)
       AppLogger.persistence.info("ModelContainer created successfully")
     } catch {
-      AppLogger.persistence.error("Failed to create persistent model container: \(error)")
+      AppLogger.persistence.error(
+        "Failed to create persistent model container: \(error, privacy: .public)")
       AppLogger.persistence.info("Clearing data and creating fresh container...")
 
       let fileExtensions = ["", "-shm", "-wal"]
@@ -46,7 +47,7 @@ public final class ModelContextProvider {
         self.container = try ModelContainer(for: schema, configurations: configuration)
         AppLogger.persistence.info("Fresh container created successfully")
       } catch {
-        AppLogger.persistence.error("Failed to create fresh container: \(error)")
+        AppLogger.persistence.error("Failed to create fresh container: \(error, privacy: .public)")
         fatalError("Could not create ModelContainer even after clearing data")
       }
     }
@@ -79,14 +80,14 @@ public final class ModelContextProvider {
         if fileManager.fileExists(atPath: sourceURL.path) {
           try fileManager.moveItem(at: sourceURL, to: destinationURL)
           let fileType = ext.isEmpty ? "main database" : "\(ext) file"
-          AppLogger.persistence.info("Migrated \(fileType)")
+          AppLogger.persistence.info("Migrated \(fileType, privacy: .public)")
         }
       }
 
       AppLogger.persistence.info("Database migration completed successfully")
 
     } catch {
-      AppLogger.persistence.error("Database migration failed: \(error)")
+      AppLogger.persistence.error("Database migration failed: \(error, privacy: .public)")
       AppLogger.persistence.info("App will create fresh database at new location")
     }
   }
@@ -128,7 +129,7 @@ public final class ModelContextProvider {
       try? newAudiobooksURL.setResourceValues(resourceValues)
       AppLogger.persistence.info("Excluded audiobooks folder from iCloud backup")
     } catch {
-      AppLogger.persistence.error("Audiobooks folder migration failed: \(error)")
+      AppLogger.persistence.error("Audiobooks folder migration failed: \(error, privacy: .public)")
       AppLogger.persistence.info("Old audiobooks folder remains in place - files still accessible")
     }
   }

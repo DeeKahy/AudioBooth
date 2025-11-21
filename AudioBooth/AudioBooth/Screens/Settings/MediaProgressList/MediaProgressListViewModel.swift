@@ -25,7 +25,8 @@ final class MediaProgressListViewModel: MediaProgressListView.Model {
         )
       }
     } catch {
-      AppLogger.viewModel.error("Failed to fetch media progress: \(error.localizedDescription)")
+      AppLogger.viewModel.error(
+        "Failed to fetch media progress: \(error.localizedDescription, privacy: .public)")
       progressItems = []
     }
   }

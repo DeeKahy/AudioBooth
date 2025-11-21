@@ -105,7 +105,8 @@ extension DownloadManager {
           try? item.save()
         }
       } catch {
-        AppLogger.download.error("Failed to delete download: \(error.localizedDescription)")
+        AppLogger.download.error(
+          "Failed to delete download: \(error.localizedDescription, privacy: .public)")
       }
     }
   }
@@ -138,7 +139,8 @@ extension DownloadManager {
             guard let item = try? LocalBook.fetch(bookID: bookID) else {
               try FileManager.default.removeItem(at: directory)
               orphanedDirectoriesCount += 1
-              AppLogger.download.info("Removed orphaned directory for unknown book: \(bookID)")
+              AppLogger.download.info(
+                "Removed orphaned directory for unknown book: \(bookID, privacy: .public)")
               continue
             }
 
@@ -377,7 +379,7 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
     } else if let error = error {
       let isCancelled = (error as? URLError)?.code == .cancelled || error is CancellationError
       if !isCancelled {
-        AppLogger.download.error("Download failed: \(error.localizedDescription)")
+        AppLogger.download.error("Download failed: \(error.localizedDescription, privacy: .public)")
       }
     }
   }

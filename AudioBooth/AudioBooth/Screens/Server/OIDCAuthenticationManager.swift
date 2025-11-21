@@ -84,7 +84,7 @@ final class OIDCAuthenticationManager: NSObject {
     }
 
     let allParams = queryItems.map { "\($0.name): \($0.value ?? "nil")" }.joined(separator: ", ")
-    AppLogger.authentication.info("Callback query parameters: \(allParams)")
+    AppLogger.authentication.info("Callback query parameters: \(allParams, privacy: .public)")
 
     let code = queryItems.first { $0.name == "code" }?.value
     let state = queryItems.first { $0.name == "state" }?.value
@@ -209,7 +209,7 @@ final class OIDCAuthenticationManager: NSObject {
     AppLogger.authentication.error(
       "Unexpected response status: \(httpResponse.statusCode, privacy: .public)")
     if let responseBody = String(data: data, encoding: .utf8) {
-      AppLogger.authentication.error("Response body: \(responseBody)")
+      AppLogger.authentication.error("Response body: \(responseBody, privacy: .public)")
     }
     throw URLError(.badServerResponse)
   }

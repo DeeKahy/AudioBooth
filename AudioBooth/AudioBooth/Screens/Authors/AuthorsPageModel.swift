@@ -61,7 +61,7 @@ final class AuthorsPageModel: AuthorsPage.Model {
       hasMorePages = (currentPage * itemsPerPage) < response.total
 
     } catch {
-      AppLogger.viewModel.error("Failed to fetch authors: \(error)")
+      AppLogger.viewModel.error("Failed to fetch authors: \(error, privacy: .public)")
       if currentPage == 0 {
         fetchedAuthors = []
         authors = []
