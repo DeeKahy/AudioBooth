@@ -223,7 +223,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
       try? keychain.remove(Keys.authServerURL)
       try? keychain.remove(Keys.authToken)
 
-      Audiobookshelf.shared.authentication.logout()
+      Audiobookshelf.shared.authentication.logout(serverID: "")
       AppLogger.watchConnectivity.info("Cleared persisted auth credentials")
     }
   }

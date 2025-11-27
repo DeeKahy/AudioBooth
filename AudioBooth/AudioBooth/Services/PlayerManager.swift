@@ -15,17 +15,9 @@ final class PlayerManager: ObservableObject, Sendable {
   private let watchConnectivity = WatchConnectivityManager.shared
   private let sharedDefaults = UserDefaults(suiteName: "group.me.jgrenier.audioBS")
 
-  private init() {
-    if let existingBookID = UserDefaults.standard.string(forKey: Self.currentBookIDKey) {
-      sharedDefaults?.set(existingBookID, forKey: Self.currentBookIDKey)
-    }
+  private init() {}
 
-    Task { @MainActor in
-      await self.restoreLastPlayer()
-    }
-  }
-
-  private func restoreLastPlayer() async {
+  func restoreLastPlayer() async {
     guard current == nil,
       let savedBookID = UserDefaults.standard.string(forKey: Self.currentBookIDKey),
       let book = try? LocalBook.fetch(bookID: savedBookID)
@@ -53,7 +45,6 @@ final class PlayerManager: ObservableObject, Sendable {
       }
       current = BookPlayerModel(book)
       UserDefaults.standard.set(book.bookID, forKey: Self.currentBookIDKey)
-      sharedDefaults?.set(book.bookID, forKey: Self.currentBookIDKey)
       WidgetCenter.shared.reloadAllTimelines()
     }
   }
@@ -67,7 +58,6 @@ final class PlayerManager: ObservableObject, Sendable {
       }
       current = BookPlayerModel(book)
       UserDefaults.standard.set(book.id, forKey: Self.currentBookIDKey)
-      sharedDefaults?.set(book.id, forKey: Self.currentBookIDKey)
       WidgetCenter.shared.reloadAllTimelines()
     }
   }
@@ -80,7 +70,7 @@ final class PlayerManager: ObservableObject, Sendable {
     current = nil
     isShowingFullPlayer = false
     UserDefaults.standard.removeObject(forKey: Self.currentBookIDKey)
-    sharedDefaults?.removeObject(forKey: Self.currentBookIDKey)
+    sharedDefaults?.removeObject(forKey: "playbackState")
     watchConnectivity.clearPlaybackState()
     SessionManager.shared.clearSession()
     WidgetCenter.shared.reloadAllTimelines()

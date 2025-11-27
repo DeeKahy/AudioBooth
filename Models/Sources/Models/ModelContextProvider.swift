@@ -6,32 +6,82 @@ import SwiftData
 public final class ModelContextProvider {
   public static let shared = ModelContextProvider()
 
-  public let container: ModelContainer
-  public let context: ModelContext
+  private var containers: [String: ModelContainer] = [:]
+  private var contexts: [String: ModelContext] = [:]
+  public private(set) var activeServerID: String?
 
-  private init() {
-    guard
-      let containerURL = FileManager.default.containerURL(
-        forSecurityApplicationGroupIdentifier: "group.me.jgrenier.audioBS"
-      )
-    else {
-      fatalError("App Group container not found. Check entitlements configuration.")
+  public var container: ModelContainer? {
+    guard let serverID = activeServerID else { return nil }
+    return containers[serverID]
+  }
+
+  public var context: ModelContext {
+    if let serverID = activeServerID, let context = contexts[serverID] {
+      return context
     }
 
-    let dbURL = containerURL.appending(path: "AudiobookshelfData.sqlite")
+    assertionFailure("No active server. Database access requires user to be logged in.")
+    AppLogger.persistence.warning(
+      "Accessing context without active server, using fallback database")
 
-    Self.migrateDatabaseIfNeeded(to: dbURL)
-    Self.migrateAudiobooksFolder()
+    let serverID = "fallback"
+    if let fallbackContext = contexts[serverID] {
+      return fallbackContext
+    }
 
+    do {
+      let fallbackContainer = try createContainer(for: serverID)
+      containers[serverID] = fallbackContainer
+      contexts[serverID] = fallbackContainer.mainContext
+      return fallbackContainer.mainContext
+    } catch {
+      AppLogger.persistence.error(
+        "Failed to create fallback container: \(error.localizedDescription)")
+      fatalError("Failed to create fallback database container")
+    }
+  }
+
+  private init() {}
+
+  public func switchToServer(_ serverID: String, serverURL: URL) throws {
+    if containers[serverID] == nil {
+      let container = try createContainer(for: serverID)
+      containers[serverID] = container
+      contexts[serverID] = container.mainContext
+    }
+    activeServerID = serverID
+  }
+
+  public func removeServer(_ serverID: String) throws {
+    containers[serverID] = nil
+    contexts[serverID] = nil
+
+    if activeServerID == serverID {
+      activeServerID = nil
+    }
+
+    let dbURL = databaseURL(for: serverID)
+    let fileExtensions = ["", "-shm", "-wal"]
+    for ext in fileExtensions {
+      let fileURL = URL(fileURLWithPath: dbURL.path + ext)
+      try? FileManager.default.removeItem(at: fileURL)
+    }
+  }
+
+  private func createContainer(for serverID: String) throws -> ModelContainer {
+    let dbURL = databaseURL(for: serverID)
     let configuration = ModelConfiguration(url: dbURL, allowsSave: true)
 
     do {
       let schema = Schema(versionedSchema: AudiobookshelfSchema.self)
-      self.container = try ModelContainer(for: schema, configurations: configuration)
-      AppLogger.persistence.info("ModelContainer created successfully")
+      let container = try ModelContainer(for: schema, configurations: configuration)
+      AppLogger.persistence.info(
+        "ModelContainer created successfully for server: \(serverID, privacy: .public)")
+      return container
     } catch {
       AppLogger.persistence.error(
-        "Failed to create persistent model container: \(error, privacy: .public)")
+        "Failed to create persistent model container for server \(serverID, privacy: .public): \(error, privacy: .public)"
+      )
       AppLogger.persistence.info("Clearing data and creating fresh container...")
 
       let fileExtensions = ["", "-shm", "-wal"]
@@ -44,93 +94,27 @@ public final class ModelContextProvider {
 
       do {
         let schema = Schema(versionedSchema: AudiobookshelfSchema.self)
-        self.container = try ModelContainer(for: schema, configurations: configuration)
+        let container = try ModelContainer(for: schema, configurations: configuration)
         AppLogger.persistence.info("Fresh container created successfully")
+        return container
       } catch {
         AppLogger.persistence.error("Failed to create fresh container: \(error, privacy: .public)")
-        fatalError("Could not create ModelContainer even after clearing data")
+        throw error
       }
-    }
-
-    self.context = container.mainContext
-  }
-
-  private static func migrateDatabaseIfNeeded(to newURL: URL) {
-    let fileManager = FileManager.default
-    let oldURL = URL.documentsDirectory.appending(path: "AudiobookshelfData.sqlite")
-
-    guard fileManager.fileExists(atPath: oldURL.path),
-      !fileManager.fileExists(atPath: newURL.path)
-    else {
-      if fileManager.fileExists(atPath: newURL.path) {
-        AppLogger.persistence.info("Database already exists at new location, skipping migration")
-      }
-      return
-    }
-
-    AppLogger.persistence.info("Migrating database from old location to App Group container...")
-
-    do {
-      let fileExtensions = ["", "-shm", "-wal"]
-
-      for ext in fileExtensions {
-        let sourceURL = URL(fileURLWithPath: oldURL.path + ext)
-        let destinationURL = URL(fileURLWithPath: newURL.path + ext)
-
-        if fileManager.fileExists(atPath: sourceURL.path) {
-          try fileManager.moveItem(at: sourceURL, to: destinationURL)
-          let fileType = ext.isEmpty ? "main database" : "\(ext) file"
-          AppLogger.persistence.info("Migrated \(fileType, privacy: .public)")
-        }
-      }
-
-      AppLogger.persistence.info("Database migration completed successfully")
-
-    } catch {
-      AppLogger.persistence.error("Database migration failed: \(error, privacy: .public)")
-      AppLogger.persistence.info("App will create fresh database at new location")
     }
   }
 
-  private static func migrateAudiobooksFolder() {
-    let fileManager = FileManager.default
-
+  private func databaseURL(for serverID: String) -> URL {
     guard
-      let appGroupURL = fileManager.containerURL(
+      let containerURL = FileManager.default.containerURL(
         forSecurityApplicationGroupIdentifier: "group.me.jgrenier.audioBS"
       )
     else {
-      AppLogger.persistence.error("Failed to get app group URL for audiobooks migration")
-      return
+      fatalError("App Group container not found. Check entitlements configuration.")
     }
-
-    let oldAudiobooksURL = URL.documentsDirectory.appending(path: "audiobooks")
-    var newAudiobooksURL = appGroupURL.appending(path: "audiobooks")
-
-    guard fileManager.fileExists(atPath: oldAudiobooksURL.path) else {
-      AppLogger.persistence.info("No audiobooks folder to migrate")
-      return
-    }
-
-    guard !fileManager.fileExists(atPath: newAudiobooksURL.path) else {
-      AppLogger.persistence.info(
-        "Audiobooks folder already exists at new location, skipping migration")
-      return
-    }
-
-    AppLogger.persistence.info("Migrating audiobooks folder to App Group container...")
-
-    do {
-      try fileManager.moveItem(at: oldAudiobooksURL, to: newAudiobooksURL)
-      AppLogger.persistence.info("Audiobooks folder migration completed successfully")
-
-      var resourceValues = URLResourceValues()
-      resourceValues.isExcludedFromBackup = true
-      try? newAudiobooksURL.setResourceValues(resourceValues)
-      AppLogger.persistence.info("Excluded audiobooks folder from iCloud backup")
-    } catch {
-      AppLogger.persistence.error("Audiobooks folder migration failed: \(error, privacy: .public)")
-      AppLogger.persistence.info("Old audiobooks folder remains in place - files still accessible")
-    }
+    return
+      containerURL
+      .appending(path: serverID)
+      .appending(path: "AudiobookshelfData.sqlite")
   }
 }

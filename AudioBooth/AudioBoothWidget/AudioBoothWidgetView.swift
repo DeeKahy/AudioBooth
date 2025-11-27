@@ -9,18 +9,18 @@ struct AudioBoothWidgetView: View {
   @Environment(\.widgetFamily) var widgetFamily
 
   var body: some View {
-    if let book = entry.book {
+    if let playbackState = entry.playbackState {
       Group {
         switch widgetFamily {
         case .systemSmall:
-          smallWidgetView(book: book)
+          smallWidgetView(playbackState: playbackState)
         case .systemMedium:
-          mediumWidgetView(book: book)
+          mediumWidgetView(playbackState: playbackState)
         default:
-          smallWidgetView(book: book)
+          smallWidgetView(playbackState: playbackState)
         }
       }
-      .widgetURL(URL(string: "audiobooth://play/\(book.bookID)"))
+      .widgetURL(URL(string: "audiobooth://play/\(playbackState.bookID)"))
       .containerBackground(for: .widget) {
         LinearGradient(
           colors: [Color.black.opacity(0.8), Color.black.opacity(0.95)],
@@ -33,7 +33,7 @@ struct AudioBoothWidgetView: View {
     }
   }
 
-  private func smallWidgetView(book: LocalBook) -> some View {
+  private func smallWidgetView(playbackState: PlaybackState) -> some View {
     VStack(alignment: .leading, spacing: 0) {
       if let coverImage = entry.coverImage {
         Image(uiImage: coverImage)
@@ -53,7 +53,7 @@ struct AudioBoothWidgetView: View {
 
       Spacer()
 
-      Text(book.title)
+      Text(playbackState.title)
         .font(.caption)
         .fontWeight(.semibold)
         .foregroundStyle(.white)
@@ -62,20 +62,18 @@ struct AudioBoothWidgetView: View {
       Spacer()
 
       HStack(spacing: 4) {
-        playPauseButton
+        playPauseButton(isPlaying: playbackState.isPlaying)
 
-        if let progress = entry.progress {
-          let remaining = book.duration - progress.currentTime
-          Text(formatTime(remaining))
-            .font(.caption2)
-            .foregroundStyle(.white.opacity(0.8))
-        }
+        let remaining = playbackState.duration - playbackState.currentTime
+        Text(formatTime(remaining))
+          .font(.caption2)
+          .foregroundStyle(.white.opacity(0.8))
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 
-  private func mediumWidgetView(book: LocalBook) -> some View {
+  private func mediumWidgetView(playbackState: PlaybackState) -> some View {
     HStack(spacing: 12) {
       if let coverImage = entry.coverImage {
         Image(uiImage: coverImage)
@@ -96,47 +94,43 @@ struct AudioBoothWidgetView: View {
 
       VStack(alignment: .leading, spacing: 8) {
         VStack(alignment: .leading, spacing: 2) {
-          Text(book.title)
+          Text(playbackState.title)
             .font(.subheadline)
             .fontWeight(.bold)
             .foregroundStyle(.white)
             .lineLimit(2)
 
-          Text(book.authorNames)
+          Text(playbackState.author)
             .font(.footnote)
             .foregroundStyle(.white.opacity(0.8))
             .lineLimit(1)
         }
 
-        if let progress = entry.progress {
-          VStack(alignment: .leading, spacing: 6) {
-            GeometryReader { geometry in
-              ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 3)
-                  .fill(Color.white.opacity(0.2))
-                  .frame(height: 6)
+        VStack(alignment: .leading, spacing: 6) {
+          GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+              RoundedRectangle(cornerRadius: 3)
+                .fill(Color.white.opacity(0.2))
+                .frame(height: 6)
 
-                RoundedRectangle(cornerRadius: 3)
-                  .fill(Color.white)
-                  .frame(
-                    width: geometry.size.width * (progress.currentTime / book.duration), height: 6)
-              }
-            }
-            .frame(height: 6)
-
-            if let progress = entry.progress {
-              let remaining = book.duration - progress.currentTime
-              Text(formatTime(remaining))
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.8))
+              RoundedRectangle(cornerRadius: 3)
+                .fill(Color.white)
+                .frame(
+                  width: geometry.size.width * playbackState.progress, height: 6)
             }
           }
+          .frame(height: 6)
+
+          let remaining = playbackState.duration - playbackState.currentTime
+          Text(formatTime(remaining))
+            .font(.caption2)
+            .foregroundStyle(.white.opacity(0.8))
         }
 
         Spacer()
 
         HStack(spacing: 12) {
-          playPauseButton
+          playPauseButton(isPlaying: playbackState.isPlaying)
 
           Spacer()
         }
@@ -145,9 +139,9 @@ struct AudioBoothWidgetView: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 
-  private var playPauseButton: some View {
+  private func playPauseButton(isPlaying: Bool) -> some View {
     Group {
-      if entry.isPlaying {
+      if isPlaying {
         Button(intent: PausePlaybackIntent()) {
           Image(systemName: "pause.circle.fill")
             .font(.system(size: 32))
@@ -166,7 +160,7 @@ struct AudioBoothWidgetView: View {
   }
 
   private func formatTime(_ seconds: TimeInterval) -> String {
-    Duration.seconds(seconds / entry.speed).formatted(
+    Duration.seconds(seconds).formatted(
       .units(
         allowed: [.hours, .minutes],
         width: .narrow

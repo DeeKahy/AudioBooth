@@ -3,6 +3,7 @@ import AVFoundation
 import Combine
 import Foundation
 import Models
+import OSLog
 import SwiftData
 
 final class DownloadManager: NSObject, ObservableObject {
@@ -67,7 +68,8 @@ extension DownloadManager {
       guard
         let appGroupURL = FileManager.default.containerURL(
           forSecurityApplicationGroupIdentifier: "group.me.jgrenier.audioBS"
-        )
+        ),
+        let serverID = Audiobookshelf.shared.authentication.activeServerID
       else {
         Toast(error: "Failed to access app group container").show()
         return
@@ -75,6 +77,7 @@ extension DownloadManager {
 
       let bookDirectory =
         appGroupURL
+        .appendingPathComponent(serverID)
         .appendingPathComponent("audiobooks")
         .appendingPathComponent(bookID)
 
@@ -95,36 +98,36 @@ extension DownloadManager {
     }
   }
 
-  func cleanupOrphanedDownloads() {
+  func deleteAllServerData() {
     Task {
+      guard
+        let appGroupURL = FileManager.default.containerURL(
+          forSecurityApplicationGroupIdentifier: "group.me.jgrenier.audioBS"
+        )
+      else {
+        return
+      }
+
       do {
-        guard
-          let appGroupURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.me.jgrenier.audioBS"
-          )
-        else {
-          return
-        }
+        let directories = try FileManager.default.contentsOfDirectory(
+          at: appGroupURL,
+          includingPropertiesForKeys: [.isDirectoryKey]
+        )
 
-        let audiobooksDirectory = appGroupURL.appendingPathComponent("audiobooks")
+        for directory in directories {
+          var isDirectory: ObjCBool = false
+          FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory)
 
-        guard FileManager.default.fileExists(atPath: audiobooksDirectory.path) else {
-          return
-        }
-
-        let validBookIDs = Set(try LocalBook.fetchAll().map { $0.bookID })
-
-        let downloadDirectories = try FileManager.default.contentsOfDirectory(
-          at: audiobooksDirectory, includingPropertiesForKeys: [.isDirectoryKey])
-
-        for directory in downloadDirectories {
-          let bookID = directory.lastPathComponent
-
-          if !validBookIDs.contains(bookID) {
-            try FileManager.default.removeItem(at: directory)
+          if isDirectory.boolValue {
+            try? FileManager.default.removeItem(at: directory)
           }
         }
-      } catch {}
+
+        AppLogger.download.info("Deleted all server data")
+      } catch {
+        AppLogger.download.error(
+          "Failed to delete all server data: \(error.localizedDescription, privacy: .public)")
+      }
     }
   }
 }
@@ -272,7 +275,12 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
       throw URLError(.fileDoesNotExist)
     }
 
-    var audiobooksDirectory = appGroupURL.appendingPathComponent("audiobooks")
+    guard let serverID = Audiobookshelf.shared.authentication.activeServerID else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
+    let serverDirectory = appGroupURL.appendingPathComponent(serverID)
+    var audiobooksDirectory = serverDirectory.appendingPathComponent("audiobooks")
     let bookDirectory = audiobooksDirectory.appendingPathComponent(bookID)
 
     try FileManager.default.createDirectory(at: bookDirectory, withIntermediateDirectories: true)
@@ -284,9 +292,10 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
     for track in tracks {
       guard !isCancelled else { throw CancellationError() }
 
+      guard let ext = track.ext else { throw URLError(.badURL) }
+
       let trackURL = session.url(for: track)
-      let fileExtension = track.ext ?? ".mp3"
-      let trackFile = bookDirectory.appendingPathComponent("\(track.index)\(fileExtension)")
+      let trackFile = bookDirectory.appendingPathComponent("\(track.index)\(ext)")
 
       try await withCheckedThrowingContinuation { continuation in
         let downloadTask = downloadSession.downloadTask(with: trackURL)
@@ -299,7 +308,7 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
         downloadTask.resume()
       }
 
-      track.relativePath = URL(string: "audiobooks/\(bookID)/\(track.index)\(fileExtension)")
+      track.relativePath = URL(string: "\(serverID)/audiobooks/\(bookID)/\(track.index)\(ext)")
 
       if let size = track.size {
         bytesDownloadedSoFar += size

@@ -1,6 +1,7 @@
 import API
 import AppIntents
 import Models
+import OSLog
 import PlayerIntents
 import RevenueCat
 import SwiftUI
@@ -12,7 +13,14 @@ struct AudioBoothApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   init() {
-    DownloadManager.shared.cleanupOrphanedDownloads()
+    Audiobookshelf.shared.authentication.migrateLegacyConnection()
+
+    LegacyMigration.migrateIfNeeded()
+
+    setupDatabaseCallbacks()
+
+    LegacyMigration.migrateTrackPaths()
+
     _ = WatchConnectivityManager.shared
     _ = SessionManager.shared
     _ = UserPreferences.shared
@@ -25,11 +33,43 @@ struct AudioBoothApp: App {
 
     let player: PlayerManagerProtocol = PlayerManager.shared
     AppDependencyManager.shared.add(dependency: player)
+
+    Task { @MainActor in
+      await PlayerManager.shared.restoreLastPlayer()
+    }
+  }
+
+  private func setupDatabaseCallbacks() {
+    if let serverID = Audiobookshelf.shared.authentication.activeServerID,
+      let connection = Audiobookshelf.shared.authentication.connection
+    {
+      do {
+        try ModelContextProvider.shared.switchToServer(serverID, serverURL: connection.serverURL)
+      } catch {
+        AppLogger.general.error(
+          "Failed to initialize database on app launch: \(error.localizedDescription)"
+        )
+      }
+    }
+
+    Audiobookshelf.shared.onServerSwitched = { serverID, serverURL in
+      do {
+        try ModelContextProvider.shared.switchToServer(serverID, serverURL: serverURL)
+      } catch {
+        AppLogger.general.error("Failed to switch database: \(error.localizedDescription)")
+      }
+    }
   }
 
   private func observeAuthentication() {
     Audiobookshelf.shared.authentication.onAuthenticationChanged = { credentials in
-      if let (serverURL, token) = credentials {
+      if let (serverID, serverURL, token) = credentials {
+        do {
+          try ModelContextProvider.shared.switchToServer(serverID, serverURL: serverURL)
+        } catch {
+          AppLogger.general.error(
+            "Failed to switch database on login: \(error.localizedDescription)")
+        }
         WatchConnectivityManager.shared.syncAuthCredentials(serverURL: serverURL, token: token)
       } else {
         WatchConnectivityManager.shared.clearAuthCredentials()

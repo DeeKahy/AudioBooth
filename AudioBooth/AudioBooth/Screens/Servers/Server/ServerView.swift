@@ -10,6 +10,7 @@ struct ServerView: View {
   }
 
   @Environment(\.dismiss) var dismiss
+
   @FocusState private var focusedField: FocusField?
 
   @StateObject var model: Model
@@ -22,6 +23,14 @@ struct ServerView: View {
         }
 
         Section("Server Configuration") {
+          if model.isAuthenticated {
+            TextField("Alias (optional)", text: $model.alias)
+              .autocorrectionDisabled()
+              .onChange(of: model.alias) { _, newValue in
+                model.onAliasChanged(newValue)
+              }
+          }
+
           if !model.isTypingScheme {
             Picker("Protocol", selection: $model.serverScheme) {
               Text("https://").tag(ServerView.Model.ServerScheme.https)
@@ -69,13 +78,6 @@ struct ServerView: View {
           EmptyView()
         }
       }
-      .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
-          Button(action: { dismiss() }) {
-            Image(systemName: "xmark")
-          }
-        }
-      }
       .alert("Scan Local Network", isPresented: $model.showDiscoveryPortAlert) {
         TextField("Discovery Port", text: $model.discoveryPort)
           .keyboardType(.numberPad)
@@ -90,6 +92,7 @@ struct ServerView: View {
         Text("Enter the port number to scan for Audiobookshelf servers on your local network.")
       }
     }
+    .onAppear(perform: model.onAppear)
   }
 
   @ViewBuilder
@@ -249,8 +252,14 @@ struct ServerView: View {
         Text("Authenticated")
           .bold()
         Spacer()
-        Button("Logout", action: model.onLogoutTapped)
-          .foregroundColor(.red)
+        Button(
+          "Logout",
+          action: {
+            model.onLogoutTapped()
+            dismiss()
+          }
+        )
+        .foregroundColor(.red)
       }
     }
   }
@@ -258,7 +267,17 @@ struct ServerView: View {
 
 extension ServerView {
   @Observable
-  class Model: ObservableObject {
+  class Model: ObservableObject, Hashable {
+    let id = UUID()
+
+    static func == (lhs: ServerView.Model, rhs: ServerView.Model) -> Bool {
+      lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+      hasher.combine(id)
+    }
+
     enum AuthenticationMethod: CaseIterable {
       case usernamePassword
       case oidc
@@ -293,6 +312,7 @@ extension ServerView {
     var discoveredServers: [DiscoveredServer]
     var libraries: [Library]
     var selectedLibrary: Library?
+    var alias: String
 
     var isTypingScheme: Bool {
       let lowercased = serverURL.lowercased()
@@ -300,12 +320,14 @@ extension ServerView {
         || "https://".hasPrefix(lowercased) || "http://".hasPrefix(lowercased)
     }
 
+    func onAppear() {}
     func onLoginTapped() {}
     func onOIDCLoginTapped() {}
     func onLogoutTapped() {}
     func onDiscoverServersTapped() {}
     func onServerSelected(_ server: DiscoveredServer) {}
     func onLibraryTapped(_ library: Library) {}
+    func onAliasChanged(_ newAlias: String) {}
 
     init(
       isAuthenticated: Bool = false,
@@ -324,7 +346,8 @@ extension ServerView {
       authenticationMethod: AuthenticationMethod = .usernamePassword,
       discoveredServers: [DiscoveredServer] = [],
       libraries: [Library] = [],
-      selectedLibrary: Library? = nil
+      selectedLibrary: Library? = nil,
+      alias: String = ""
     ) {
       self.serverURL = serverURL
       self.serverScheme = serverScheme
@@ -343,6 +366,7 @@ extension ServerView {
       self.discoveredServers = discoveredServers
       self.libraries = libraries
       self.selectedLibrary = selectedLibrary
+      self.alias = alias
     }
   }
 }

@@ -20,13 +20,13 @@ final class SettingsViewModel: SettingsView.Model {
     Task {
       try? LocalBook.deleteAll()
       try? MediaProgress.deleteAll()
-      DownloadManager.shared.cleanupOrphanedDownloads()
+      DownloadManager.shared.deleteAllServerData()
       PlayerManager.shared.clearCurrent()
 
       let keychain = Keychain(service: "me.jgrenier.AudioBS")
       try? keychain.removeAll()
 
-      audiobookshelf.logout()
+      audiobookshelf.logoutAll()
 
       Toast(success: "All app data cleared successfully").show()
     }

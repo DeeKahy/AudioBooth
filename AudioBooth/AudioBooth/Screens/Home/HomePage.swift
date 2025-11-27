@@ -72,9 +72,7 @@ struct HomePage: View {
       }
     }
     .sheet(isPresented: $showingServerPicker) {
-      NavigationView {
-        ServerView(model: ServerViewModel())
-      }
+      ServersView(model: ServersViewModel())
     }
     .onAppear {
       if !Audiobookshelf.shared.isAuthenticated {

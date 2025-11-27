@@ -17,11 +17,14 @@ final class HomePageModel: HomePage.Model {
 
   init() {
     super.init()
-    setupLocalBooksObservation()
     loadCachedContent()
   }
 
   override func onAppear() {
+    if Audiobookshelf.shared.isAuthenticated && availableOfflineTask == nil {
+      setupLocalBooksObservation()
+    }
+
     Task {
       await fetchRemoteContent()
     }
@@ -35,14 +38,16 @@ final class HomePageModel: HomePage.Model {
   }
 
   override func onReset(_ shouldRefresh: Bool) {
-    if !shouldRefresh {
-      availableOffline = []
-    }
+    playerManager.clearCurrent()
 
+    availableOffline = []
     continueListeningBooks = []
     personalizedSections = []
     sections = []
     isLoading = false
+
+    availableOfflineTask?.cancel()
+    availableOfflineTask = nil
 
     if shouldRefresh {
       onAppear()
@@ -226,6 +231,8 @@ extension HomePageModel {
 
 extension HomePageModel {
   private func loadCachedContent() {
+    guard Audiobookshelf.shared.isAuthenticated else { return }
+
     guard let personalized = Audiobookshelf.shared.libraries.getCachedPersonalized() else {
       return
     }

@@ -112,7 +112,7 @@ final class OIDCAuthenticationManager: NSObject {
 
     Task {
       do {
-        try await Audiobookshelf.shared.authentication.loginWithOIDC(
+        let connectionID = try await Audiobookshelf.shared.authentication.loginWithOIDC(
           serverURL: serverURL,
           code: authCode,
           verifier: pkce.verifier,
@@ -122,7 +122,7 @@ final class OIDCAuthenticationManager: NSObject {
         )
 
         AppLogger.authentication.info("OIDC authentication succeeded")
-        delegate?.oidcAuthenticationDidSucceed()
+        delegate?.oidcAuthenticationDidSucceed(connectionID: connectionID)
       } catch {
         AppLogger.authentication.error(
           "loginWithOIDC API call failed: \(error.localizedDescription)")
@@ -253,7 +253,7 @@ extension OIDCAuthenticationManager {
 }
 
 protocol OIDCAuthenticationDelegate: AnyObject {
-  func oidcAuthenticationDidSucceed()
+  func oidcAuthenticationDidSucceed(connectionID: String)
   func oidcAuthentication(didFailWithError error: Error)
 }
 

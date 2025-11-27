@@ -126,51 +126,70 @@ extension DownloadManager {
         var orphanedFilesCount = 0
         var orphanedDirectoriesCount = 0
 
-        let downloadDirectories = try FileManager.default.contentsOfDirectory(
+        let serverDirectories = try FileManager.default.contentsOfDirectory(
           at: audiobooksDirectory, includingPropertiesForKeys: [.isDirectoryKey])
 
-        for directory in downloadDirectories {
-          var isDirectory: ObjCBool = false
-          FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory)
+        for serverDirectory in serverDirectories {
+          var isServerDirectory: ObjCBool = false
+          FileManager.default.fileExists(
+            atPath: serverDirectory.path, isDirectory: &isServerDirectory)
 
-          if isDirectory.boolValue {
-            let bookID = directory.lastPathComponent
+          guard isServerDirectory.boolValue else {
+            continue
+          }
 
-            guard let item = try? LocalBook.fetch(bookID: bookID) else {
-              try FileManager.default.removeItem(at: directory)
-              orphanedDirectoriesCount += 1
-              AppLogger.download.info(
-                "Removed orphaned directory for unknown book: \(bookID, privacy: .public)")
-              continue
-            }
+          let bookDirectories = try FileManager.default.contentsOfDirectory(
+            at: serverDirectory, includingPropertiesForKeys: [.isDirectoryKey])
 
-            let tracks = item.orderedTracks
+          for directory in bookDirectories {
+            var isDirectory: ObjCBool = false
+            FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory)
 
-            var expectedFilenames = Set<String>()
-            for track in tracks {
-              if let relativePath = track.relativePath {
-                expectedFilenames.insert(relativePath.lastPathComponent)
+            if isDirectory.boolValue {
+              let bookID = directory.lastPathComponent
+
+              guard let item = try? LocalBook.fetch(bookID: bookID) else {
+                try FileManager.default.removeItem(at: directory)
+                orphanedDirectoriesCount += 1
+                AppLogger.download.info(
+                  "Removed orphaned directory for unknown book: \(bookID, privacy: .public)")
+                continue
+              }
+
+              let tracks = item.orderedTracks
+
+              var expectedFilenames = Set<String>()
+              for track in tracks {
+                if let relativePath = track.relativePath {
+                  expectedFilenames.insert(relativePath.lastPathComponent)
+                }
+              }
+
+              let filesInDirectory = try FileManager.default.contentsOfDirectory(
+                at: directory, includingPropertiesForKeys: nil)
+
+              for file in filesInDirectory {
+                let filename = file.lastPathComponent
+
+                if !expectedFilenames.contains(filename) {
+                  try FileManager.default.removeItem(at: file)
+                  orphanedFilesCount += 1
+                }
+              }
+
+              let remainingFiles = try FileManager.default.contentsOfDirectory(
+                at: directory, includingPropertiesForKeys: nil)
+              if remainingFiles.isEmpty {
+                try FileManager.default.removeItem(at: directory)
+                orphanedDirectoriesCount += 1
               }
             }
+          }
 
-            let filesInDirectory = try FileManager.default.contentsOfDirectory(
-              at: directory, includingPropertiesForKeys: nil)
-
-            for file in filesInDirectory {
-              let filename = file.lastPathComponent
-
-              if !expectedFilenames.contains(filename) {
-                try FileManager.default.removeItem(at: file)
-                orphanedFilesCount += 1
-              }
-            }
-
-            let remainingFiles = try FileManager.default.contentsOfDirectory(
-              at: directory, includingPropertiesForKeys: nil)
-            if remainingFiles.isEmpty {
-              try FileManager.default.removeItem(at: directory)
-              orphanedDirectoriesCount += 1
-            }
+          let remainingBooks = try FileManager.default.contentsOfDirectory(
+            at: serverDirectory, includingPropertiesForKeys: nil)
+          if remainingBooks.isEmpty {
+            try FileManager.default.removeItem(at: serverDirectory)
           }
         }
 
@@ -329,9 +348,13 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
     let tracks = book.orderedTracks
     guard !tracks.isEmpty else { throw URLError(.badURL) }
 
+    guard let serverID = Audiobookshelf.shared.authentication.activeServerID else {
+      throw URLError(.userAuthenticationRequired)
+    }
+
     let bookDirectory = FileManager.default
       .urls(for: .documentDirectory, in: .userDomainMask).first!
-      .appendingPathComponent("audiobooks/\(bookID)")
+      .appendingPathComponent("audiobooks/\(serverID)/\(bookID)")
 
     try FileManager.default.createDirectory(at: bookDirectory, withIntermediateDirectories: true)
 
@@ -353,7 +376,8 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
         downloadTask.resume()
       }
 
-      track.relativePath = URL(string: "audiobooks/\(bookID)/\(track.index)\(fileExtension)")
+      track.relativePath = URL(
+        string: "audiobooks/\(serverID)/\(bookID)/\(track.index)\(fileExtension)")
 
       if let size = track.size {
         bytesDownloadedSoFar += size

@@ -52,10 +52,24 @@ public final class LibrariesService: ObservableObject, @unchecked Sendable {
     }
   }
 
-  public func fetch() async throws -> [Library] {
-    guard let networkService = audiobookshelf.networkService else {
-      throw Audiobookshelf.AudiobookshelfError.networkError(
-        "Network service not configured. Please login first.")
+  public func fetch(serverID: String? = nil) async throws -> [Library] {
+    let networkService: NetworkService
+
+    if let serverID = serverID {
+      guard let connection = audiobookshelf.authentication.connections[serverID] else {
+        throw Audiobookshelf.AudiobookshelfError.networkError("Server connection not found")
+      }
+      networkService = NetworkService(baseURL: connection.serverURL) {
+        var headers = ["Authorization": "Bearer \(connection.token)"]
+        headers.merge(connection.customHeaders) { _, new in new }
+        return headers
+      }
+    } else {
+      guard let service = audiobookshelf.networkService else {
+        throw Audiobookshelf.AudiobookshelfError.networkError(
+          "Network service not configured. Please login first.")
+      }
+      networkService = service
     }
 
     struct Response: Codable {

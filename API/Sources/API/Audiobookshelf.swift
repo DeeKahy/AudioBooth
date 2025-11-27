@@ -36,12 +36,16 @@ public final class Audiobookshelf: @unchecked Sendable {
     ImagePipeline.shared = ImagePipeline(configuration: configuration)
   }
 
-  public func logout() {
-    authentication.logout()
+  public func logout(serverID: String) {
+    authentication.logout(serverID: serverID)
+  }
+
+  public func logoutAll() {
+    authentication.logoutAll()
   }
 
   func setupNetworkService() {
-    guard let connection = authentication.connection else {
+    guard let connection = authentication.connection, authentication.activeServerID != nil else {
       networkService = nil
       return
     }
@@ -55,6 +59,18 @@ public final class Audiobookshelf: @unchecked Sendable {
       return headers
     }
   }
+
+  public func switchToServer(_ serverID: String) async throws {
+    try authentication.switchToServer(serverID)
+
+    guard let connection = authentication.connection else {
+      throw AudiobookshelfError.networkError("Failed to get connection after switching")
+    }
+
+    onServerSwitched?(serverID, connection.serverURL)
+  }
+
+  public var onServerSwitched: ((String, URL) -> Void)?
 
   public enum AudiobookshelfError: Error {
     case invalidURL

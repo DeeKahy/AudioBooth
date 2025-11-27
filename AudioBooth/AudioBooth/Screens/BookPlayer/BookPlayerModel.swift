@@ -151,12 +151,6 @@ final class BookPlayerModel: BookPlayer.Model {
     }
   }
 
-  private func updateWidgetPlayingState(_ isPlaying: Bool) {
-    let sharedDefaults = UserDefaults(suiteName: "group.me.jgrenier.audioBS")
-    sharedDefaults?.set(isPlaying, forKey: "isPlaying")
-    WidgetCenter.shared.reloadAllTimelines()
-  }
-
   override func onSkipForwardTapped(seconds: Double) {
     guard let player = player else { return }
     let currentTime = player.currentTime()
@@ -310,7 +304,7 @@ extension BookPlayerModel {
 
     configurePlayerComponents(player: player)
 
-    sendWatchUpdate()
+    syncPlayback()
 
     if pendingPlay {
       player.rate = speed.playbackSpeed
@@ -761,7 +755,7 @@ extension BookPlayerModel {
         }
 
         if self.timerSecondsCounter % 2 == 0 {
-          self.sendWatchUpdate()
+          self.syncPlayback()
         }
 
         self.updateNowPlayingInfo()
@@ -922,8 +916,7 @@ extension BookPlayerModel {
     try? mediaProgress.save()
     try? item?.save()
 
-    sendWatchUpdate()
-    updateWidgetPlayingState(isNowPlaying)
+    syncPlayback()
   }
 
   private func markAsFinishedIfNeeded() {
@@ -1181,25 +1174,44 @@ extension BookPlayerModel {
     }
   }
 
-  private func sendWatchUpdate() {
-    guard WCSession.default.isReachable, WCSession.default.isPaired else { return }
+  private func syncPlayback() {
+    if WCSession.default.isReachable, WCSession.default.isPaired {
+      watchConnectivity.sendPlaybackState(
+        isPlaying: isPlaying,
+        progress: playbackProgress.progress,
+        current: playbackProgress.current,
+        remaining: playbackProgress.remaining,
+        total: playbackProgress.total,
+        totalTimeRemaining: playbackProgress.totalTimeRemaining,
+        bookID: id,
+        title: title,
+        author: author,
+        coverURL: coverURL,
+        playbackSpeed: speed.playbackSpeed
+      )
+    }
 
-    let playbackProgress = self.playbackProgress
-    let actualIsPlaying = player?.rate ?? 0 > 0
-
-    watchConnectivity.sendPlaybackState(
-      isPlaying: actualIsPlaying,
-      progress: playbackProgress.progress,
-      current: playbackProgress.current,
-      remaining: playbackProgress.remaining,
-      total: playbackProgress.total,
-      totalTimeRemaining: playbackProgress.totalTimeRemaining,
-      bookID: id,
-      title: title,
-      author: author,
-      coverURL: coverURL,
-      playbackSpeed: speed.playbackSpeed
-    )
+    savePlaybackStateToWidget()
   }
 
+  private func savePlaybackStateToWidget() {
+    guard let item else { return }
+
+    let state = PlaybackState(
+      bookID: item.bookID,
+      title: item.title,
+      author: item.authorNames,
+      coverURL: item.coverURL,
+      currentTime: playbackProgress.total - playbackProgress.totalTimeRemaining,
+      duration: playbackProgress.total,
+      isPlaying: isPlaying
+    )
+
+    if let sharedDefaults = UserDefaults(suiteName: "group.me.jgrenier.audioBS"),
+      let data = try? JSONEncoder().encode(state)
+    {
+      sharedDefaults.set(data, forKey: "playbackState")
+      WidgetCenter.shared.reloadAllTimelines()
+    }
+  }
 }
