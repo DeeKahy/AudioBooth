@@ -59,6 +59,9 @@ struct BookPlayer: View {
     .sheet(isPresented: $model.timer.isPresented) {
       TimerPickerSheet(model: $model.timer)
     }
+    .sheet(item: $model.timer.completedAlert) { model in
+      TimerCompletedAlertView(model: model)
+    }
     .sheet(
       isPresented: Binding(
         get: { model.bookmarks?.isPresented ?? false },

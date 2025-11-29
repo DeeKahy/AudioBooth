@@ -291,15 +291,13 @@ extension TimerPickerSheet {
     var customHours: Int = 0
     var customMinutes: Int = 1
     var maxRemainingChapters: Int = 0
+    var completedAlert: TimerCompletedAlertView.Model?
 
     init() {}
 
     func onQuickTimerSelected(_ minutes: Int) {}
-
     func onChaptersChanged(_ value: Int) {}
-
     func onOffSelected() {}
-
     func onStartTimerTapped() {}
   }
 }

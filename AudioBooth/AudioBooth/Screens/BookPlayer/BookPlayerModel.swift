@@ -128,6 +128,14 @@ final class BookPlayerModel: BookPlayer.Model {
   }
 
   override func onPlayTapped() {
+    if UserPreferences.shared.shakeToExtendTimer,
+      let timer = timer as? TimerPickerSheetViewModel,
+      let completedAlert = timer.completedAlert
+    {
+      completedAlert.onExtendTapped()
+      return
+    }
+
     guard let player = player, player.status == .readyToPlay else {
       pendingPlay = true
       return
@@ -730,17 +738,13 @@ extension BookPlayerModel {
         if let model = self.chapters as? ChapterPickerSheetViewModel {
           let previous = model.currentIndex
           model.setCurrentTime(self.mediaProgress.currentTime)
-          self.timer.maxRemainingChapters = model.chapters.count - model.currentIndex - 1
 
-          if case .chapters(let chapters) = self.timer.current {
-            if previous < model.currentIndex {
-              if chapters > 1 {
-                self.timer.current = .chapters(chapters - 1)
-              } else {
-                self.player?.pause()
-                self.timer.current = .none
-              }
-            }
+          if let timerViewModel = self.timer as? TimerPickerSheetViewModel {
+            timerViewModel.onChapterChanged(
+              previous: previous,
+              current: model.currentIndex,
+              total: model.chapters.count
+            )
           }
         }
 

@@ -9,6 +9,7 @@ final class UserPreferences: ObservableObject {
   @AppStorage("skipForwardInterval") var skipForwardInterval: Double = 30.0
   @AppStorage("skipBackwardInterval") var skipBackwardInterval: Double = 30.0
   @AppStorage("smartRewindInterval") var smartRewindInterval: Double = 30.0
+  @AppStorage("shakeToExtendTimer") var shakeToExtendTimer: Bool = true
   @AppStorage("showDebugSection") var showDebugSection: Bool = false
   @AppStorage("libraryDisplayMode") var libraryDisplayMode: BookCard.DisplayMode = .card
   @AppStorage("collapseSeriesInLibrary") var collapseSeriesInLibrary: Bool = false

@@ -80,6 +80,21 @@ struct PlayerPreferencesView: View {
         .bold()
       }
       .listRowSeparator(.hidden)
+      .listSectionSpacing(.custom(12))
+
+      Section {
+        VStack(alignment: .leading) {
+          Text("Timer".uppercased())
+            .bold()
+
+          Text("Extends timer when you shake your phone or resume playing on your headphones.")
+        }
+        .font(.caption)
+
+        Toggle("Shake to extend", isOn: $preferences.shakeToExtendTimer)
+          .bold()
+      }
+      .listRowSeparator(.hidden)
     }
     .navigationTitle("Player")
   }
