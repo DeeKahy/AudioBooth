@@ -101,6 +101,7 @@ final class BookPlayerModel: BookPlayer.Model {
 
     if isPlaying {
       player.rate = 0
+      try? audioSession.setActive(false)
     } else {
       if session == nil {
         AppLogger.player.warning("Session was closed, recreating in background for progress sync")
@@ -118,9 +119,8 @@ final class BookPlayerModel: BookPlayer.Model {
       } else {
         player.rate = speed.playbackSpeed
       }
+      try? audioSession.setActive(true)
     }
-
-    try? audioSession.setActive(!isPlaying)
   }
 
   override func onPauseTapped() {
@@ -934,7 +934,7 @@ extension BookPlayerModel {
 
         player.seek(to: currentTime) { _ in
           if wasPlaying {
-            player.play()
+            player.rate = self.speed.playbackSpeed
           }
           AppLogger.player.info(
             "Restored playback position and state after switching to local files")
