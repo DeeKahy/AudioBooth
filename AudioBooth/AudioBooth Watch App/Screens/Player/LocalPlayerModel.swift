@@ -62,7 +62,7 @@ final class LocalPlayerModel: PlayerView.Model {
       self.mediaProgress = try MediaProgress.getOrCreate(for: item.bookID, duration: item.duration)
     } catch {
       AppLogger.player.error(
-        "Failed to create MediaProgress for item \(item.bookID, privacy: .public): \(error, privacy: .public)"
+        "Failed to create MediaProgress for item \(item.bookID): \(error)"
       )
       return nil
     }
@@ -92,7 +92,7 @@ final class LocalPlayerModel: PlayerView.Model {
       self.mediaProgress = try MediaProgress.getOrCreate(for: book.id, duration: item.duration)
     } catch {
       AppLogger.player.error(
-        "Failed to create MediaProgress for book \(book.id, privacy: .public): \(error, privacy: .public)"
+        "Failed to create MediaProgress for book \(book.id): \(error)"
       )
       return nil
     }
@@ -258,7 +258,7 @@ extension LocalPlayerModel {
     // If book is already downloaded, use local files (session is optional)
     if item.isDownloaded {
       AppLogger.player.info("Book is downloaded, using local files (session optional)")
-      AppLogger.player.debug("Item has \(self.item.tracks.count, privacy: .public) tracks")
+      AppLogger.player.debug("Item has \(self.item.tracks.count) tracks")
 
       // Try to fetch session for streaming URLs, but don't fail if it doesn't work
       do {
@@ -272,14 +272,14 @@ extension LocalPlayerModel {
         if audiobookshelfSession.currentTime > mediaProgress.currentTime {
           mediaProgress.currentTime = audiobookshelfSession.currentTime
           AppLogger.player.info(
-            "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime, privacy: .public)s"
+            "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s"
           )
         }
 
         AppLogger.player.info("Session available for streaming if needed")
       } catch {
         AppLogger.player.warning(
-          "Session fetch failed, will use local files only: \(error, privacy: .public)")
+          "Session fetch failed, will use local files only: \(error)")
       }
 
       return
@@ -298,7 +298,7 @@ extension LocalPlayerModel {
       if audiobookshelfSession.currentTime > mediaProgress.currentTime {
         mediaProgress.currentTime = audiobookshelfSession.currentTime
         AppLogger.player.info(
-          "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime, privacy: .public)s"
+          "Using server currentTime for cross-device sync: \(audiobookshelfSession.currentTime)s"
         )
       }
 
@@ -331,7 +331,7 @@ extension LocalPlayerModel {
       AppLogger.player.info("Successfully fetched fresh session from server")
 
     } catch {
-      AppLogger.player.error("Failed to fetch fresh session: \(error, privacy: .public)")
+      AppLogger.player.error("Failed to fetch fresh session: \(error)")
       throw Audiobookshelf.AudiobookshelfError.networkError(
         "Cannot play without network connection or downloaded files")
     }
@@ -340,7 +340,7 @@ extension LocalPlayerModel {
   private func setupAudioPlayer() async throws -> AVPlayer {
     guard let track = item.track(at: mediaProgress.currentTime) else {
       AppLogger.player.error(
-        "Failed to get track at time \(self.mediaProgress.currentTime, privacy: .public)")
+        "Failed to get track at time \(self.mediaProgress.currentTime)")
       isLoading = false
       PlayerManager.shared.clearCurrent()
       throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track")
@@ -387,13 +387,13 @@ extension LocalPlayerModel {
       let currentTime = mediaProgress.currentTime
       player.seek(to: seekTime) { _ in
         AppLogger.player.debug(
-          "Seeked to previously played position: \(currentTime, privacy: .public)s")
+          "Seeked to previously played position: \(currentTime)s")
       }
     }
   }
 
   private func handleLoadError(_ error: Error) {
-    AppLogger.player.error("Failed to setup player: \(error, privacy: .public)")
+    AppLogger.player.error("Failed to setup player: \(error)")
     isLoading = false
     PlayerManager.shared.clearCurrent()
   }
@@ -430,7 +430,7 @@ extension LocalPlayerModel {
 
         try await audioSession.activate()
       } catch {
-        AppLogger.player.error("Failed to configure audio session: \(error, privacy: .public)")
+        AppLogger.player.error("Failed to configure audio session: \(error)")
       }
     }
   }
@@ -539,7 +539,7 @@ extension LocalPlayerModel {
             self?.isLoading = false
             self?.isReadyToPlay = false
             let errorMessage = currentItem.error?.localizedDescription ?? "Unknown error"
-            AppLogger.player.error("Player item failed: \(errorMessage, privacy: .public)")
+            AppLogger.player.error("Player item failed: \(errorMessage)")
             PlayerManager.shared.clearCurrent()
           case .unknown:
             self?.isLoading = true
@@ -701,7 +701,7 @@ extension LocalPlayerModel {
 
         timeSinceLastSync = 0
       } catch {
-        AppLogger.player.error("Failed to sync session progress: \(error, privacy: .public)")
+        AppLogger.player.error("Failed to sync session progress: \(error)")
       }
     }
   }
@@ -724,7 +724,7 @@ extension LocalPlayerModel {
 
         syncSessionProgress()
       } catch {
-        AppLogger.player.error("Failed to update played progress: \(error, privacy: .public)")
+        AppLogger.player.error("Failed to update played progress: \(error)")
       }
     }
   }

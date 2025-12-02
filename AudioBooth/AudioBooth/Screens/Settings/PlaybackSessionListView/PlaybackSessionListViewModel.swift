@@ -1,6 +1,6 @@
 import Foundation
+import Logging
 import Models
-import OSLog
 
 @MainActor
 final class PlaybackSessionListViewModel: PlaybackSessionListView.Model {
@@ -16,8 +16,7 @@ final class PlaybackSessionListViewModel: PlaybackSessionListView.Model {
     do {
       sessions = try PlaybackSession.fetchAll()
     } catch {
-      AppLogger.viewModel.error(
-        "Failed to fetch playback sessions: \(error.localizedDescription, privacy: .public)")
+      AppLogger.viewModel.error("Failed to fetch playback sessions: \(error.localizedDescription)")
       sessions = []
     }
   }

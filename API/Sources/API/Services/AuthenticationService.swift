@@ -1,7 +1,7 @@
 import Foundation
 import KeychainAccess
+import Logging
 import Nuke
-import OSLog
 
 public final class AuthenticationService {
   private let audiobookshelf: Audiobookshelf
@@ -210,13 +210,13 @@ public final class AuthenticationService {
     serverURL: String, code: String, verifier: String, state: String?, cookies: [HTTPCookie],
     customHeaders: [String: String] = [:]
   ) async throws -> String {
-    AppLogger.authentication.info("loginWithOIDC called for server: \(serverURL, privacy: .public)")
+    AppLogger.authentication.info("loginWithOIDC called for server: \(serverURL)")
     AppLogger.authentication.debug(
       "Request parameters - code length: \(code.count), verifier length: \(verifier.count), state: \(state ?? "nil"), cookies: \(cookies.count), custom headers: \(customHeaders.count)"
     )
 
     guard let baseURL = URL(string: serverURL) else {
-      AppLogger.authentication.error("Invalid server URL: \(serverURL, privacy: .public)")
+      AppLogger.authentication.error("Invalid server URL: \(serverURL)")
       throw Audiobookshelf.AudiobookshelfError.invalidURL
     }
 
@@ -245,8 +245,8 @@ public final class AuthenticationService {
 
     AppLogger.authentication.info("Sending OIDC callback request to /auth/openid/callback")
     AppLogger.authentication.debug(
-      "Query parameters: \(query.keys.joined(separator: ", "), privacy: .public)")
-    AppLogger.authentication.debug("Cookie header: \(cookieString, privacy: .public)")
+      "Query parameters: \(query.keys.joined(separator: ", "))")
+    AppLogger.authentication.debug("Cookie header: \(cookieString)")
 
     let request = NetworkRequest<Response>(
       path: "/auth/openid/callback",
@@ -260,7 +260,7 @@ public final class AuthenticationService {
       let token = response.value.user.token
 
       AppLogger.authentication.info(
-        "OIDC login successful, received token of length: \(token.count, privacy: .public)")
+        "OIDC login successful, received token of length: \(token.count)")
 
       let newConnection = Connection(
         serverURL: baseURL,
@@ -274,9 +274,9 @@ public final class AuthenticationService {
       return newConnection.id
     } catch {
       AppLogger.authentication.error(
-        "OIDC login request failed: \(error.localizedDescription, privacy: .public)")
+        "OIDC login request failed: \(error.localizedDescription)")
       if let error = error as? URLError {
-        AppLogger.authentication.error("URLError code: \(error.code.rawValue, privacy: .public)")
+        AppLogger.authentication.error("URLError code: \(error.code.rawValue)")
       }
       throw Audiobookshelf.AudiobookshelfError.networkError(
         "OIDC login failed: \(error.localizedDescription)")

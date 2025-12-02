@@ -1,7 +1,7 @@
 import API
 import AppIntents
+import Logging
 import Models
-import OSLog
 import PlayerIntents
 import RevenueCat
 import SwiftUI
@@ -13,6 +13,8 @@ struct AudioBoothApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   init() {
+    AppLogger.bootstrap()
+
     Audiobookshelf.shared.authentication.migrateLegacyConnection()
 
     LegacyMigration.migrateIfNeeded()

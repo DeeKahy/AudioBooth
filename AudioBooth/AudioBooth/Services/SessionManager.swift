@@ -1,9 +1,9 @@
 import API
 import BackgroundTasks
 import Foundation
+import Logging
 import MediaPlayer
 import Models
-import OSLog
 
 final class SessionManager {
   static let shared = SessionManager()
@@ -98,19 +98,19 @@ final class SessionManager {
           AppLogger.session.debug("Synced final progress before closing remote session")
         } catch {
           AppLogger.session.error(
-            "Failed to sync session progress before close: \(error, privacy: .public)")
+            "Failed to sync session progress before close: \(error)")
         }
       }
 
       do {
         try await audiobookshelf.sessions.close(session.id)
         AppLogger.session.info(
-          "Successfully closed remote session: \(session.id, privacy: .public)")
+          "Successfully closed remote session: \(session.id)")
         UserDefaults.standard.removeObject(forKey: sessionIDKey)
         UserDefaults.standard.removeObject(forKey: retryCountKey)
         cancelScheduledSessionClose()
       } catch {
-        AppLogger.session.error("Failed to close remote session: \(error, privacy: .public)")
+        AppLogger.session.error("Failed to close remote session: \(error)")
 
         if isDownloaded {
           AppLogger.session.info(
@@ -125,7 +125,7 @@ final class SessionManager {
         let retryCount = UserDefaults.standard.integer(forKey: retryCountKey)
         guard let backoffDelay = calculateBackoffDelay(retryCount: retryCount) else {
           AppLogger.session.warning(
-            "Maximum retry attempts reached. Giving up on closing session \(session.id, privacy: .public). Session will auto-expire on server after 24h."
+            "Maximum retry attempts reached. Giving up on closing session \(session.id). Session will auto-expire on server after 24h."
           )
           current = nil
           UserDefaults.standard.removeObject(forKey: sessionIDKey)
@@ -138,7 +138,7 @@ final class SessionManager {
         UserDefaults.standard.set(newRetryCount, forKey: retryCountKey)
 
         AppLogger.session.info(
-          "Rescheduling session close with backoff delay: \(backoffDelay, privacy: .public)s (retry: \(newRetryCount, privacy: .public))"
+          "Rescheduling session close with backoff delay: \(backoffDelay)s (retry: \(newRetryCount))"
         )
 
         scheduleSessionClose(customDelay: backoffDelay)
@@ -153,11 +153,11 @@ final class SessionManager {
         session.pendingListeningTime = 0
         try session.save()
         AppLogger.session.info(
-          "Successfully closed and synced local session: \(session.id, privacy: .public)")
+          "Successfully closed and synced local session: \(session.id)")
       } catch {
         try session.save()
         AppLogger.session.error(
-          "Failed to sync local session: \(error, privacy: .public). Session will be synced on next app startup."
+          "Failed to sync local session: \(error). Session will be synced on next app startup."
         )
       }
       current = nil
@@ -178,7 +178,7 @@ final class SessionManager {
 
     if let existingSession = current, existingSession.libraryItemID == itemID {
       AppLogger.session.debug(
-        "Session already exists for this book, reusing: \(existingSession.id, privacy: .public)")
+        "Session already exists for this book, reusing: \(existingSession.id)")
       return (item, mediaProgress.currentTime)
     }
 
@@ -186,7 +186,7 @@ final class SessionManager {
       let result = try await startSession(itemID: itemID, item: item, mediaProgress: mediaProgress)
       return (result.updatedItem, result.serverCurrentTime)
     } catch {
-      AppLogger.session.warning("Failed to create remote session: \(error, privacy: .public)")
+      AppLogger.session.warning("Failed to create remote session: \(error)")
 
       if let item, item.isDownloaded {
         try startLocalSession(
@@ -217,7 +217,7 @@ final class SessionManager {
     )
     try session.save()
     current = session
-    AppLogger.session.info("Started local session: \(session.id, privacy: .public)")
+    AppLogger.session.info("Started local session: \(session.id)")
   }
 
   func syncProgress(
@@ -251,11 +251,11 @@ final class SessionManager {
         try session.save()
         scheduleSessionClose()
         AppLogger.session.info(
-          "Successfully synced remote session: \(session.id, privacy: .public)")
+          "Successfully synced remote session: \(session.id)")
         return
       } catch {
         try session.save()
-        AppLogger.session.error("Failed to sync remote session: \(error, privacy: .public)")
+        AppLogger.session.error("Failed to sync remote session: \(error)")
         throw error
       }
     }
@@ -289,11 +289,11 @@ final class SessionManager {
 
     if success {
       AppLogger.session.info(
-        "Background task handler registered successfully for: \(self.taskIdentifier, privacy: .public)"
+        "Background task handler registered successfully for: \(self.taskIdentifier)"
       )
     } else {
       AppLogger.session.warning(
-        "Failed to register background task handler for: \(self.taskIdentifier, privacy: .public)")
+        "Failed to register background task handler for: \(self.taskIdentifier)")
       AppLogger.session.debug(
         "Note: This is normal if registration was already done, or if running in certain environments"
       )
@@ -315,7 +315,7 @@ final class SessionManager {
     do {
       try BGTaskScheduler.shared.submit(request)
       AppLogger.session.info(
-        "Scheduled background task to close session \(sessionID, privacy: .public) after \(delay, privacy: .public)s"
+        "Scheduled background task to close session \(sessionID) after \(delay)s"
       )
     } catch let error as NSError {
       if error.code == 1 {
@@ -323,7 +323,7 @@ final class SessionManager {
           "Background tasks unavailable (Background App Refresh may be disabled). Session will close on foreground instead."
         )
       } else {
-        AppLogger.session.error("Failed to schedule background task: \(error, privacy: .public)")
+        AppLogger.session.error("Failed to schedule background task: \(error)")
       }
     }
   }
@@ -337,7 +337,7 @@ final class SessionManager {
   private func handleBackgroundTask(_ task: BGAppRefreshTask) {
     let retryCount = UserDefaults.standard.integer(forKey: retryCountKey)
     AppLogger.session.info(
-      "Background task executing - checking if session should be closed (retry: \(retryCount, privacy: .public))"
+      "Background task executing - checking if session should be closed (retry: \(retryCount))"
     )
 
     let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
@@ -375,7 +375,7 @@ final class SessionManager {
     do {
       unsyncedSessions = try PlaybackSession.fetchUnsynced()
     } catch {
-      AppLogger.session.error("Failed to fetch unsynced sessions: \(error, privacy: .public)")
+      AppLogger.session.error("Failed to fetch unsynced sessions: \(error)")
       return
     }
 
@@ -385,7 +385,7 @@ final class SessionManager {
     }
 
     AppLogger.session.info(
-      "Found \(unsyncedSessions.count, privacy: .public) unsynced sessions to sync")
+      "Found \(unsyncedSessions.count) unsynced sessions to sync")
 
     let sessionSyncs = unsyncedSessions.map(SessionSync.init)
 
@@ -399,10 +399,10 @@ final class SessionManager {
       }
 
       AppLogger.session.info(
-        "Successfully synced \(unsyncedSessions.count, privacy: .public) sessions")
+        "Successfully synced \(unsyncedSessions.count) sessions")
     } catch {
       AppLogger.session.error(
-        "Failed to bulk sync sessions: \(error, privacy: .public). Will retry on next startup.")
+        "Failed to bulk sync sessions: \(error). Will retry on next startup.")
     }
   }
 
@@ -440,7 +440,7 @@ final class SessionManager {
         AppLogger.session.info("Inactivity timeout reached - closing session")
         try? await closeSession()
       } catch {
-        AppLogger.session.debug("Inactivity task sleep was interrupted: \(error, privacy: .public)")
+        AppLogger.session.debug("Inactivity task sleep was interrupted: \(error)")
       }
     }
   }

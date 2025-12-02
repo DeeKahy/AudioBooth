@@ -15,13 +15,15 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(path: "../API")
+    .package(url: "https://github.com/apple/swift-log.git", from: "1.6.0"),
+    .package(path: "../API"),
   ],
   targets: [
     .target(
       name: "Models",
       dependencies: [
-        .product(name: "API", package: "API")
+        .product(name: "Logging", package: "swift-log"),
+        .product(name: "API", package: "API"),
       ]
     )
   ]

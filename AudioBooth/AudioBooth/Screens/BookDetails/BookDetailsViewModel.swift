@@ -1,8 +1,8 @@
 import API
 import Combine
 import Foundation
+import Logging
 import Models
-import OSLog
 import SafariServices
 import UIKit
 
@@ -73,7 +73,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
         isLoading = true
       }
     } catch {
-      AppLogger.viewModel.error("Failed to load local book: \(error, privacy: .public)")
+      AppLogger.viewModel.error("Failed to load local book: \(error)")
       if book == nil {
         isLoading = true
       }

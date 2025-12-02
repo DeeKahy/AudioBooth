@@ -1,7 +1,7 @@
 import Combine
 import Foundation
+import Logging
 import Nuke
-import OSLog
 
 public final class LibrariesService: ObservableObject, @unchecked Sendable {
   private let audiobookshelf: Audiobookshelf

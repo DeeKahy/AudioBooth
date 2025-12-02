@@ -2,10 +2,10 @@ import API
 import AVFoundation
 import AVKit
 import Combine
+import Logging
 import MediaPlayer
 import Models
 import Nuke
-import OSLog
 import SwiftData
 import SwiftUI
 import WatchConnectivity
@@ -109,7 +109,7 @@ final class BookPlayerModel: BookPlayer.Model {
             try await setupSession()
             AppLogger.player.info("Session recreated successfully (playback continued from cache)")
           } catch {
-            AppLogger.player.error("Failed to recreate session: \(error, privacy: .public)")
+            AppLogger.player.error("Failed to recreate session: \(error)")
           }
         }
       } else {
@@ -151,7 +151,7 @@ final class BookPlayerModel: BookPlayer.Model {
           try await setupSession()
           AppLogger.player.info("Session recreated successfully (playback continued from cache)")
         } catch {
-          AppLogger.player.error("Failed to recreate session: \(error, privacy: .public)")
+          AppLogger.player.error("Failed to recreate session: \(error)")
         }
       }
     } else {
@@ -179,13 +179,13 @@ final class BookPlayerModel: BookPlayer.Model {
   func seekToTime(_ time: TimeInterval) {
     guard let player = player else {
       pendingSeekTime = time
-      AppLogger.player.debug("Player not ready, storing pending seek to \(time, privacy: .public)s")
+      AppLogger.player.debug("Player not ready, storing pending seek to \(time)s")
       return
     }
 
     let seekTime = CMTime(seconds: time, preferredTimescale: 1000)
     player.seek(to: seekTime) { _ in
-      AppLogger.player.debug("Seeked to position: \(time, privacy: .public)s")
+      AppLogger.player.debug("Seeked to position: \(time)s")
     }
   }
 
@@ -228,11 +228,11 @@ extension BookPlayerModel {
     if let pendingSeekTime = pendingSeekTime {
       mediaProgress.currentTime = pendingSeekTime
       self.pendingSeekTime = nil
-      AppLogger.player.info("Using pending seek time: \(pendingSeekTime, privacy: .public)s")
+      AppLogger.player.info("Using pending seek time: \(pendingSeekTime)s")
     } else if result.serverCurrentTime > mediaProgress.currentTime {
       mediaProgress.currentTime = result.serverCurrentTime
       AppLogger.player.info(
-        "Using server currentTime for cross-device sync: \(result.serverCurrentTime, privacy: .public)s"
+        "Using server currentTime for cross-device sync: \(result.serverCurrentTime)s"
       )
       applySmartRewind()
     } else {
@@ -259,7 +259,7 @@ extension BookPlayerModel {
 
     guard timeSinceLastPlayed >= tenMinutes else {
       AppLogger.player.debug(
-        "Smart rewind not applied - only \(Int(timeSinceLastPlayed / 60), privacy: .public) minutes since last playback"
+        "Smart rewind not applied - only \(Int(timeSinceLastPlayed / 60)) minutes since last playback"
       )
       return
     }
@@ -268,7 +268,7 @@ extension BookPlayerModel {
     mediaProgress.currentTime = newTime
 
     AppLogger.player.info(
-      "Smart rewind applied: rewound \(Int(smartRewindInterval), privacy: .public)s after \(Int(timeSinceLastPlayed / 60), privacy: .public) minutes of pause"
+      "Smart rewind applied: rewound \(Int(smartRewindInterval))s after \(Int(timeSinceLastPlayed / 60)) minutes of pause"
     )
   }
 
@@ -282,7 +282,7 @@ extension BookPlayerModel {
     let tracks = item.orderedTracks
     if tracks.count > 1 {
       playerItem = try await createCompositionPlayerItem(from: tracks)
-      AppLogger.player.debug("Created composition with \(tracks.count, privacy: .public) tracks")
+      AppLogger.player.debug("Created composition with \(tracks.count) tracks")
     } else {
       guard let track = item.track(at: 0) else {
         AppLogger.player.error("Failed to get track at time 0")
@@ -308,7 +308,7 @@ extension BookPlayerModel {
       let seekTime = CMTime(seconds: mediaProgress.currentTime, preferredTimescale: 1000)
       player.seek(to: seekTime) { _ in
         AppLogger.player.debug(
-          "Seeked to position: \(self.mediaProgress.currentTime, privacy: .public)s")
+          "Seeked to position: \(self.mediaProgress.currentTime)s")
       }
     }
 
@@ -340,7 +340,7 @@ extension BookPlayerModel {
       chapters = ChapterPickerSheetViewModel(chapters: sessionChapters, player: player)
       timer.maxRemainingChapters = sessionChapters.count - 1
       AppLogger.player.debug(
-        "Loaded \(sessionChapters.count, privacy: .public) chapters from play session info")
+        "Loaded \(sessionChapters.count) chapters from play session info")
     } else {
       chapters = nil
       AppLogger.player.debug("No chapters available in play session info")
@@ -366,7 +366,7 @@ extension BookPlayerModel {
 
         self.item = existingItem
         AppLogger.player.debug(
-          "Found existing progress: \(self.mediaProgress.currentTime, privacy: .public)s")
+          "Found existing progress: \(self.mediaProgress.currentTime)s")
 
         if existingItem.isDownloaded {
           try await setupAudioPlayer()
@@ -374,7 +374,7 @@ extension BookPlayerModel {
       }
     } catch {
       downloadManager.deleteDownload(for: id)
-      AppLogger.player.error("Failed to load local book item: \(error, privacy: .public)")
+      AppLogger.player.error("Failed to load local book item: \(error)")
       Toast(error: "Can‘t access download. Streaming instead.").show()
     }
   }
@@ -421,14 +421,14 @@ extension BookPlayerModel {
           try? item?.download()
         }
       } catch {
-        AppLogger.player.error("Background session fetch failed: \(error, privacy: .public)")
+        AppLogger.player.error("Background session fetch failed: \(error)")
       }
 
       if player == nil {
         do {
           try await setupAudioPlayer()
         } catch {
-          AppLogger.player.error("Failed to setup player: \(error, privacy: .public)")
+          AppLogger.player.error("Failed to setup player: \(error)")
           Toast(error: "Failed to setup audio player").show()
           PlayerManager.shared.clearCurrent()
         }
@@ -446,7 +446,7 @@ extension BookPlayerModel {
         setupNowPlayingMetadata()
       } catch {
         AppLogger.player.error(
-          "Failed to load cover image for now playing: \(error, privacy: .public)")
+          "Failed to load cover image for now playing: \(error)")
       }
     }
   }
@@ -490,7 +490,7 @@ extension BookPlayerModel {
       try audioSession.setCategory(.playback, mode: .spokenAudio, policy: .longFormAudio)
       try audioSession.setActive(true)
     } catch {
-      AppLogger.player.error("Failed to configure audio session: \(error, privacy: .public)")
+      AppLogger.player.error("Failed to configure audio session: \(error)")
     }
   }
 
@@ -692,7 +692,7 @@ extension BookPlayerModel {
           case .failed:
             self?.isLoading = false
             let errorMessage = currentItem.error?.localizedDescription ?? "Unknown error"
-            AppLogger.player.error("Player item failed: \(errorMessage, privacy: .public)")
+            AppLogger.player.error("Player item failed: \(errorMessage)")
             self?.handleStreamFailure(error: currentItem.error)
           case .unknown:
             self?.isLoading = true
@@ -717,7 +717,7 @@ extension BookPlayerModel {
       .sink { [weak self] notification in
         let error = notification.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error
         AppLogger.player.error(
-          "Failed to play to end: \(error?.localizedDescription ?? "Unknown", privacy: .public)")
+          "Failed to play to end: \(error?.localizedDescription ?? "Unknown")")
         self?.handleStreamFailure(error: error)
       }
       .store(in: &cancellables)
@@ -843,7 +843,7 @@ extension BookPlayerModel {
     for track in tracks.sorted(by: { $0.index < $1.index }) {
       let trackURL = sessionManager.current?.url(for: track) ?? track.localPath
       guard let trackURL else {
-        AppLogger.player.warning("Skipping track \(track.index, privacy: .public) - no URL")
+        AppLogger.player.warning("Skipping track \(track.index) - no URL")
         continue
       }
 
@@ -851,7 +851,7 @@ extension BookPlayerModel {
       let assetTracks = try await asset.loadTracks(withMediaType: .audio)
 
       guard let assetAudioTrack = assetTracks.first else {
-        AppLogger.player.warning("Skipping track \(track.index, privacy: .public) - no audio track")
+        AppLogger.player.warning("Skipping track \(track.index) - no audio track")
         continue
       }
 
@@ -862,11 +862,11 @@ extension BookPlayerModel {
         try audioTrack.insertTimeRange(timeRange, of: assetAudioTrack, at: currentTime)
         currentTime = CMTimeAdd(currentTime, trackDuration)
         AppLogger.player.debug(
-          "Added track \(track.index, privacy: .public) at time \(CMTimeGetSeconds(currentTime), privacy: .public)"
+          "Added track \(track.index) at time \(CMTimeGetSeconds(currentTime))"
         )
       } catch {
         AppLogger.player.error(
-          "Failed to insert track \(track.index, privacy: .public): \(error, privacy: .public)")
+          "Failed to insert track \(track.index): \(error)")
       }
     }
 
@@ -905,7 +905,7 @@ extension BookPlayerModel {
         if tracks.count > 1 {
           playerItem = try await createCompositionPlayerItem(from: tracks)
           AppLogger.player.debug(
-            "Recreated composition with local files for \(tracks.count, privacy: .public) tracks")
+            "Recreated composition with local files for \(tracks.count) tracks")
         } else {
           guard let track = item.track(at: 0) else {
             AppLogger.player.error("Failed to get track at time 0")
@@ -921,7 +921,7 @@ extension BookPlayerModel {
           }
 
           playerItem = AVPlayerItem(url: trackURL)
-          AppLogger.player.debug("Using URL: \(trackURL, privacy: .public)")
+          AppLogger.player.debug("Using URL: \(trackURL)")
         }
 
         player.replaceCurrentItem(with: playerItem)
@@ -938,7 +938,7 @@ extension BookPlayerModel {
 
       } catch {
         AppLogger.player.error(
-          "Failed to refresh player for local playback: \(error, privacy: .public)")
+          "Failed to refresh player for local playback: \(error)")
         Toast(error: "Failed to switch to downloaded files").show()
       }
     }
@@ -946,7 +946,7 @@ extension BookPlayerModel {
 
   private func handlePlaybackStateChange(_ isNowPlaying: Bool) {
     AppLogger.player.debug(
-      "🎵 handlePlaybackStateChange: isNowPlaying=\(isNowPlaying, privacy: .public), current isPlaying=\(self.isPlaying, privacy: .public)"
+      "🎵 handlePlaybackStateChange: isNowPlaying=\(isNowPlaying), current isPlaying=\(self.isPlaying)"
     )
 
     let now = Date()
@@ -970,7 +970,7 @@ extension BookPlayerModel {
       sessionManager.notifyPlaybackStopped()
     } else {
       AppLogger.player.debug(
-        "🎵 State: No change (isNowPlaying=\(isNowPlaying, privacy: .public), isPlaying=\(self.isPlaying, privacy: .public))"
+        "🎵 State: No change (isNowPlaying=\(isNowPlaying), isPlaying=\(self.isPlaying))"
       )
     }
 
@@ -995,11 +995,11 @@ extension BookPlayerModel {
 
       shouldMarkFinished = isOnLastChapter
       AppLogger.player.debug(
-        "📖 Chapter check: \(isOnLastChapter, privacy: .public), Near end: \(isNearEnd, privacy: .public)"
+        "📖 Chapter check: \(isOnLastChapter), Near end: \(isNearEnd)"
       )
     } else {
       AppLogger.player.debug(
-        "📖 No chapters, using time-based check. Near end: \(isNearEnd, privacy: .public)")
+        "📖 No chapters, using time-based check. Near end: \(isNearEnd)")
     }
 
     guard shouldMarkFinished else { return }
@@ -1018,7 +1018,7 @@ extension BookPlayerModel {
         AppLogger.player.debug("Successfully marked book as finished on server")
       } catch {
         AppLogger.player.error(
-          "Failed to update book finished status on server: \(error, privacy: .public)")
+          "Failed to update book finished status on server: \(error)")
       }
     }
   }
@@ -1030,7 +1030,7 @@ extension BookPlayerModel {
       do {
         try await sessionManager.syncProgress(currentTime: mediaProgress.currentTime)
       } catch {
-        AppLogger.player.error("Failed to sync session progress: \(error, privacy: .public)")
+        AppLogger.player.error("Failed to sync session progress: \(error)")
 
         if sessionManager.current?.isRemote == true && isSessionNotFoundError(error) {
           AppLogger.player.debug("Remote session not found (404) - triggering recovery")
@@ -1068,7 +1068,7 @@ extension BookPlayerModel {
 
         syncSessionProgress()
       } catch {
-        AppLogger.player.error("Failed to update playback progress: \(error, privacy: .public)")
+        AppLogger.player.error("Failed to update playback progress: \(error)")
         Toast(error: "Failed to update playback progress").show()
       }
     }
@@ -1098,7 +1098,7 @@ extension BookPlayerModel {
     recoveryAttempts += 1
 
     AppLogger.player.warning(
-      "Stream failure detected (attempt \(self.recoveryAttempts, privacy: .public)/\(self.maxRecoveryAttempts, privacy: .public))"
+      "Stream failure detected (attempt \(self.recoveryAttempts)/\(self.maxRecoveryAttempts))"
     )
 
     Task {
@@ -1142,7 +1142,7 @@ extension BookPlayerModel {
         if tracks.count > 1 {
           playerItem = try await createCompositionPlayerItem(from: tracks)
           AppLogger.player.debug(
-            "Recreated composition with \(tracks.count, privacy: .public) tracks after recovery")
+            "Recreated composition with \(tracks.count) tracks after recovery")
         } else {
           guard let track = item.track(at: 0) else {
             throw Audiobookshelf.AudiobookshelfError.networkError("Failed to get track")
@@ -1174,7 +1174,7 @@ extension BookPlayerModel {
           }
 
           AppLogger.player.debug(
-            "Successfully recovered stream at position: \(CMTimeGetSeconds(seekTime), privacy: .public)s (rewound 5s)"
+            "Successfully recovered stream at position: \(CMTimeGetSeconds(seekTime))s (rewound 5s)"
           )
           Toast(message: "Reconnected").show()
         }
@@ -1190,7 +1190,7 @@ extension BookPlayerModel {
       }
 
     } catch {
-      AppLogger.player.error("Failed to recover session: \(error, privacy: .public)")
+      AppLogger.player.error("Failed to recover session: \(error)")
 
       isLoading = false
       isRecovering = false

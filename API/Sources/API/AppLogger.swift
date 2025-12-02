@@ -1,11 +1,9 @@
-import OSLog
+import Logging
 
 enum AppLogger {
-  private static let subsystem = "me.jgrenier.AudioBS.api"
-
-  static let network = Logger(subsystem: subsystem, category: "network")
-  static let authentication = Logger(subsystem: subsystem, category: "authentication")
-  static let libraries = Logger(subsystem: subsystem, category: "libraries")
-  static let persistence = Logger(subsystem: subsystem, category: "persistence")
-  static let download = Logger(subsystem: subsystem, category: "download")
+  static let network = Logger(label: "api.network")
+  static let authentication = Logger(label: "api.authentication")
+  static let libraries = Logger(label: "api.libraries")
+  static let persistence = Logger(label: "api.persistence")
+  static let download = Logger(label: "api.download")
 }

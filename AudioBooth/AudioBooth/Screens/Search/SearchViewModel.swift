@@ -1,6 +1,6 @@
 import API
 import Foundation
-import OSLog
+import Logging
 
 final class SearchViewModel: SearchView.Model {
   private let audiobookshelf = Audiobookshelf.shared
@@ -74,7 +74,7 @@ final class SearchViewModel: SearchView.Model {
       }
     } catch {
       if !Task.isCancelled {
-        AppLogger.viewModel.error("Failed to perform search: \(error, privacy: .public)")
+        AppLogger.viewModel.error("Failed to perform search: \(error)")
         Toast(error: "Search failed").show()
         clearResults()
       }

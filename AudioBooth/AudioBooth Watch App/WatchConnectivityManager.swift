@@ -66,7 +66,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     }
 
     Audiobookshelf.shared.libraries.current = library
-    AppLogger.watchConnectivity.info("Loaded persisted library: \(library.name, privacy: .public)")
+    AppLogger.watchConnectivity.info("Loaded persisted library: \(library.name)")
   }
 
   func sendCommand(_ command: String) {
@@ -77,7 +77,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
     let message = ["command": command]
     session.sendMessage(message, replyHandler: nil) { error in
-      AppLogger.watchConnectivity.error("Failed to send command to iOS: \(error, privacy: .public)")
+      AppLogger.watchConnectivity.error("Failed to send command to iOS: \(error)")
     }
   }
 
@@ -110,7 +110,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
     session.sendMessage(message, replyHandler: nil) { error in
       AppLogger.watchConnectivity.error(
-        "Failed to send play command to iOS: \(error, privacy: .public)")
+        "Failed to send play command to iOS: \(error)")
     }
   }
 
@@ -123,7 +123,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     let message = ["command": "requestContext"]
     session.sendMessage(message, replyHandler: nil) { error in
       AppLogger.watchConnectivity.error(
-        "Failed to request context from iOS: \(error, privacy: .public)")
+        "Failed to request context from iOS: \(error)")
     }
 
     AppLogger.watchConnectivity.info("Requested full context from iPhone")
@@ -137,10 +137,10 @@ extension WatchConnectivityManager: WCSessionDelegate {
   ) {
     if let error = error {
       AppLogger.watchConnectivity.error(
-        "Watch session activation failed: \(error, privacy: .public)")
+        "Watch session activation failed: \(error)")
     } else {
       AppLogger.watchConnectivity.info(
-        "Watch session activated with state: \(activationState.rawValue, privacy: .public)")
+        "Watch session activated with state: \(activationState.rawValue)")
     }
   }
 
@@ -235,7 +235,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
       try? keychain.set(libraryData, key: Keys.library)
       Audiobookshelf.shared.libraries.current = library
       AppLogger.watchConnectivity.info(
-        "Received and persisted library: \(library.name, privacy: .public)")
+        "Received and persisted library: \(library.name)")
     } else if context["library"] == nil {
       try? keychain.remove(Keys.library)
       Audiobookshelf.shared.libraries.current = nil

@@ -1,8 +1,8 @@
 import API
 import Foundation
 import KeychainAccess
+import Logging
 import Models
-import OSLog
 import SwiftUI
 import UIKit
 
@@ -29,26 +29,6 @@ final class SettingsViewModel: SettingsView.Model {
       audiobookshelf.logoutAll()
 
       Toast(success: "All app data cleared successfully").show()
-    }
-  }
-
-  override func onExportLogsTapped() {
-    isExportingLogs = true
-
-    Task {
-      do {
-        let fileURL = try await LogExporter.exportLogs(since: 3600)
-        AppLogger.viewModel.info("Logs exported successfully to: \(fileURL.path, privacy: .public)")
-
-        await MainActor.run {
-          presentActivityViewController(for: fileURL)
-        }
-      } catch {
-        AppLogger.viewModel.error("Failed to export logs: \(error, privacy: .public)")
-        Toast(error: "Failed to export logs: \(error.localizedDescription)").show()
-      }
-
-      isExportingLogs = false
     }
   }
 

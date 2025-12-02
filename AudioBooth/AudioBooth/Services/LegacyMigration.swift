@@ -1,7 +1,7 @@
 import API
 import Foundation
+import Logging
 import Models
-import OSLog
 import SwiftData
 
 struct LegacyMigration {

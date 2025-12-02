@@ -1,5 +1,5 @@
 import Foundation
-import OSLog
+import Logging
 import RevenueCat
 import SwiftUI
 
@@ -55,7 +55,7 @@ final class TipJarViewModel: TipJarView.Model {
         }
       } catch {
         AppLogger.viewModel.error(
-          "Failed to fetch offerings: \(error.localizedDescription, privacy: .public)")
+          "Failed to fetch offerings: \(error.localizedDescription)")
       }
     }
   }
@@ -78,7 +78,7 @@ final class TipJarViewModel: TipJarView.Model {
         }
       } catch {
         AppLogger.viewModel.error(
-          "Failed to purchase tip: \(error.localizedDescription, privacy: .public)")
+          "Failed to purchase tip: \(error.localizedDescription)")
       }
 
       isPurchasing = nil

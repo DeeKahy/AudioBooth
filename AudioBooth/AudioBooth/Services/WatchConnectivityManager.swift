@@ -1,8 +1,8 @@
 import API
 import Combine
 import Foundation
+import Logging
 import Models
-import OSLog
 import WatchConnectivity
 
 final class WatchConnectivityManager: NSObject, ObservableObject {
@@ -55,7 +55,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       try session.updateApplicationContext(context)
     } catch {
       AppLogger.watchConnectivity.error(
-        "Failed to send playback state to watch: \(error, privacy: .public)")
+        "Failed to send playback state to watch: \(error)")
     }
   }
 
@@ -88,7 +88,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       try session.updateApplicationContext(context)
     } catch {
       AppLogger.watchConnectivity.error(
-        "Failed to clear playback state on watch: \(error, privacy: .public)")
+        "Failed to clear playback state on watch: \(error)")
     }
   }
 
@@ -104,7 +104,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       AppLogger.watchConnectivity.info("Synced auth credentials to watch")
     } catch {
       AppLogger.watchConnectivity.error(
-        "Failed to sync auth credentials to watch: \(error, privacy: .public)")
+        "Failed to sync auth credentials to watch: \(error)")
     }
   }
 
@@ -120,7 +120,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       AppLogger.watchConnectivity.info("Cleared auth credentials on watch")
     } catch {
       AppLogger.watchConnectivity.error(
-        "Failed to clear auth credentials on watch: \(error, privacy: .public)")
+        "Failed to clear auth credentials on watch: \(error)")
     }
   }
 
@@ -133,10 +133,10 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       do {
         try session.updateApplicationContext(context)
         AppLogger.watchConnectivity.info(
-          "Synced library to watch: \(library.name, privacy: .public)")
+          "Synced library to watch: \(library.name)")
       } catch {
         AppLogger.watchConnectivity.error(
-          "Failed to sync library to watch: \(error, privacy: .public)")
+          "Failed to sync library to watch: \(error)")
       }
     }
   }
@@ -152,7 +152,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       AppLogger.watchConnectivity.info("Cleared library on watch")
     } catch {
       AppLogger.watchConnectivity.error(
-        "Failed to clear library on watch: \(error, privacy: .public)")
+        "Failed to clear library on watch: \(error)")
     }
   }
 
@@ -165,10 +165,10 @@ extension WatchConnectivityManager: WCSessionDelegate {
   ) {
     if let error = error {
       AppLogger.watchConnectivity.error(
-        "Watch session activation failed: \(error, privacy: .public)")
+        "Watch session activation failed: \(error)")
     } else {
       AppLogger.watchConnectivity.info(
-        "Watch session activated with state: \(activationState.rawValue, privacy: .public)")
+        "Watch session activated with state: \(activationState.rawValue)")
     }
   }
 
@@ -182,7 +182,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
   }
 
   func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-    AppLogger.watchConnectivity.debug("Received message from watch: \(message, privacy: .public)")
+    AppLogger.watchConnectivity.debug("Received message from watch: \(message)")
 
     guard let command = message["command"] as? String else { return }
 
@@ -208,7 +208,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
         handleRequestContext()
       default:
         AppLogger.watchConnectivity.warning(
-          "Unknown command from watch: \(command, privacy: .public)")
+          "Unknown command from watch: \(command)")
       }
     }
   }
@@ -236,7 +236,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
       AppLogger.watchConnectivity.info("Sent full context to watch")
     } catch {
       AppLogger.watchConnectivity.error(
-        "Failed to send full context to watch: \(error, privacy: .public)")
+        "Failed to send full context to watch: \(error)")
     }
   }
 
@@ -250,7 +250,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
       try session.updateApplicationContext(context)
     } catch {
       AppLogger.watchConnectivity.error(
-        "Failed to update playback state context: \(error, privacy: .public)")
+        "Failed to update playback state context: \(error)")
     }
   }
 
@@ -274,7 +274,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
         }
       } catch {
         AppLogger.watchConnectivity.error(
-          "Failed to handle play command: \(error, privacy: .public)")
+          "Failed to handle play command: \(error)")
       }
     }
   }

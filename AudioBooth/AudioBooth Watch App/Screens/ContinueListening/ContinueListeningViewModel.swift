@@ -27,7 +27,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
       let books = try LocalBook.fetchAll()
       updateBooks(from: books)
     } catch {
-      AppLogger.viewModel.error("Failed to load cached books: \(error, privacy: .public)")
+      AppLogger.viewModel.error("Failed to load cached books: \(error)")
     }
   }
 
@@ -92,7 +92,7 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
 
       self.continueListeningRows = rowModels
     } catch {
-      AppLogger.viewModel.error("Failed to fetch continue listening: \(error, privacy: .public)")
+      AppLogger.viewModel.error("Failed to fetch continue listening: \(error)")
     }
   }
 

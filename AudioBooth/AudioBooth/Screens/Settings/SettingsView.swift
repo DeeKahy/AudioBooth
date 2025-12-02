@@ -96,34 +96,19 @@ struct SettingsView: View {
   var debug: some View {
     if preferences.showDebugSection {
       Section("Debug") {
-        Button(action: model.onExportLogsTapped) {
+        NavigationLink(destination: ConsoleView().navigationBarBackButtonHidden(true)) {
           HStack {
-            if model.isExportingLogs {
-              ProgressView()
-                .scaleEffect(0.8)
-            } else {
-              Image(systemName: "square.and.arrow.up")
-            }
-            Text(model.isExportingLogs ? "Exporting..." : "Export Logs")
-          }
-        }
-        .disabled(model.isExportingLogs)
-
-        NavigationLink(destination: ConsoleView()) {
-          HStack {
-            Image(systemName: "chart.xyaxis.line")
-            Text("Network Inspector")
+            Image(systemName: "ladybug")
+            Text("Console")
           }
         }
 
-        #if DEBUG
-          NavigationLink(value: "playbackSession") {
-            HStack {
-              Image(systemName: "chart.line.uptrend.xyaxis")
-              Text("Playback Sessions")
-            }
+        NavigationLink(value: "playbackSession") {
+          HStack {
+            Image(systemName: "chart.line.uptrend.xyaxis")
+            Text("Playback Sessions")
           }
-        #endif
+        }
 
         Button("Clear Persistent Storage", action: model.onClearStorageTapped)
           .foregroundColor(.red)
@@ -142,7 +127,6 @@ extension SettingsView {
     var navigationPath = NavigationPath()
     var tipJar: TipJarView.Model
     var playbackSessionList: PlaybackSessionListView.Model?
-    var isExportingLogs: Bool
 
     var appVersion: String {
       let version =
@@ -156,12 +140,10 @@ extension SettingsView {
 
     init(
       tipJar: TipJarView.Model = .mock,
-      playbackSessionList: PlaybackSessionListView.Model? = nil,
-      isExportingLogs: Bool = false
+      playbackSessionList: PlaybackSessionListView.Model? = nil
     ) {
       self.tipJar = tipJar
       self.playbackSessionList = playbackSessionList
-      self.isExportingLogs = isExportingLogs
     }
   }
 }

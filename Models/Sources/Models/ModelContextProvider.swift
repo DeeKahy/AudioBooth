@@ -1,5 +1,5 @@
 import Foundation
-import OSLog
+import Logging
 import SwiftData
 
 @MainActor
@@ -76,11 +76,11 @@ public final class ModelContextProvider {
       let schema = Schema(versionedSchema: AudiobookshelfSchema.self)
       let container = try ModelContainer(for: schema, configurations: configuration)
       AppLogger.persistence.info(
-        "ModelContainer created successfully for server: \(serverID, privacy: .public)")
+        "ModelContainer created successfully for server: \(serverID)")
       return container
     } catch {
       AppLogger.persistence.error(
-        "Failed to create persistent model container for server \(serverID, privacy: .public): \(error, privacy: .public)"
+        "Failed to create persistent model container for server \(serverID): \(error)"
       )
       AppLogger.persistence.info("Clearing data and creating fresh container...")
 
@@ -98,7 +98,7 @@ public final class ModelContextProvider {
         AppLogger.persistence.info("Fresh container created successfully")
         return container
       } catch {
-        AppLogger.persistence.error("Failed to create fresh container: \(error, privacy: .public)")
+        AppLogger.persistence.error("Failed to create fresh container: \(error)")
         throw error
       }
     }

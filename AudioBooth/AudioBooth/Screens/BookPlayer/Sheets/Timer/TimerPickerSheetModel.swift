@@ -1,6 +1,6 @@
 import AVFoundation
 import Foundation
-import OSLog
+import Logging
 import SwiftUI
 
 final class TimerPickerSheetViewModel: TimerPickerSheet.Model {

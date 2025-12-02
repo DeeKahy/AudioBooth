@@ -1,8 +1,8 @@
 import API
 import Foundation
 import KeychainAccess
+import Logging
 import Models
-import OSLog
 import SwiftUI
 import UIKit
 
@@ -92,7 +92,7 @@ final class ServerViewModel: ServerView.Model {
         isAuthenticated = true
         await fetchLibraries()
       } catch {
-        AppLogger.viewModel.error("Login failed: \(error.localizedDescription, privacy: .public)")
+        AppLogger.viewModel.error("Login failed: \(error.localizedDescription)")
         Toast(error: error.localizedDescription).show()
         isAuthenticated = false
       }

@@ -1,7 +1,5 @@
-import OSLog
+import Logging
 
 enum AppLogger {
-  private static let subsystem = "me.jgrenier.AudioBS.models"
-
-  static let persistence = Logger(subsystem: subsystem, category: "persistence")
+  static let persistence = Logger(label: "models.persistence")
 }

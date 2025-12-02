@@ -1,15 +1,24 @@
-import OSLog
+import Foundation
+import Logging
+import PulseLogHandler
 
 enum AppLogger {
-  private static let subsystem = Bundle.main.bundleIdentifier ?? "me.jgrenier.AudioBS"
+  static func bootstrap() {
+    LoggingSystem.bootstrap { label in
+      MultiplexLogHandler([
+        StreamLogHandler.standardOutput(label: label),
+        PersistentLogHandler(label: label),
+      ])
+    }
+  }
 
-  static let session = Logger(subsystem: subsystem, category: "session")
-  static let network = Logger(subsystem: subsystem, category: "network")
-  static let watchConnectivity = Logger(subsystem: subsystem, category: "watch-connectivity")
-  static let player = Logger(subsystem: subsystem, category: "player")
-  static let download = Logger(subsystem: subsystem, category: "download")
-  static let viewModel = Logger(subsystem: subsystem, category: "viewModel")
-  static let persistence = Logger(subsystem: subsystem, category: "persistence")
-  static let general = Logger(subsystem: subsystem, category: "general")
-  static let authentication = Logger(subsystem: subsystem, category: "authentication")
+  static let session = Logger(label: "session")
+  static let network = Logger(label: "network")
+  static let watchConnectivity = Logger(label: "watch-connectivity")
+  static let player = Logger(label: "player")
+  static let download = Logger(label: "download")
+  static let viewModel = Logger(label: "viewModel")
+  static let persistence = Logger(label: "persistence")
+  static let general = Logger(label: "general")
+  static let authentication = Logger(label: "authentication")
 }

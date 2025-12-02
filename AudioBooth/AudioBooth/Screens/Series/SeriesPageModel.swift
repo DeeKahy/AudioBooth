@@ -1,5 +1,5 @@
 import API
-import OSLog
+import Logging
 import SwiftUI
 
 final class SeriesPageModel: SeriesPage.Model {
@@ -61,7 +61,7 @@ final class SeriesPageModel: SeriesPage.Model {
       hasMorePages = (currentPage * itemsPerPage) < response.total
 
     } catch {
-      AppLogger.viewModel.error("Failed to fetch series: \(error, privacy: .public)")
+      AppLogger.viewModel.error("Failed to fetch series: \(error)")
       if currentPage == 0 {
         fetchedSeries = []
         series = []

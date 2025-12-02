@@ -1,5 +1,5 @@
 import API
-import OSLog
+import Logging
 import SwiftUI
 
 final class AuthorsPageModel: AuthorsPage.Model {
@@ -61,7 +61,7 @@ final class AuthorsPageModel: AuthorsPage.Model {
       hasMorePages = (currentPage * itemsPerPage) < response.total
 
     } catch {
-      AppLogger.viewModel.error("Failed to fetch authors: \(error, privacy: .public)")
+      AppLogger.viewModel.error("Failed to fetch authors: \(error)")
       if currentPage == 0 {
         fetchedAuthors = []
         authors = []

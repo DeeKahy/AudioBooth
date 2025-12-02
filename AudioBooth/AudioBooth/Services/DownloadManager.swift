@@ -2,8 +2,8 @@ import API
 import AVFoundation
 import Combine
 import Foundation
+import Logging
 import Models
-import OSLog
 import Pulse
 import SwiftData
 
@@ -127,7 +127,7 @@ extension DownloadManager {
         AppLogger.download.info("Deleted all server data")
       } catch {
         AppLogger.download.error(
-          "Failed to delete all server data: \(error.localizedDescription, privacy: .public)")
+          "Failed to delete all server data: \(error.localizedDescription)")
       }
     }
   }

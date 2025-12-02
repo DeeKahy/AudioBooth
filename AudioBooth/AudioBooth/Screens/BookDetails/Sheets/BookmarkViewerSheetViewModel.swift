@@ -1,8 +1,8 @@
 import API
 import AVFoundation
 import Foundation
+import Logging
 import Models
-import OSLog
 import SwiftUI
 
 final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
@@ -88,7 +88,7 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
         playerManager.showFullPlayer()
       }
 
-      AppLogger.player.info("Jumped to bookmark at \(bookmark.time, privacy: .public)s")
+      AppLogger.player.info("Jumped to bookmark at \(bookmark.time)s")
     }
   }
 
@@ -108,7 +108,7 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
         playerManager.showFullPlayer()
       }
 
-      AppLogger.player.info("Jumped to bookmark at \(bookmark.time, privacy: .public)s")
+      AppLogger.player.info("Jumped to bookmark at \(bookmark.time)s")
     }
   }
 
@@ -133,10 +133,10 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
           bookmarks[index].title = bookmark.title
         }
 
-        AppLogger.player.info("Updated bookmark: \(bookmark.title, privacy: .public)")
+        AppLogger.player.info("Updated bookmark: \(bookmark.title)")
         Toast(message: "Bookmark updated").show()
       } catch {
-        AppLogger.player.error("Failed to update bookmark: \(error, privacy: .public)")
+        AppLogger.player.error("Failed to update bookmark: \(error)")
         Toast(error: "Failed to update bookmark").show()
       }
     }
@@ -153,10 +153,10 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
 
         bookmarks.removeAll { $0.id == bookmark.id }
 
-        AppLogger.player.info("Deleted bookmark at \(bookmark.time, privacy: .public)s")
+        AppLogger.player.info("Deleted bookmark at \(bookmark.time)s")
         Toast(message: "Bookmark deleted").show()
       } catch {
-        AppLogger.player.error("Failed to delete bookmark: \(error, privacy: .public)")
+        AppLogger.player.error("Failed to delete bookmark: \(error)")
         Toast(error: "Failed to delete bookmark").show()
       }
     }
@@ -199,12 +199,12 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
         newBookmarkTitle = ""
 
         AppLogger.player.info(
-          "Created bookmark: \(title, privacy: .public) at \(time, privacy: .public)s")
+          "Created bookmark: \(title) at \(time)s")
         Toast(message: "Bookmark created").show()
 
         isPresented = false
       } catch {
-        AppLogger.player.error("Failed to create bookmark: \(error, privacy: .public)")
+        AppLogger.player.error("Failed to create bookmark: \(error)")
         Toast(error: "Failed to create bookmark").show()
       }
     }

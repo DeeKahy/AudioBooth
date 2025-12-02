@@ -1,6 +1,6 @@
 import API
+import Logging
 import Models
-import OSLog
 import SwiftData
 import SwiftUI
 
@@ -258,7 +258,7 @@ extension HomePageModel {
       let personalized = try await Audiobookshelf.shared.libraries.fetchPersonalized()
       processSections(personalized.sections)
     } catch {
-      AppLogger.viewModel.error("Failed to fetch personalized content: \(error, privacy: .public)")
+      AppLogger.viewModel.error("Failed to fetch personalized content: \(error)")
     }
 
     isLoading = false

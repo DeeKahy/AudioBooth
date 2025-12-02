@@ -1,5 +1,5 @@
 import Foundation
-import OSLog
+import Logging
 import Pulse
 
 enum HTTPMethod: String {
@@ -126,7 +126,7 @@ final class NetworkService {
     let urlRequest = try buildURLRequest(from: request)
 
     AppLogger.network.info(
-      "Sending \(urlRequest.httpMethod ?? "GET", privacy: .public) request to: \(urlRequest.url?.absoluteString ?? "unknown", privacy: .public)"
+      "Sending \(urlRequest.httpMethod ?? "GET") request to: \(urlRequest.url?.absoluteString ?? "unknown")"
     )
 
     let selectedSession = request.discretionary ? discretionarySession : session
@@ -137,12 +137,12 @@ final class NetworkService {
       throw NetworkError.invalidResponse
     }
 
-    AppLogger.network.info("Received HTTP \(httpResponse.statusCode, privacy: .public) response")
+    AppLogger.network.info("Received HTTP \(httpResponse.statusCode) response")
 
     guard 200...299 ~= httpResponse.statusCode else {
       let responseBody = String(data: data, encoding: .utf8) ?? "Unable to decode response body"
       AppLogger.network.error(
-        "HTTP \(httpResponse.statusCode, privacy: .public) error. Response body: \(responseBody, privacy: .public)"
+        "HTTP \(httpResponse.statusCode) error. Response body: \(responseBody)"
       )
       throw NetworkError.httpError(statusCode: httpResponse.statusCode, message: responseBody)
     }
@@ -157,29 +157,29 @@ final class NetworkService {
         decodedValue = try decoder.decode(T.self, from: data)
       } catch {
         AppLogger.network.error(
-          "Failed to decode \(T.self, privacy: .public): \(error, privacy: .public)")
+          "Failed to decode \(T.self): \(error)")
 
         if let decodingError = error as? DecodingError {
           switch decodingError {
           case .keyNotFound(let key, let context):
             AppLogger.network.error(
-              "  Missing key: '\(key.stringValue, privacy: .public)' at path: \(context.codingPath.map { $0.stringValue }.joined(separator: "."), privacy: .public)"
+              "  Missing key: '\(key.stringValue)' at path: \(context.codingPath.map { $0.stringValue }.joined(separator: "."))"
             )
           case .typeMismatch(let type, let context):
             AppLogger.network.error(
-              "  Type mismatch: expected \(type, privacy: .public) at path: \(context.codingPath.map { $0.stringValue }.joined(separator: "."), privacy: .public)"
+              "  Type mismatch: expected \(type) at path: \(context.codingPath.map { $0.stringValue }.joined(separator: "."))"
             )
-            AppLogger.network.error("  Context: \(context.debugDescription, privacy: .public)")
+            AppLogger.network.error("  Context: \(context.debugDescription)")
           case .valueNotFound(let type, let context):
             AppLogger.network.error(
-              "  Value not found: expected \(type, privacy: .public) at path: \(context.codingPath.map { $0.stringValue }.joined(separator: "."), privacy: .public)"
+              "  Value not found: expected \(type) at path: \(context.codingPath.map { $0.stringValue }.joined(separator: "."))"
             )
-            AppLogger.network.error("  Context: \(context.debugDescription, privacy: .public)")
+            AppLogger.network.error("  Context: \(context.debugDescription)")
           case .dataCorrupted(let context):
             AppLogger.network.error(
-              "  Data corrupted at path: \(context.codingPath.map { $0.stringValue }.joined(separator: "."), privacy: .public)"
+              "  Data corrupted at path: \(context.codingPath.map { $0.stringValue }.joined(separator: "."))"
             )
-            AppLogger.network.error("  Context: \(context.debugDescription, privacy: .public)")
+            AppLogger.network.error("  Context: \(context.debugDescription)")
           @unknown default:
             AppLogger.network.error("  Unknown decoding error")
           }

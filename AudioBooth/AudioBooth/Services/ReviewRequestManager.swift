@@ -1,5 +1,5 @@
 import Foundation
-import OSLog
+import Logging
 import StoreKit
 
 final class ReviewRequestManager {
@@ -23,7 +23,7 @@ final class ReviewRequestManager {
     let currentCount = UserDefaults.standard.integer(forKey: booksCompletedCountKey)
     UserDefaults.standard.set(currentCount + 1, forKey: booksCompletedCountKey)
 
-    AppLogger.general.info("Book completion recorded. Total: \(currentCount + 1, privacy: .public)")
+    AppLogger.general.info("Book completion recorded. Total: \(currentCount + 1)")
 
     checkAndRequestReviewIfEligible()
   }
@@ -96,7 +96,7 @@ final class ReviewRequestManager {
     UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastReviewRequestDateKey)
 
     AppLogger.general.info(
-      "Review requested successfully. Total requests: \(requestCount + 1, privacy: .public)")
+      "Review requested successfully. Total requests: \(requestCount + 1)")
   }
 
   private func recordFirstLaunchIfNeeded() {
