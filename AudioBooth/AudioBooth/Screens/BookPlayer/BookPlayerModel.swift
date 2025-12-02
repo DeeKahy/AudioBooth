@@ -38,6 +38,7 @@ final class BookPlayerModel: BookPlayer.Model {
   private var recoveryAttempts = 0
   private var maxRecoveryAttempts = 3
   private var isRecovering = false
+  private var interruptionBeganAt: Date?
 
   init(_ book: Book) {
     self.item = nil
@@ -742,14 +743,15 @@ extension BookPlayerModel {
     switch type {
     case .began:
       AppLogger.player.info("Audio interruption began")
+      interruptionBeganAt = isPlaying ? Date() : nil
 
     case .ended:
-      guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
-        return
-      }
-
-      let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-      if options.contains(.shouldResume) {
+      if let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt,
+        AVAudioSession.InterruptionOptions(rawValue: optionsValue).contains(.shouldResume)
+      {
+        AppLogger.player.info("Audio interruption ended - resuming playback")
+        player?.play()
+      } else if let interval = interruptionBeganAt?.timeIntervalSinceNow, interval < 60 * 5 {
         AppLogger.player.info("Audio interruption ended - resuming playback")
         player?.play()
       } else {
