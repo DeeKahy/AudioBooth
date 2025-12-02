@@ -1,5 +1,6 @@
 import Foundation
 import OSLog
+import Pulse
 
 enum HTTPMethod: String {
   case get = "GET"
@@ -69,7 +70,7 @@ final class NetworkService {
   private let baseURL: URL
   private let headersProvider: () -> [String: String]
 
-  private let session: URLSession = {
+  private let session: URLSessionProtocol = {
     let config = URLSessionConfiguration.default
     config.timeoutIntervalForRequest = 30
     config.timeoutIntervalForResource = 60
@@ -81,10 +82,10 @@ final class NetworkService {
       config.allowsCellularAccess = true
     #endif
 
-    return URLSession(configuration: config)
+    return URLSessionProxy(configuration: config)
   }()
 
-  private let discretionarySession: URLSession = {
+  private let discretionarySession: URLSessionProtocol = {
     let discretionaryConfig = URLSessionConfiguration.default
     discretionaryConfig.timeoutIntervalForRequest = 30
     discretionaryConfig.timeoutIntervalForResource = 60
@@ -103,7 +104,7 @@ final class NetworkService {
       discretionaryConfig.shouldUseExtendedBackgroundIdleMode = true
     #endif
 
-    return URLSession(configuration: discretionaryConfig)
+    return URLSessionProxy(configuration: discretionaryConfig)
   }()
 
   private let decoder: JSONDecoder = {

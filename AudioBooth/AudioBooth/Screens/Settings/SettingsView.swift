@@ -1,6 +1,7 @@
 import API
 import Combine
 import CoreNFC
+import PulseUI
 import SwiftData
 import SwiftUI
 import UIKit
@@ -107,6 +108,13 @@ struct SettingsView: View {
           }
         }
         .disabled(model.isExportingLogs)
+
+        NavigationLink(destination: ConsoleView()) {
+          HStack {
+            Image(systemName: "chart.xyaxis.line")
+            Text("Network Inspector")
+          }
+        }
 
         #if DEBUG
           NavigationLink(value: "playbackSession") {

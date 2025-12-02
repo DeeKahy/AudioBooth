@@ -14,6 +14,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "3.0.0"),
     .package(url: "https://github.com/kean/Nuke.git", from: "12.0.0"),
+    .package(url: "https://github.com/kean/Pulse.git", from: "5.0.0"),
   ],
   targets: [
     .target(
@@ -21,6 +22,7 @@ let package = Package(
       dependencies: [
         .product(name: "KeychainAccess", package: "KeychainAccess"),
         .product(name: "NukeUI", package: "Nuke"),
+        .product(name: "Pulse", package: "Pulse"),
       ],
     )
   ]

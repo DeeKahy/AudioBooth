@@ -4,6 +4,7 @@ import Combine
 import Foundation
 import Models
 import OSLog
+import Pulse
 import SwiftData
 
 final class DownloadManager: NSObject, ObservableObject {
@@ -154,7 +155,8 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
       withIdentifier: "me.jgrenier.AudioBS.download.\(bookID)")
     config.sessionSendsLaunchEvents = true
     config.isDiscretionary = false
-    return URLSession(configuration: config, delegate: self, delegateQueue: nil)
+    let delegate = URLSessionProxyDelegate(delegate: self)
+    return URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
   }()
 
   private var _executing = false {

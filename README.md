@@ -102,6 +102,7 @@ If you encounter any issues or have questions:
 
 - [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) - Secure credential storage
 - [Nuke](https://github.com/kean/Nuke) - Efficient image loading and caching
+- [Pulse](https://github.com/kean/Pulse) - Network logger and debugging tool
 - [RevenueCat](https://www.revenuecat.com) - In-app purchase support
 - [RichText](https://github.com/NuPlay/RichText) - RichText HTML rendering
 
