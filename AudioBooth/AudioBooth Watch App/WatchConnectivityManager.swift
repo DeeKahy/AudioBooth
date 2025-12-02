@@ -51,9 +51,9 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       return
     }
 
-    Audiobookshelf.shared.authentication.connection = AuthenticationService.Connection(
+    Audiobookshelf.shared.authentication.connection = Connection(
       serverURL: serverURL,
-      token: token
+      token: .legacy(token: token)
     )
     AppLogger.watchConnectivity.info("Loaded persisted auth credentials")
   }
@@ -215,8 +215,8 @@ extension WatchConnectivityManager: WCSessionDelegate {
       try? keychain.set(serverURLString, key: Keys.authServerURL)
       try? keychain.set(token, key: Keys.authToken)
 
-      Audiobookshelf.shared.authentication.connection = AuthenticationService.Connection(
-        serverURL: serverURL, token: token)
+      Audiobookshelf.shared.authentication.connection = Connection(
+        serverURL: serverURL, token: .legacy(token: token))
 
       AppLogger.watchConnectivity.info("Received and persisted auth credentials")
     } else if context["authServerURL"] == nil && context["authToken"] == nil {

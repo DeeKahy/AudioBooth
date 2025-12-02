@@ -18,7 +18,9 @@ final class PlayerManager: ObservableObject, Sendable {
   private init() {}
 
   func restoreLastPlayer() async {
-    guard current == nil,
+    guard
+      current == nil,
+      ModelContextProvider.shared.activeServerID != nil,
       let savedBookID = UserDefaults.standard.string(forKey: Self.currentBookIDKey),
       let book = try? LocalBook.fetch(bookID: savedBookID)
     else {

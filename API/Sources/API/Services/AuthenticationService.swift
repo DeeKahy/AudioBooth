@@ -15,46 +15,10 @@ public final class AuthenticationService {
     static let permissions = "audiobookshelf_user_permissions"
   }
 
-  public struct Connection: Codable {
-    public let id: String
-    public let serverURL: URL
-    public let token: String
-    public let customHeaders: [String: String]
-    public var alias: String?
-
-    public init(
-      id: String? = nil,
-      serverURL: URL,
-      token: String,
-      customHeaders: [String: String] = [:],
-      alias: String? = nil
-    ) {
-      self.id = id ?? UUID().uuidString
-      self.serverURL = serverURL
-      self.token = token
-      self.customHeaders = customHeaders
-      self.alias = alias
-    }
-
-    public init(from decoder: Decoder) throws {
-      let container = try decoder.container(keyedBy: CodingKeys.self)
-      id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-      serverURL = try container.decode(URL.self, forKey: .serverURL)
-      token = try container.decode(String.self, forKey: .token)
-      customHeaders =
-        try container.decodeIfPresent([String: String].self, forKey: .customHeaders) ?? [:]
-      alias = try container.decodeIfPresent(String.self, forKey: .alias)
-    }
-  }
-
-  public var connections: [String: Connection] {
-    get {
-      guard let data = try? keychain.getData(Keys.connections) else { return [:] }
-      return (try? JSONDecoder().decode([String: Connection].self, from: data)) ?? [:]
-    }
-    set {
-      if !newValue.isEmpty {
-        guard let data = try? JSONEncoder().encode(newValue) else { return }
+  public var connections: [String: Connection] = [:] {
+    didSet {
+      if !connections.isEmpty {
+        guard let data = try? JSONEncoder().encode(connections) else { return }
         try? keychain.set(data, key: Keys.connections)
       } else {
         try? keychain.remove(Keys.connections)
@@ -114,6 +78,14 @@ public final class AuthenticationService {
 
   init(audiobookshelf: Audiobookshelf) {
     self.audiobookshelf = audiobookshelf
+
+    migrateLegacyConnection()
+
+    if let data = try? keychain.getData(Keys.connections),
+      let decoded = try? JSONDecoder().decode([String: Connection].self, from: data)
+    {
+      self.connections = decoded
+    }
   }
 
   public func migrateLegacyConnection() {
@@ -147,7 +119,7 @@ public final class AuthenticationService {
 
     let migratedConnection = Connection(
       serverURL: legacyConnection.serverURL,
-      token: legacyConnection.token,
+      token: .legacy(token: legacyConnection.token),
       customHeaders: legacyConnection.customHeaders ?? [:],
       alias: legacyConnection.alias
     )
@@ -178,25 +150,46 @@ public final class AuthenticationService {
 
     struct Response: Codable {
       struct User: Codable {
-        let token: String
+        let token: String?
+        let accessToken: String?
+        let refreshToken: String?
       }
       let user: User
     }
 
     let loginRequest = LoginRequest(username: username, password: password)
+    var headers = customHeaders
+    headers["x-return-tokens"] = "true"
+
     let request = NetworkRequest<Response>(
       path: "/login",
       method: .post,
       body: loginRequest,
-      headers: customHeaders
+      headers: headers
     )
 
     let response = try await loginService.send(request)
-    let token = response.value.user.token
+    let user = response.value.user
+
+    let authToken: Credentials
+    if let accessToken = user.accessToken, let refreshToken = user.refreshToken {
+      guard let expiresAt = Credentials.decodeJWT(accessToken) else {
+        throw Audiobookshelf.AudiobookshelfError.loginFailed("Failed to decode JWT token")
+      }
+      authToken = .bearer(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        expiresAt: expiresAt
+      )
+    } else if let token = user.token {
+      authToken = .legacy(token: token)
+    } else {
+      throw Audiobookshelf.AudiobookshelfError.loginFailed("No token received from server")
+    }
 
     let newConnection = Connection(
       serverURL: baseURL,
-      token: token,
+      token: authToken,
       customHeaders: customHeaders
     )
     var allConnections = connections
@@ -224,7 +217,9 @@ public final class AuthenticationService {
 
     struct Response: Codable {
       struct User: Codable {
-        let token: String
+        let token: String?
+        let accessToken: String?
+        let refreshToken: String?
       }
       let user: User
     }
@@ -240,7 +235,8 @@ public final class AuthenticationService {
 
     let cookieString = cookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
     let headers = [
-      "Cookie": cookieString
+      "Cookie": cookieString,
+      "x-return-tokens": "true",
     ]
 
     AppLogger.authentication.info("Sending OIDC callback request to /auth/openid/callback")
@@ -257,14 +253,30 @@ public final class AuthenticationService {
 
     do {
       let response = try await loginService.send(request)
-      let token = response.value.user.token
+      let user = response.value.user
 
-      AppLogger.authentication.info(
-        "OIDC login successful, received token of length: \(token.count)")
+      let authToken: Credentials
+      if let accessToken = user.accessToken, let refreshToken = user.refreshToken {
+        guard let expiresAt = Credentials.decodeJWT(accessToken) else {
+          throw Audiobookshelf.AudiobookshelfError.loginFailed("Failed to decode JWT token")
+        }
+        authToken = .bearer(
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          expiresAt: expiresAt
+        )
+        AppLogger.authentication.info("OIDC login successful, received JWT tokens")
+      } else if let token = user.token {
+        authToken = .legacy(token: token)
+        AppLogger.authentication.info(
+          "OIDC login successful, received legacy token of length: \(token.count)")
+      } else {
+        throw Audiobookshelf.AudiobookshelfError.loginFailed("No token received from server")
+      }
 
       let newConnection = Connection(
         serverURL: baseURL,
-        token: token,
+        token: authToken,
         customHeaders: customHeaders
       )
       var allConnections = connections
@@ -373,5 +385,44 @@ public final class AuthenticationService {
       throw Audiobookshelf.AudiobookshelfError.networkError(
         "Failed to fetch listening stats: \(error.localizedDescription)")
     }
+  }
+
+  func refreshToken(for connection: Connection) async throws {
+    guard case .bearer(_, let refreshToken, _) = connection.token else {
+      return
+    }
+
+    struct Response: Codable {
+      struct User: Codable {
+        let accessToken: String
+        let refreshToken: String
+      }
+      let user: User
+    }
+
+    let networkService = NetworkService(baseURL: connection.serverURL) {
+      ["x-refresh-token": refreshToken]
+    }
+
+    let request = NetworkRequest<Response>(
+      path: "/auth/refresh",
+      method: .post,
+      body: nil
+    )
+
+    let response = try await networkService.send(request)
+    let user = response.value.user
+
+    guard let newExpiresAt = Credentials.decodeJWT(user.accessToken) else {
+      throw Audiobookshelf.AudiobookshelfError.loginFailed("Failed to decode refreshed JWT token")
+    }
+
+    connection.token = Credentials.bearer(
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+      expiresAt: newExpiresAt
+    )
+
+    connections[connection.id] = connection
   }
 }

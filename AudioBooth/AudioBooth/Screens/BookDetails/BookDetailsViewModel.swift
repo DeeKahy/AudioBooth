@@ -394,7 +394,12 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     }
 
     var url = serverURL.appendingPathComponent("api/items/\(bookID)/file/\(ebook.ino)")
-    url.append(queryItems: [URLQueryItem(name: "token", value: token)])
+    switch token {
+    case .legacy(let token):
+      url.append(queryItems: [URLQueryItem(name: "token", value: token)])
+    case .bearer(let accessToken, _, _):
+      url.append(queryItems: [URLQueryItem(name: "token", value: accessToken)])
+    }
 
     let safariViewController = SFSafariViewController(url: url)
     safariViewController.modalPresentationStyle = .overFullScreen

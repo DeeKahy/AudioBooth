@@ -27,7 +27,12 @@ public struct Book: Codable, Sendable {
     else { return nil }
 
     var url = serverURL.appendingPathComponent("api/items/\(id)/ebook")
-    url.append(queryItems: [URLQueryItem(name: "token", value: token)])
+    switch token {
+    case .legacy(let token):
+      url.append(queryItems: [URLQueryItem(name: "token", value: token)])
+    case .bearer(let accessToken, _, _):
+      url.append(queryItems: [URLQueryItem(name: "token", value: accessToken)])
+    }
     return url
   }
 }

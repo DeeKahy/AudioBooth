@@ -60,7 +60,12 @@ public final class LibrariesService: ObservableObject, @unchecked Sendable {
         throw Audiobookshelf.AudiobookshelfError.networkError("Server connection not found")
       }
       networkService = NetworkService(baseURL: connection.serverURL) {
-        var headers = ["Authorization": "Bearer \(connection.token)"]
+        let freshToken = try? await connection.freshToken
+        guard let credentials = freshToken else {
+          return [:]
+        }
+
+        var headers = ["Authorization": credentials.bearer]
         headers.merge(connection.customHeaders) { _, new in new }
         return headers
       }

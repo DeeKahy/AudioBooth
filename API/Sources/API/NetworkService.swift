@@ -68,7 +68,7 @@ struct NetworkResponse<T: Decodable> {
 
 final class NetworkService {
   private let baseURL: URL
-  private let headersProvider: () -> [String: String]
+  private let headersProvider: () async -> [String: String]
 
   private let session: URLSessionProtocol = {
     let config = URLSessionConfiguration.default
@@ -117,13 +117,13 @@ final class NetworkService {
     return decoder
   }()
 
-  init(baseURL: URL, headersProvider: @escaping () -> [String: String] = { [:] }) {
+  init(baseURL: URL, headersProvider: @escaping () async -> [String: String] = { [:] }) {
     self.baseURL = baseURL
     self.headersProvider = headersProvider
   }
 
   func send<T: Decodable>(_ request: NetworkRequest<T>) async throws -> NetworkResponse<T> {
-    let urlRequest = try buildURLRequest(from: request)
+    let urlRequest = try await buildURLRequest(from: request)
 
     AppLogger.network.info(
       "Sending \(urlRequest.httpMethod ?? "GET") request to: \(urlRequest.url?.absoluteString ?? "unknown")"
@@ -191,7 +191,9 @@ final class NetworkService {
     return NetworkResponse(value: decodedValue)
   }
 
-  private func buildURLRequest<T: Decodable>(from request: NetworkRequest<T>) throws -> URLRequest {
+  private func buildURLRequest<T: Decodable>(from request: NetworkRequest<T>) async throws
+    -> URLRequest
+  {
     var url = baseURL.appendingPathComponent(request.path)
 
     if let query = request.query {
@@ -206,7 +208,7 @@ final class NetworkService {
     urlRequest.httpMethod = request.method.rawValue
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    for (key, value) in headersProvider() {
+    for (key, value) in await headersProvider() {
       urlRequest.setValue(value, forHTTPHeaderField: key)
     }
 

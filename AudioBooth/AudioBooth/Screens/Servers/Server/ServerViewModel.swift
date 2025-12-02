@@ -12,10 +12,10 @@ final class ServerViewModel: ServerView.Model {
   private var playerManager: PlayerManager { .shared }
 
   private var libraryData: [API.Library] = []
-  private var connection: AuthenticationService.Connection?
+  private var connection: Connection?
   private var pendingConnectionID: String?
 
-  init(connection: AuthenticationService.Connection? = nil) {
+  init(connection: Connection? = nil) {
     self.connection = connection
 
     let serverURL: String

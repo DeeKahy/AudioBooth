@@ -15,8 +15,6 @@ struct AudioBoothApp: App {
   init() {
     AppLogger.bootstrap()
 
-    Audiobookshelf.shared.authentication.migrateLegacyConnection()
-
     LegacyMigration.migrateIfNeeded()
 
     setupDatabaseCallbacks()
@@ -86,7 +84,7 @@ struct AudioBoothApp: App {
 
     if let connection = Audiobookshelf.shared.authentication.connection {
       WatchConnectivityManager.shared.syncAuthCredentials(
-        serverURL: connection.serverURL, token: connection.token)
+        serverURL: connection.serverURL, token: "")
     }
   }
 
