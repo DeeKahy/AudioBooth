@@ -42,7 +42,7 @@ final class BookPlayerModel: PlayerView.Model {
 
     super.init(
       isPlaying: false,
-      isReadyToPlay: false,
+      playbackState: .loading,
       isLocal: localBook != nil,
       progress: self.book.progress,
       current: self.book.currentTime,
@@ -104,7 +104,7 @@ final class BookPlayerModel: PlayerView.Model {
   }
 
   private func startSessionAndPlay() async {
-    isLoading = true
+    playbackState = .loading
 
     AppLogger.player.info(
       "Loading book info for \(self.bookID), isReachable: \(self.connectivityManager.isReachable)"
@@ -112,7 +112,8 @@ final class BookPlayerModel: PlayerView.Model {
 
     guard let info = await connectivityManager.startSession(bookID: bookID) else {
       AppLogger.player.error("Failed to start session for streaming")
-      isLoading = false
+      playbackState = .error(retryable: true)
+      errorMessage = "Failed to connect. Tap to retry."
       return
     }
 
@@ -136,13 +137,21 @@ final class BookPlayerModel: PlayerView.Model {
   }
 
   private func setupPlayerWithLocalBook() async {
-    guard let localBook = localBook else { return }
+    guard let localBook = localBook else {
+      AppLogger.player.error("setupPlayerWithLocalBook called but localBook is nil")
+      return
+    }
 
-    isLoading = true
+    playbackState = .loading
+    AppLogger.player.info(
+      "Setting up local playback for \(self.bookID) at time \(self.book.currentTime)")
 
     guard let track = localBook.track(at: book.currentTime) else {
-      AppLogger.player.error("Failed to find track at time \(self.book.currentTime)")
-      isLoading = false
+      AppLogger.player.error(
+        "Failed to find track at time \(self.book.currentTime), total tracks: \(localBook.tracks.count)"
+      )
+      playbackState = .error(retryable: false)
+      errorMessage = "Local playback failed."
       return
     }
 
@@ -150,14 +159,30 @@ final class BookPlayerModel: PlayerView.Model {
       AppLogger.player.error(
         "Failed to get local URL for track \(track.index), relativePath: \(track.relativePath ?? "nil")"
       )
-      isLoading = false
+      playbackState = .error(retryable: false)
+      errorMessage = "Local playback failed."
       return
     }
 
     guard FileManager.default.fileExists(atPath: trackURL.path) else {
       AppLogger.player.error("Track file does not exist at: \(trackURL.path)")
-      isLoading = false
+      if let attributes = try? FileManager.default.attributesOfItem(
+        atPath: trackURL.deletingLastPathComponent().path)
+      {
+        AppLogger.player.error("Parent directory exists with attributes: \(attributes)")
+      } else {
+        AppLogger.player.error("Parent directory does not exist")
+      }
+      playbackState = .error(retryable: false)
+      errorMessage = "Local playback failed."
       return
+    }
+
+    if let fileSize = try? FileManager.default.attributesOfItem(atPath: trackURL.path)[.size]
+      as? Int64
+    {
+      AppLogger.player.info(
+        "Track file size: \(fileSize) bytes, expected: \(track.size ?? 0) bytes")
     }
 
     AppLogger.player.info(
@@ -183,8 +208,8 @@ final class BookPlayerModel: PlayerView.Model {
         player.seek(to: CMTime(seconds: seekTime, preferredTimescale: 1000))
       }
 
-      isLoading = false
-      AppLogger.player.info("Local player ready for \(self.bookID)")
+      AppLogger.player.info(
+        "Local player setup complete for \(self.bookID), waiting for AVPlayer to become ready")
     }
   }
 
@@ -193,7 +218,8 @@ final class BookPlayerModel: PlayerView.Model {
       let trackURL = track.url
     else {
       AppLogger.player.error("Failed to get track or URL")
-      isLoading = false
+      playbackState = .error(retryable: true)
+      errorMessage = "Failed to load track. Tap to retry."
       return
     }
 
@@ -310,6 +336,26 @@ final class BookPlayerModel: PlayerView.Model {
     options.onDownloadTapped()
   }
 
+  override func retry() {
+    AppLogger.player.info("Retrying playback for \(self.bookID)")
+    errorMessage = nil
+
+    player?.pause()
+    player = nil
+    cancellables.removeAll()
+
+    if localBook != nil {
+      Task {
+        await setupPlayerWithLocalBook()
+        startSessionInBackground()
+      }
+    } else {
+      Task {
+        await startSessionAndPlay()
+      }
+    }
+  }
+
   func switchToLocalPlayback(_ book: WatchBook) {
     self.localBook = book
     self.isLocal = true
@@ -319,6 +365,25 @@ final class BookPlayerModel: PlayerView.Model {
   func clearLocalPlayback() {
     self.localBook = nil
     self.isLocal = false
+  }
+
+  private func handleCorruptedDownload() async {
+    guard let localBook = localBook else { return }
+
+    AppLogger.player.info("Cleaning up corrupted download for \(self.bookID)")
+
+    player?.pause()
+    player = nil
+    cancellables.removeAll()
+
+    DownloadManager.shared.deleteDownload(for: bookID)
+
+    self.localBook = nil
+    self.isLocal = false
+
+    errorMessage = "Download was corrupted. Streaming instead."
+
+    await startSessionAndPlay()
   }
 
   func seekToChapter(at index: Int) {
@@ -420,22 +485,46 @@ final class BookPlayerModel: PlayerView.Model {
       currentItem.publisher(for: \.status)
         .receive(on: DispatchQueue.main)
         .sink { [weak self] status in
+          guard let self else { return }
           switch status {
           case .readyToPlay:
-            self?.isLoading = false
-            self?.isReadyToPlay = true
+            self.playbackState = .ready
             AppLogger.player.info("Player item ready to play")
           case .failed:
-            self?.isLoading = false
-            self?.isReadyToPlay = false
+            let errorDetails: String
+            let isNetworkError: Bool
             if let error = currentItem.error {
-              AppLogger.player.error("Player item failed: \(error.localizedDescription)")
+              let nsError = error as NSError
+              errorDetails =
+                "domain: \(nsError.domain), code: \(nsError.code), description: \(error.localizedDescription)"
+              if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
+                AppLogger.player.error(
+                  "Underlying error: domain: \(underlyingError.domain), code: \(underlyingError.code)"
+                )
+              }
+              isNetworkError = nsError.domain == NSURLErrorDomain || nsError.code == -1009
             } else {
-              AppLogger.player.error("Player item failed with unknown error")
+              errorDetails = "unknown error"
+              isNetworkError = false
+            }
+
+            AppLogger.player.error(
+              "Player item failed - \(errorDetails), isLocal: \(self.localBook != nil)")
+
+            if self.localBook != nil {
+              AppLogger.player.warning(
+                "Local playback failed, likely corrupted download. Cleaning up and falling back to streaming."
+              )
+              Task {
+                await self.handleCorruptedDownload()
+              }
+            } else {
+              self.playbackState = .error(retryable: isNetworkError)
+              self.errorMessage =
+                isNetworkError ? "Network error. Tap to retry." : "Playback failed."
             }
           case .unknown:
-            self?.isLoading = true
-            self?.isReadyToPlay = false
+            self.playbackState = .loading
           @unknown default:
             break
           }

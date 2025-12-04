@@ -58,6 +58,21 @@ struct PlayerView: View {
         VolumeView()
       }
     }
+    .alert(
+      "Playback Error",
+      isPresented: Binding(
+        get: { model.errorMessage != nil },
+        set: { if !$0 { model.errorMessage = nil } }
+      )
+    ) {
+      Button("OK") {
+        model.errorMessage = nil
+      }
+    } message: {
+      if let errorMessage = model.errorMessage {
+        Text(errorMessage)
+      }
+    }
   }
 
   @ToolbarContentBuilder
@@ -93,17 +108,12 @@ struct PlayerView: View {
           Image(systemName: "gobackward.30")
         }
       )
-      .disabled(!model.isReadyToPlay)
+      .disabled(model.playbackState != .ready)
 
-      Button(
-        action: model.togglePlayback,
-        label: {
-          Image(systemName: model.isPlaying ? "pause.fill" : "play.fill")
-        }
-      )
-      .overlay { progress }
-      .controlSize(.large)
-      .disabled(!model.isReadyToPlay)
+      playButton
+        .frame(width: 44, height: 44)
+        .overlay { progress }
+        .controlSize(.large)
 
       Button(
         action: model.skipForward,
@@ -111,21 +121,54 @@ struct PlayerView: View {
           Image(systemName: "goforward.30")
         }
       )
-      .disabled(!model.isReadyToPlay)
+      .disabled(model.playbackState != .ready)
     }
 
+  }
+
+  @ViewBuilder
+  var playButton: some View {
+    switch model.playbackState {
+    case .loading:
+      ProgressView()
+        .controlSize(.regular)
+    case .ready:
+      Button(
+        action: model.togglePlayback,
+        label: {
+          Image(systemName: model.isPlaying ? "pause.fill" : "play.fill")
+        }
+      )
+    case .error(let retryable):
+      if retryable {
+        Button(
+          action: model.retry,
+          label: {
+            Image(systemName: "arrow.clockwise")
+          }
+        )
+      } else {
+        Button(
+          action: {},
+          label: {
+            Image(systemName: "exclamationmark.triangle.fill")
+          }
+        )
+        .disabled(true)
+      }
+    }
   }
 
   var progress: some View {
     ZStack {
       Circle()
-        .stroke(Color.white.opacity(0.5), lineWidth: 1)
+        .stroke(Color.white.opacity(0.5), lineWidth: 2)
 
       Circle()
         .trim(from: 0, to: model.progress)
         .stroke(
           Color.white,
-          style: StrokeStyle(lineWidth: 1, lineCap: .round)
+          style: StrokeStyle(lineWidth: 2, lineCap: .round)
         )
         .rotationEffect(.degrees(-90))
     }
@@ -187,11 +230,17 @@ extension PlayerView {
 }
 
 extension PlayerView {
+  enum PlaybackState: Equatable {
+    case loading
+    case ready
+    case error(retryable: Bool)
+  }
+
   @Observable
   class Model: ObservableObject, Identifiable {
-    var isLoading: Bool = false
-    var isReadyToPlay: Bool = false
+    var playbackState: PlaybackState = .loading
     var isLocal: Bool = false
+    var errorMessage: String?
 
     var isPlaying: Bool
     var progress: Double
@@ -215,10 +264,11 @@ extension PlayerView {
     func skipForward() {}
     func onDownloadTapped() {}
     func stop() {}
+    func retry() {}
 
     init(
       isPlaying: Bool = false,
-      isReadyToPlay: Bool = false,
+      playbackState: PlaybackState = .ready,
       isLocal: Bool = true,
       progress: Double = 0,
       current: Double = 0,
@@ -230,7 +280,7 @@ extension PlayerView {
       chapters: ChapterPickerSheet.Model? = nil
     ) {
       self.isPlaying = isPlaying
-      self.isReadyToPlay = isReadyToPlay
+      self.playbackState = playbackState
       self.isLocal = isLocal
       self.progress = progress
       self.current = current

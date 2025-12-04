@@ -7,7 +7,7 @@ final class RemotePlayerModel: PlayerView.Model {
   private var pendingState: Bool?
 
   init() {
-    super.init(isReadyToPlay: true, isLocal: false)
+    super.init(playbackState: .ready, isLocal: false)
     options = PlayerOptionsSheet.Model(isHidden: true, downloadState: .downloaded)
     setupBindings()
     updateFromCurrentBook()

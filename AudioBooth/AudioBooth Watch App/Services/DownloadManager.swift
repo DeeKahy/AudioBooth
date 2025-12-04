@@ -224,7 +224,7 @@ private final class DownloadOperation: Operation, @unchecked Sendable {
     config.isDiscretionary = false
     config.sessionSendsLaunchEvents = true
     config.timeoutIntervalForRequest = 60
-    config.timeoutIntervalForResource = 3600
+    config.timeoutIntervalForResource = 14400
     config.allowsCellularAccess = true
     config.waitsForConnectivity = true
     config.allowsExpensiveNetworkAccess = true
