@@ -11,13 +11,15 @@ final class OIDCAuthenticationManager: NSObject {
   private var session: ASWebAuthenticationSession?
   private var capturedCookies: [HTTPCookie] = []
   private var customHeaders: [String: String]
+  private var existingServerID: String?
 
   weak var delegate: OIDCAuthenticationDelegate?
 
-  init(serverURL: String, customHeaders: [String: String] = [:]) {
+  init(serverURL: String, customHeaders: [String: String] = [:], existingServerID: String? = nil) {
     self.serverURL = serverURL
     self.pkce = PKCE()
     self.customHeaders = customHeaders
+    self.existingServerID = existingServerID
     super.init()
   }
 
@@ -124,7 +126,8 @@ final class OIDCAuthenticationManager: NSObject {
           verifier: pkce.verifier,
           state: state,
           cookies: capturedCookies,
-          customHeaders: customHeaders
+          customHeaders: customHeaders,
+          existingServerID: existingServerID
         )
 
         AppLogger.authentication.info("OIDC authentication succeeded")

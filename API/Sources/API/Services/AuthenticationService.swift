@@ -7,8 +7,6 @@ public final class AuthenticationService: ObservableObject {
   private let audiobookshelf: Audiobookshelf
   private let keychain = Keychain(service: "me.jgrenier.AudioBS")
 
-  public var onAuthenticationChanged: ((String, URL, String)?) -> Void = { _ in }
-
   enum Keys {
     static let connections = "audiobookshelf_server_connections"
     static let activeServerID = "audiobookshelf_active_server_id"
@@ -120,7 +118,8 @@ public final class AuthenticationService: ObservableObject {
     serverURL: String,
     username: String,
     password: String,
-    customHeaders: [String: String] = [:]
+    customHeaders: [String: String] = [:],
+    existingServerID: String? = nil
   ) async throws -> String {
     guard let baseURL = URL(string: serverURL) else {
       throw Audiobookshelf.AudiobookshelfError.invalidURL
@@ -172,20 +171,12 @@ public final class AuthenticationService: ObservableObject {
       throw Audiobookshelf.AudiobookshelfError.loginFailed("No token received from server")
     }
 
-    let newConnection = Connection(
+    return try upsertConnection(
       serverURL: baseURL,
       token: authToken,
-      customHeaders: customHeaders
+      customHeaders: customHeaders,
+      existingServerID: existingServerID
     )
-    let newServer = Server(connection: newConnection)
-
-    var allConnections = connections
-    allConnections[newConnection.id] = newConnection
-    connections = allConnections
-
-    servers[newConnection.id] = newServer
-
-    return newConnection.id
   }
 
   public func loginWithOIDC(
@@ -194,7 +185,8 @@ public final class AuthenticationService: ObservableObject {
     verifier: String,
     state: String?,
     cookies: [HTTPCookie],
-    customHeaders: [String: String] = [:]
+    customHeaders: [String: String] = [:],
+    existingServerID: String? = nil
   ) async throws -> String {
     AppLogger.authentication.info("loginWithOIDC called for server: \(serverURL)")
     AppLogger.authentication.debug(
@@ -269,20 +261,12 @@ public final class AuthenticationService: ObservableObject {
         throw Audiobookshelf.AudiobookshelfError.loginFailed("No token received from server")
       }
 
-      let newConnection = Connection(
+      return try upsertConnection(
         serverURL: baseURL,
         token: authToken,
-        customHeaders: customHeaders
+        customHeaders: customHeaders,
+        existingServerID: existingServerID
       )
-      let newServer = Server(connection: newConnection)
-
-      var allConnections = connections
-      allConnections[newConnection.id] = newConnection
-      connections = allConnections
-
-      servers[newConnection.id] = newServer
-
-      return newConnection.id
     } catch {
       AppLogger.authentication.error(
         "OIDC login request failed: \(error.localizedDescription)"
@@ -345,12 +329,55 @@ public final class AuthenticationService: ObservableObject {
     }
   }
 
+  private func upsertConnection(
+    serverURL: URL,
+    token: Credentials,
+    customHeaders: [String: String],
+    existingServerID: String?
+  ) throws -> String {
+    if let existingServerID = existingServerID {
+      guard let existingServer = servers[existingServerID] else {
+        throw Audiobookshelf.AudiobookshelfError.networkError("Server not found")
+      }
+
+      existingServer.token = token
+
+      let updatedConnection = Connection(
+        id: existingServerID,
+        serverURL: serverURL,
+        token: token,
+        customHeaders: customHeaders,
+        alias: existingServer.alias
+      )
+
+      var allConnections = connections
+      allConnections[existingServerID] = updatedConnection
+      connections = allConnections
+
+      return existingServerID
+    } else {
+      let newConnection = Connection(
+        serverURL: serverURL,
+        token: token,
+        customHeaders: customHeaders
+      )
+      let newServer = Server(connection: newConnection)
+
+      var allConnections = connections
+      allConnections[newConnection.id] = newConnection
+      connections = allConnections
+
+      servers[newConnection.id] = newServer
+
+      return newConnection.id
+    }
+  }
+
   public func logout(serverID: String) {
     if server?.id == serverID {
       permissions = nil
       audiobookshelf.libraries.current = nil
       ImagePipeline.shared.cache.removeAll()
-      onAuthenticationChanged(nil)
     }
     removeServer(serverID)
   }
@@ -362,7 +389,6 @@ public final class AuthenticationService: ObservableObject {
     permissions = nil
     audiobookshelf.libraries.current = nil
     ImagePipeline.shared.cache.removeAll()
-    onAuthenticationChanged(nil)
   }
 
   public func authorize() async throws -> Authorize {

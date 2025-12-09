@@ -27,7 +27,8 @@ final class AuthenticationViewModel: AuthenticationView.Model {
           serverURL: server.baseURL.absoluteString,
           username: username.trimmingCharacters(in: .whitespacesAndNewlines),
           password: password,
-          customHeaders: server.customHeaders
+          customHeaders: server.customHeaders,
+          existingServerID: server.id
         )
         password = ""
         onAuthenticationSuccess()
@@ -45,7 +46,8 @@ final class AuthenticationViewModel: AuthenticationView.Model {
 
     let authManager = OIDCAuthenticationManager(
       serverURL: server.baseURL.absoluteString,
-      customHeaders: server.customHeaders
+      customHeaders: server.customHeaders,
+      existingServerID: server.id
     )
     authManager.delegate = self
     self.oidcAuthManager = authManager
