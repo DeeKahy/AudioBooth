@@ -35,11 +35,13 @@ final class ListeningStatsCardModel: ListeningStatsCard.Model {
   }
 
   private func processStats(_ stats: ListeningStats) {
-    todayTime = formatTime(stats.today)
+    todayTime = stats.today
     weekData = calculateWeekData(stats.days)
 
     let weekTotal = weekData.reduce(0) { $0 + $1.timeInSeconds }
-    totalTime = formatTime(weekTotal)
+    totalTime = weekTotal
+
+    daysInARow = calculateDaysInARow(stats.days)
 
     isLoading = false
   }
@@ -88,17 +90,34 @@ final class ListeningStatsCardModel: ListeningStatsCard.Model {
     return normalizedDays
   }
 
-  private func formatTime(_ seconds: Double) -> String {
-    let allowed: Set<Duration.UnitsFormatStyle.Unit>
+  private func calculateDaysInARow(_ days: [String: Double]) -> Int {
+    let calendar = Calendar.current
+    let today = Date()
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd"
 
-    if seconds > 60 * 60 * 24 {
-      allowed = [.days, .hours]
-    } else {
-      allowed = [.hours, .minutes]
+    var count = 0
+
+    while count < 9999 {
+      guard let date = calendar.date(byAdding: .day, value: -(count + 1), to: today) else {
+        break
+      }
+
+      let dateString = dateFormatter.string(from: date)
+      let timeInSeconds = days[dateString] ?? 0
+
+      if timeInSeconds == 0 {
+        let todayString = dateFormatter.string(from: today)
+        let todayTime = days[todayString] ?? 0
+        if todayTime > 0 {
+          count += 1
+        }
+        return count
+      }
+
+      count += 1
     }
 
-    return Duration.seconds(seconds).formatted(
-      .units(allowed: allowed, width: .narrow)
-    )
+    return count
   }
 }

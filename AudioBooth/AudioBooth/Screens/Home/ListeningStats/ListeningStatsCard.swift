@@ -8,23 +8,31 @@ struct ListeningStatsCard: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text("Listening Stats")
+      Text("Your Stats")
         .font(.title2)
         .fontWeight(.semibold)
         .foregroundColor(.primary)
 
       HStack {
-        VStack(alignment: .leading, spacing: 16) {
-          todaySection
-          weekSection
+        VStack(alignment: .leading, spacing: 12) {
+          if model.isLoading {
+            ProgressView()
+              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+          } else {
+            todaySection
+
+            Divider()
+              .overlay(.secondary)
+
+            weekSection
+              .padding(.horizontal, 12)
+          }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .frame(height: 180)
+        .padding(.vertical, 12)
         .overlay(
           RoundedRectangle(cornerRadius: 8)
-            .stroke(.gray.opacity(0.3), lineWidth: 1)
+            .stroke(.secondary, lineWidth: 1)
         )
       }
     }
@@ -32,47 +40,62 @@ struct ListeningStatsCard: View {
   }
 
   var todaySection: some View {
-    HStack(alignment: .firstTextBaseline) {
-      VStack(alignment: .leading, spacing: 4) {
-        Text("Today")
-          .font(.subheadline)
-          .foregroundColor(.secondary)
+    HStack(spacing: 0) {
+      Spacer()
 
-        if model.isLoading {
-          ProgressView()
-            .controlSize(.small)
-        } else {
-          Text(model.todayTime)
-            .font(.title2)
-            .fontWeight(.semibold)
-        }
+      VStack(spacing: 3) {
+        Text(formatTime(model.todayTime))
+          .font(.callout)
+          .fontWeight(.semibold)
+
+        Text("today")
+          .font(.caption2)
+          .foregroundColor(.secondary)
       }
 
       Spacer()
 
-      VStack(alignment: .trailing, spacing: 4) {
-        Text("This Week")
-          .font(.subheadline)
-          .foregroundColor(.secondary)
+      VStack(spacing: 3) {
+        Text(formatTime(model.totalTime))
+          .font(.callout)
+          .fontWeight(.semibold)
 
-        if model.isLoading {
-          ProgressView()
-            .controlSize(.small)
-        } else {
-          Text(model.totalTime)
-            .font(.title3)
-            .fontWeight(.medium)
-        }
+        Text("this week")
+          .font(.caption2)
+          .foregroundColor(.secondary)
       }
+
+      Spacer()
+
+      VStack(spacing: 3) {
+        HStack {
+          Text("\(model.daysInARow)")
+            .font(.callout)
+            .fontWeight(.bold)
+            .foregroundColor(.orange)
+
+          Image(systemName: "flame.fill")
+            .font(.callout)
+            .foregroundColor(.orange)
+            .frame(height: 16)
+        }
+
+        Text("day streak")
+          .font(.caption2)
+          .foregroundColor(.secondary)
+      }
+
+      Spacer()
     }
+    .padding(.horizontal, 12)
   }
 
   var weekSection: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
-        Text("Last 7 Days")
-          .font(.caption)
-          .foregroundColor(.secondary)
+        Text("Minutes Listening (last 7 days)")
+          .font(.footnote)
+          .fontWeight(.medium)
 
         Spacer()
 
@@ -86,46 +109,47 @@ struct ListeningStatsCard: View {
         }
       }
 
-      if model.isLoading {
-        ProgressView()
-          .frame(maxWidth: .infinity)
-          .frame(height: 80)
-      } else {
-        Chart(model.weekData) { dayData in
-          BarMark(
-            x: .value("Day", dayData.label),
-            y: .value("Time", dayData.timeInSeconds == 0 ? 1 : dayData.timeInSeconds)
+      let maxMinutes = model.weekData.map { $0.timeInSeconds / 60 }.max() ?? 0
+      let yAxisMax = maxMinutes * 1.2
+
+      Chart(model.weekData) { dayData in
+        AreaMark(
+          x: .value("Day", dayData.label),
+          y: .value("Time", dayData.timeInSeconds / 60)
+        )
+        .foregroundStyle(
+          .linearGradient(
+            colors: [.blue.opacity(0.3), .blue.opacity(0.05)],
+            startPoint: .top,
+            endPoint: .bottom
           )
-          .foregroundStyle(.primary)
-          .cornerRadius(2)
+        )
+
+        LineMark(
+          x: .value("Day", dayData.label),
+          y: .value("Time", dayData.timeInSeconds / 60)
+        )
+        .foregroundStyle(.blue)
+        .lineStyle(StrokeStyle(lineWidth: 2))
+        .symbol(.circle)
+      }
+      .chartYScale(domain: 0...yAxisMax)
+      .chartYAxis {
+        AxisMarks(position: .leading)
+      }
+      .chartXSelection(value: $selectedDay)
+      .chartXAxis {
+        AxisMarks(values: model.weekData.map(\.label)) { value in
+          AxisValueLabel()
+            .font(.caption2)
         }
-        .chartXSelection(value: $selectedDay)
-        .chartYAxis(.hidden)
-        .chartXAxis {
-          AxisMarks(values: model.weekData.map { $0.label }) { value in
-            AxisValueLabel()
-              .font(.caption2)
-              .foregroundStyle(.primary)
-          }
-        }
-        .frame(height: 80)
       }
     }
   }
 
   private func formatTime(_ seconds: Double) -> String {
-    let allowed: Set<Duration.UnitsFormatStyle.Unit>
-
-    if seconds == 0 {
-      return "0m"
-    } else if seconds > 60 * 60 * 24 {
-      allowed = [.days, .hours]
-    } else {
-      allowed = [.hours, .minutes]
-    }
-
-    return Duration.seconds(seconds).formatted(
-      .units(allowed: allowed, width: .narrow)
+    Duration.seconds(seconds).formatted(
+      .units(allowed: [.hours, .minutes], width: .narrow)
     )
   }
 }
@@ -134,9 +158,10 @@ extension ListeningStatsCard {
   @Observable
   class Model: ObservableObject {
     var isLoading: Bool
-    var todayTime: String
-    var totalTime: String
+    var todayTime: Double
+    var totalTime: Double
     var weekData: [DayData]
+    var daysInARow: Int
 
     struct DayData: Identifiable {
       let id: String
@@ -149,14 +174,16 @@ extension ListeningStatsCard {
 
     init(
       isLoading: Bool = false,
-      todayTime: String = "0m",
-      totalTime: String = "0h",
-      weekData: [DayData] = []
+      todayTime: Double = 0,
+      totalTime: Double = 0,
+      weekData: [DayData] = [],
+      daysInARow: Int = 0
     ) {
       self.isLoading = isLoading
       self.todayTime = todayTime
       self.totalTime = totalTime
       self.weekData = weekData
+      self.daysInARow = daysInARow
     }
   }
 }
@@ -174,8 +201,8 @@ extension ListeningStatsCard.Model {
     ]
 
     return ListeningStatsCard.Model(
-      todayTime: "2h 15m",
-      totalTime: "178h",
+      todayTime: 135,
+      totalTime: 4321,
       weekData: days
     )
   }
