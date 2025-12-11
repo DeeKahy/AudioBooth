@@ -3,6 +3,12 @@ import Foundation
 import Models
 import SwiftUI
 
+enum AutoDownloadMode: String, CaseIterable {
+  case off
+  case wifiOnly
+  case wifiAndCellular
+}
+
 final class UserPreferences: ObservableObject {
   static let shared = UserPreferences()
 
@@ -14,7 +20,7 @@ final class UserPreferences: ObservableObject {
   @AppStorage("showDebugSection") var showDebugSection: Bool = false
   @AppStorage("libraryDisplayMode") var libraryDisplayMode: BookCard.DisplayMode = .card
   @AppStorage("collapseSeriesInLibrary") var collapseSeriesInLibrary: Bool = false
-  @AppStorage("autoDownloadBooks") var autoDownloadBooks: Bool = false
+  @AppStorage("autoDownloadBooks") var autoDownloadBooks: AutoDownloadMode = .off
   @AppStorage("removeDownloadOnCompletion") var removeDownloadOnCompletion: Bool = false
   @AppStorage("showNFCTagWriting") var showNFCTagWriting: Bool = false
   @AppStorage("homeSections") var homeSections: [HomeSection] = HomeSection.defaultCases
@@ -27,6 +33,7 @@ final class UserPreferences: ObservableObject {
 
   private init() {
     migrateShowListeningStats()
+    migrateAutoDownloadBooks()
   }
 
   private func migrateShowListeningStats() {
@@ -34,6 +41,14 @@ final class UserPreferences: ObservableObject {
       UserDefaults.standard.removeObject(forKey: "showListeningStats")
 
       homeSections.insert(.listeningStats, at: 0)
+    }
+  }
+
+  private func migrateAutoDownloadBooks() {
+    if UserDefaults.standard.object(forKey: "autoDownloadBooks") is Bool {
+      let wasEnabled = UserDefaults.standard.bool(forKey: "autoDownloadBooks")
+      UserDefaults.standard.removeObject(forKey: "autoDownloadBooks")
+      autoDownloadBooks = wasEnabled ? .wifiAndCellular : .off
     }
   }
 }

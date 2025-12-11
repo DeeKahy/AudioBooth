@@ -412,9 +412,28 @@ extension BookPlayerModel {
       do {
         try await setupSession()
 
-        if UserPreferences.shared.autoDownloadBooks && item?.isDownloaded == false {
-          AppLogger.player.info("Auto-download enabled, starting download for book")
-          try? item?.download()
+        if item?.isDownloaded == false {
+          let autoDownloadMode = UserPreferences.shared.autoDownloadBooks
+          let networkMonitor = NetworkMonitor.shared
+
+          let shouldAutoDownload: Bool
+          switch autoDownloadMode {
+          case .off:
+            shouldAutoDownload = false
+          case .wifiOnly:
+            shouldAutoDownload = networkMonitor.interfaceType == .wifi
+          case .wifiAndCellular:
+            shouldAutoDownload = networkMonitor.isConnected
+          }
+
+          if shouldAutoDownload {
+            AppLogger.player.info("Auto-download starting (mode: \(autoDownloadMode.rawValue))")
+            try? item?.download()
+          } else {
+            AppLogger.player.debug(
+              "Auto-download skipped (mode: \(autoDownloadMode.rawValue))"
+            )
+          }
         }
       } catch {
         AppLogger.player.error("Background session fetch failed: \(error)")
