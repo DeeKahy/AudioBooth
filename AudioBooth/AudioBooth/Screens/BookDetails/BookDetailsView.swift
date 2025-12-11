@@ -600,14 +600,22 @@ struct BookDetailsView: View {
 extension BookDetailsView {
   @ViewBuilder
   private var ereaderDevices: some View {
-    if !model.ereaderDevices.isEmpty {
+    if model.isEbook {
       Divider()
 
-      Menu("Send Ebook to") {
-        ForEach(model.ereaderDevices, id: \.self) { device in
-          Button(device) {
-            model.onSendToEbookTapped(device)
+      Button(action: model.onOpenTapped) {
+        Label("Open on Web", systemImage: "globe")
+      }
+
+      if !model.ereaderDevices.isEmpty {
+        Menu {
+          ForEach(model.ereaderDevices, id: \.self) { device in
+            Button(device) {
+              model.onSendToEbookTapped(device)
+            }
           }
+        } label: {
+          Label("Send Ebook to", systemImage: "paperplane")
         }
       }
     }
@@ -751,6 +759,7 @@ extension BookDetailsView {
 
     func onAppear() {}
     func onPlayTapped() {}
+    func onOpenTapped() {}
     func onDownloadTapped() {}
     func onMarkFinishedTapped() {}
     func onResetProgressTapped() {}

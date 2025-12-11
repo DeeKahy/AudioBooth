@@ -338,6 +338,11 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     }
   }
 
+  override func onOpenTapped() {
+    guard let book else { return }
+    openEbookInSafari(book)
+  }
+
   override func onDownloadTapped() {
     switch downloadState {
     case .downloading:
