@@ -338,9 +338,14 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     }
   }
 
-  override func onOpenTapped() {
-    guard let book else { return }
-    openEbookInSafari(book)
+  override func onOpenTapped(_ ebook: SupplementaryEbook?) {
+    if let url = ebook?.url(for: bookID) {
+      openEbookInSafari(url)
+    } else if let url = book?.ebookURL {
+      openEbookInSafari(url)
+    } else {
+      Toast(error: "Unable to open ebook").show()
+    }
   }
 
   override func onDownloadTapped() {
@@ -417,19 +422,9 @@ final class BookDetailsViewModel: BookDetailsView.Model {
   }
 
   override func onSupplementaryEbookTapped(_ ebook: BookDetailsView.Model.SupplementaryEbook) {
-    guard let serverURL = Audiobookshelf.shared.serverURL,
-      let token = Audiobookshelf.shared.authentication.server?.token
-    else {
+    guard let url = ebook.url(for: bookID) else {
       Toast(error: "Unable to open ebook").show()
       return
-    }
-
-    var url = serverURL.appendingPathComponent("api/items/\(bookID)/file/\(ebook.ino)")
-    switch token {
-    case .legacy(let token):
-      url.append(queryItems: [URLQueryItem(name: "token", value: token)])
-    case .bearer(let accessToken, _, _):
-      url.append(queryItems: [URLQueryItem(name: "token", value: accessToken)])
     }
 
     ebookReader = EbookReaderViewModel(source: .remote(url), bookID: nil)
@@ -437,10 +432,8 @@ final class BookDetailsViewModel: BookDetailsView.Model {
 }
 
 extension BookDetailsViewModel {
-  private func openEbookInSafari(_ book: Book) {
-    guard let ebookURL = book.ebookURL else { return }
-
-    let safariViewController = SFSafariViewController(url: ebookURL)
+  private func openEbookInSafari(_ url: URL) {
+    let safariViewController = SFSafariViewController(url: url)
     safariViewController.modalPresentationStyle = .overFullScreen
 
     if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -449,5 +442,25 @@ extension BookDetailsViewModel {
     {
       rootViewController.present(safariViewController, animated: true)
     }
+  }
+}
+
+extension BookDetailsView.Model.SupplementaryEbook {
+  func url(for bookID: String) -> URL? {
+    guard let serverURL = Audiobookshelf.shared.serverURL,
+      let token = Audiobookshelf.shared.authentication.server?.token
+    else {
+      return nil
+    }
+
+    var url = serverURL.appendingPathComponent("api/items/\(bookID)/file/\(ino)")
+    switch token {
+    case .legacy(let token):
+      url.append(queryItems: [URLQueryItem(name: "token", value: token)])
+    case .bearer(let accessToken, _, _):
+      url.append(queryItems: [URLQueryItem(name: "token", value: accessToken)])
+    }
+
+    return url
   }
 }

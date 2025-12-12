@@ -603,9 +603,12 @@ extension BookDetailsView {
     if model.isEbook {
       Divider()
 
-      Button(action: model.onOpenTapped) {
-        Label("Open on Web", systemImage: "globe")
-      }
+      Button(
+        action: { model.onOpenTapped(nil) },
+        label: {
+          Label("Open on Web", systemImage: "globe")
+        }
+      )
 
       if !model.ereaderDevices.isEmpty {
         Menu {
@@ -720,6 +723,14 @@ extension BookDetailsView {
           }
           .padding(.vertical, 8)
         }
+        .contextMenu {
+          Button(
+            action: { model.onOpenTapped(ebook) },
+            label: {
+              Label("Open on Web", systemImage: "globe")
+            }
+          )
+        }
       }
     }
     .padding()
@@ -759,7 +770,7 @@ extension BookDetailsView {
 
     func onAppear() {}
     func onPlayTapped() {}
-    func onOpenTapped() {}
+    func onOpenTapped(_ ebook: SupplementaryEbook?) {}
     func onDownloadTapped() {}
     func onMarkFinishedTapped() {}
     func onResetProgressTapped() {}
