@@ -46,6 +46,16 @@ struct BookPlayer: View {
             .frame(width: 44, height: 44)
         }
       }
+      .navigationDestination(for: NavigationDestination.self) { destination in
+        switch destination {
+        case .book(let id):
+          BookDetailsView(model: BookDetailsViewModel(bookID: id))
+        case .series, .author, .narrator, .genre, .tag, .offline:
+          LibraryPage(model: LibraryPageModel(destination: destination))
+        case .playlist, .collection:
+          EmptyView()
+        }
+      }
     }
     .preferredColorScheme(.dark)
     .sheet(
@@ -133,14 +143,17 @@ struct BookPlayer: View {
   }
 
   private var cover: some View {
-    CoverImage(url: model.coverURL)
-      .frame(minWidth: 200, maxWidth: 280, minHeight: 200, maxHeight: 280)
-      .overlay(alignment: .topLeading) {
-        timerOverlay
-      }
-      .clipShape(RoundedRectangle(cornerRadius: 16))
-      .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
-      .padding(30)
+    NavigationLink(value: NavigationDestination.book(id: model.id)) {
+      CoverImage(url: model.coverURL)
+        .frame(minWidth: 200, maxWidth: 280, minHeight: 200, maxHeight: 280)
+        .overlay(alignment: .topLeading) {
+          timerOverlay
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
+        .padding(30)
+    }
+    .buttonStyle(.plain)
   }
 
   @ViewBuilder
@@ -396,6 +409,16 @@ extension BookPlayer {
 
     var isPresented: Bool = true
 
+    func onTogglePlaybackTapped() {}
+    func onPauseTapped() {}
+    func onPlayTapped() {}
+    func onSkipForwardTapped(seconds: Double) {}
+    func onSkipBackwardTapped(seconds: Double) {}
+    func onProgressChanged(to progress: Double) {}
+    func onDownloadTapped() {}
+    func onBookmarksTapped() {}
+    func onHistoryTapped() {}
+
     init(
       id: String = UUID().uuidString,
       title: String,
@@ -425,16 +448,6 @@ extension BookPlayer {
       self.playbackProgress = playbackProgress
       self.downloadState = downloadState
     }
-
-    func onTogglePlaybackTapped() {}
-    func onPauseTapped() {}
-    func onPlayTapped() {}
-    func onSkipForwardTapped(seconds: Double) {}
-    func onSkipBackwardTapped(seconds: Double) {}
-    func onProgressChanged(to progress: Double) {}
-    func onDownloadTapped() {}
-    func onBookmarksTapped() {}
-    func onHistoryTapped() {}
   }
 }
 

@@ -543,23 +543,6 @@ extension BookPlayerModel {
       preferences.lockScreenNextPreviousUsesChapters
       && (chapters?.chapters.count ?? 0) >= 2
 
-    if useChapterNavigation {
-      commandCenter.skipForwardCommand.isEnabled = false
-      commandCenter.skipBackwardCommand.isEnabled = false
-
-      commandCenter.nextTrackCommand.isEnabled = true
-      commandCenter.nextTrackCommand.addTarget { [weak self] _ in
-        self?.chapters?.onNextChapterTapped()
-        return .success
-      }
-
-      commandCenter.previousTrackCommand.isEnabled = true
-      commandCenter.previousTrackCommand.addTarget { [weak self] _ in
-        self?.chapters?.onPreviousChapterTapped()
-        return .success
-      }
-    }
-
     commandCenter.skipForwardCommand.isEnabled = !useChapterNavigation
     commandCenter.skipForwardCommand.preferredIntervals = [
       NSNumber(value: preferences.skipForwardInterval)
