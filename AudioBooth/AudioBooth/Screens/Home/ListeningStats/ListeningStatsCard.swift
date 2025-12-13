@@ -30,9 +30,11 @@ struct ListeningStatsCard: View {
         }
         .frame(height: 180)
         .padding(.vertical, 12)
+        .background(.secondary.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
           RoundedRectangle(cornerRadius: 8)
-            .stroke(.secondary, lineWidth: 1)
+            .stroke(.secondary.opacity(0.3), lineWidth: 2)
         )
       }
     }
@@ -92,25 +94,13 @@ struct ListeningStatsCard: View {
 
   var weekSection: some View {
     VStack(alignment: .leading, spacing: 8) {
-      HStack {
-        Text("Minutes Listening (last 7 days)")
-          .font(.footnote)
-          .fontWeight(.medium)
-
-        Spacer()
-
-        if let selectedDay,
-          let dayData = model.weekData.first(where: { $0.label == selectedDay })
-        {
-          Text(formatTime(dayData.timeInSeconds))
-            .font(.caption)
-            .fontWeight(.medium)
-            .foregroundColor(.primary)
-        }
-      }
+      Text("Minutes Listening (last 7 days)")
+        .font(.footnote)
+        .fontWeight(.medium)
+        .zIndex(0)
 
       let maxMinutes = model.weekData.map { $0.timeInSeconds / 60 }.max() ?? 0
-      let yAxisMax = maxMinutes * 1.2
+      let yAxisMax = maxMinutes * 1.3
 
       Chart(model.weekData) { dayData in
         AreaMark(
@@ -131,7 +121,9 @@ struct ListeningStatsCard: View {
         )
         .foregroundStyle(.blue)
         .lineStyle(StrokeStyle(lineWidth: 2))
-        .symbol(.circle)
+        .symbol {
+          symbol(dayData, isSelected: dayData.label == selectedDay)
+        }
       }
       .chartYScale(domain: 0...yAxisMax)
       .chartYAxis {
@@ -145,6 +137,32 @@ struct ListeningStatsCard: View {
         }
       }
     }
+  }
+
+  private func symbol(_ dayData: ListeningStatsCard.Model.DayData, isSelected: Bool) -> some View {
+    Circle()
+      .fill(.blue)
+      .frame(width: 8, height: 8)
+      .overlay(
+        Circle()
+          .stroke(isSelected ? .white : .white.opacity(0.3), lineWidth: 2)
+      )
+      .overlay {
+        if isSelected {
+          Text(formatTime(dayData.timeInSeconds))
+            .font(.caption)
+            .fontWeight(.medium)
+            .foregroundColor(.blue)
+            .padding(.vertical, 2)
+            .padding(.horizontal, 4)
+            .background(.background)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(.blue, lineWidth: 1))
+            .fixedSize(horizontal: true, vertical: true)
+            .offset(x: 0, y: -16)
+        }
+      }
+
   }
 
   private func formatTime(_ seconds: Double) -> String {
