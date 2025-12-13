@@ -93,6 +93,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     switch current {
     case .preset(let seconds):
       if seconds > 1 {
+        fadeOut(seconds)
         current = .preset(seconds - 1)
       } else {
         pauseFromTimer()
@@ -100,6 +101,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
 
     case .custom(let seconds):
       if seconds > 1 {
+        fadeOut(seconds)
         current = .custom(seconds - 1)
       } else {
         pauseFromTimer()
@@ -110,10 +112,18 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     }
   }
 
+  private func fadeOut(_ seconds: TimeInterval) {
+    let fadeOut = UserPreferences.shared.timerFadeOut
+    if fadeOut > 0, seconds < fadeOut {
+      player?.volume = Float(seconds / fadeOut)
+    }
+  }
+
   private func pauseFromTimer() {
     let duration = originalTimerDuration
 
     player?.pause()
+    player?.volume = 1.0
 
     if UserPreferences.shared.shakeToExtendTimer {
       let extendAction = formatExtendButtonTitle(for: duration)

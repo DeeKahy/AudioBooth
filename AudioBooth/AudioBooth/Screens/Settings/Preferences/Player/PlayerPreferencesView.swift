@@ -96,6 +96,15 @@ struct PlayerPreferencesView: View {
         Toggle("Shake to extend", isOn: $preferences.shakeToExtendTimer)
           .font(.subheadline)
           .bold()
+
+        Picker("Audio Fade Out", selection: $preferences.timerFadeOut) {
+          Text("Off").tag(0.0)
+          Text("15s").tag(15.0)
+          Text("30s").tag(30.0)
+          Text("60s").tag(60.0)
+        }
+        .font(.subheadline)
+        .bold()
       }
       .listRowSeparator(.hidden)
       .listSectionSpacing(.custom(12))
@@ -109,17 +118,12 @@ struct PlayerPreferencesView: View {
         }
         .font(.caption)
 
-        VStack(alignment: .leading, spacing: 8) {
-          Text("Skip by")
-            .font(.subheadline)
-            .bold()
-
-          Picker("Skip by", selection: $preferences.lockScreenNextPreviousUsesChapters) {
-            Text("Seconds").tag(false)
-            Text("Chapter").tag(true)
-          }
-          .pickerStyle(.segmented)
+        Picker("Skip by", selection: $preferences.lockScreenNextPreviousUsesChapters) {
+          Text("Seconds").tag(false)
+          Text("Chapter").tag(true)
         }
+        .font(.subheadline)
+        .bold()
 
         Toggle(
           "Allow Playback Position Change",
