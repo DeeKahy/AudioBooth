@@ -188,9 +188,32 @@ extension HomePageModel {
       existingModels = [:]
     }
 
+    let booksToDisplay = continueListeningBooks.filter { book in
+      MediaProgress.progress(for: book.id) < 1.0
+    }
+
     var models: [ContinueListeningCardModel] = []
 
-    for book in continueListeningBooks {
+    if let currentPlayerID = playerManager.current?.id,
+      !booksToDisplay.contains(where: { $0.id == currentPlayerID }),
+      let currentLocalBook = try? LocalBook.fetch(bookID: currentPlayerID)
+    {
+      if let existingModel = existingModels[currentPlayerID] {
+        models.append(existingModel)
+      } else {
+        let model = ContinueListeningCardModel(
+          localBook: currentLocalBook,
+          onRemoved: { [weak self] in
+            guard let self else { return }
+            self.continueListeningBooks = self.continueListeningBooks.filter({ $0.id != currentPlayerID })
+            self.rebuildSections()
+          }
+        )
+        models.append(model)
+      }
+    }
+
+    for book in booksToDisplay {
       let model: ContinueListeningCardModel
 
       if let existingModel = existingModels[book.id] {

@@ -4,7 +4,6 @@ import Foundation
 import Models
 
 final class ContinueListeningCardModel: ContinueListeningCard.Model {
-  private let book: Book
   private var onRemoved: (() -> Void)?
   private var cancellables = Set<AnyCancellable>()
 
@@ -17,7 +16,8 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
   }
 
   init(book: Book, onRemoved: @escaping () -> Void) {
-    self.book = book
+    let timeRemaining = Duration.seconds(book.duration)
+      .formatted(.units(allowed: [.hours, .minutes], width: .narrow))
 
     super.init(
       id: book.id,
@@ -25,7 +25,24 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
       author: book.authorName,
       coverURL: book.coverURL,
       progress: MediaProgress.progress(for: book.id),
-      timeRemaining: nil
+      timeRemaining: timeRemaining
+    )
+
+    self.onRemoved = onRemoved
+    observeMediaProgress()
+  }
+
+  init(localBook: LocalBook, onRemoved: @escaping () -> Void) {
+    let timeRemaining = Duration.seconds(localBook.duration)
+      .formatted(.units(allowed: [.hours, .minutes], width: .narrow))
+
+    super.init(
+      id: localBook.bookID,
+      title: localBook.title,
+      author: localBook.authorNames,
+      coverURL: localBook.coverURL,
+      progress: MediaProgress.progress(for: localBook.bookID),
+      timeRemaining: timeRemaining
     )
 
     self.onRemoved = onRemoved
@@ -37,7 +54,7 @@ final class ContinueListeningCardModel: ContinueListeningCard.Model {
   }
 
   private func observeMediaProgress() {
-    let bookID = book.bookID
+    let bookID = id
     progressObservation = Task { [weak self] in
       for await mediaProgress in MediaProgress.observe(where: \.bookID, equals: bookID) {
         self?.mediaProgress = mediaProgress
@@ -92,6 +109,6 @@ extension ContinueListeningCardModel: Comparable {
   }
 
   static func == (lhs: ContinueListeningCardModel, rhs: ContinueListeningCardModel) -> Bool {
-    lhs.book.id == rhs.book.id
+    lhs.id == rhs.id
   }
 }
