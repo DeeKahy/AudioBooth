@@ -2,6 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>INAlternativeAppNames</key>
+	<array>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>Audiobook</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>Audiobook</string>
+		</dict>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>ABS</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>ABS</string>
+		</dict>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>Audiobookshelf</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>Audiobookshelf</string>
+		</dict>
+	</array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>me.jgrenier.AudioBS.close-session</string>
