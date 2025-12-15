@@ -201,7 +201,7 @@ struct BookDetailsView: View {
 
   private var cover: some View {
     ParallaxHeader(coordinateSpace: CoordinateSpaces.scrollView) {
-      ZStack(alignment: .bottom) {
+      ZStack(alignment: .center) {
         LazyImage(url: model.coverURL) { state in
           state.image?
             .resizable()
@@ -232,7 +232,7 @@ struct BookDetailsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(radius: 4)
         .frame(width: 250, height: 250)
-        .padding(24)
+        .offset(y: 40)
       }
     }
   }

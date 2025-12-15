@@ -32,7 +32,8 @@ struct ContentView: View {
       if let currentPlayer = playerManager.current {
         BookPlayer(model: .constant(currentPlayer))
           .presentationDetents([.large])
-          .presentationDragIndicator(.visible)
+          .interactiveDismissDisabled(UIAccessibility.isVoiceOverRunning)
+          .presentationDragIndicator(UIAccessibility.isVoiceOverRunning ? .hidden : .visible)
       }
     }
     .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in

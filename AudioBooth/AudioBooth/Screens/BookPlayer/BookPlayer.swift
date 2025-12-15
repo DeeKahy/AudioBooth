@@ -101,16 +101,20 @@ struct BookPlayer: View {
 
   private var portraitLayout: some View {
     VStack(spacing: 0) {
-      VStack(spacing: 24) {
+      VStack(spacing: 0) {
         cover
 
-        Spacer()
+        Spacer(minLength: 24)
 
-        chaptersDisplay
+        VStack(spacing: 24) {
+          chaptersDisplay
 
-        PlaybackProgressView(model: $model.playbackProgress)
+          PlaybackProgressView(model: $model.playbackProgress)
 
-        mainPlaybackControls
+          mainPlaybackControls
+        }
+
+        Spacer(minLength: 24)
 
         bottomControlBar
       }
@@ -145,14 +149,16 @@ struct BookPlayer: View {
   private var cover: some View {
     NavigationLink(value: NavigationDestination.book(id: model.id)) {
       CoverImage(url: model.coverURL)
-        .frame(minWidth: 200, maxWidth: 280, minHeight: 200, maxHeight: 280)
+        .frame(minWidth: 200, maxWidth: 400, minHeight: 200, maxHeight: 400)
+        .aspectRatio(1, contentMode: .fit)
         .overlay(alignment: .topLeading) {
           timerOverlay
         }
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
-        .padding(30)
+        .padding(.horizontal, 30)
     }
+    .accessibilityLabel("Book details")
     .buttonStyle(.plain)
   }
 
@@ -279,7 +285,6 @@ struct BookPlayer: View {
         .disabled(model.isLoading || isLastChapter)
       }
     }
-    .padding(.bottom, 30)
   }
 
   private var bottomControlBar: some View {
