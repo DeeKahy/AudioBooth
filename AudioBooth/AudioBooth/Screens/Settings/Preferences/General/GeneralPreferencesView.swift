@@ -17,9 +17,28 @@ extension AutoDownloadMode: Identifiable {
 
 struct GeneralPreferencesView: View {
   @ObservedObject var preferences = UserPreferences.shared
+  @StateObject private var iconModel = AppIconPickerViewModel()
 
   var body: some View {
     Form {
+      Section {
+        NavigationLink {
+          AppIconPickerView(model: iconModel)
+        } label: {
+          HStack {
+            Text("App Icon")
+              .font(.subheadline)
+              .bold()
+            Spacer()
+            Image(iconModel.currentIcon.previewImageName)
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 29, height: 29)
+              .cornerRadius(5)
+          }
+        }
+      }
+
       Section {
         Picker("Auto-Download Books", selection: $preferences.autoDownloadBooks) {
           ForEach(AutoDownloadMode.allCases) { mode in
