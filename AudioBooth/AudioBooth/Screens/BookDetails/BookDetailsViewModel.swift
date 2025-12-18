@@ -120,6 +120,14 @@ final class BookDetailsViewModel: BookDetailsView.Model {
           )
         }
 
+      var flags: BookDetailsView.Model.Flags = []
+      if book.media.metadata.explicit == true {
+        flags.insert(.explicit)
+      }
+      if book.media.metadata.abridged == true {
+        flags.insert(.abridged)
+      }
+
       updateUI(
         title: book.title,
         authors: authors,
@@ -133,6 +141,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
         genres: book.genres,
         tags: book.tags,
         description: book.description ?? book.descriptionPlain,
+        flags: flags,
         chapters: book.chapters?.map(Chapter.init(from:)),
         tracks: book.tracks?.map(Track.init(from:)),
         ebooks: ebooks
@@ -161,6 +170,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     genres: [String]? = nil,
     tags: [String]? = nil,
     description: String? = nil,
+    flags: BookDetailsView.Model.Flags = [],
     chapters: [Chapter]?,
     tracks: [Track]?,
     ebooks: [BookDetailsView.Model.SupplementaryEbook]? = nil
@@ -175,6 +185,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     self.genres = genres
     self.tags = tags
     self.description = description
+    self.flags = flags
 
     if let mediaType {
       self.isEbook = mediaType == .ebook

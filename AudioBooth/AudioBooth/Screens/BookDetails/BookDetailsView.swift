@@ -143,10 +143,7 @@ struct BookDetailsView: View {
 
   private var contentSections: some View {
     VStack(spacing: 16) {
-      Text(model.title)
-        .font(.title)
-        .fontWeight(.bold)
-        .multilineTextAlignment(.leading)
+      title
 
       actionButtons
 
@@ -165,6 +162,35 @@ struct BookDetailsView: View {
         contentTabsSection
       }
     }
+  }
+
+  private var title: some View {
+    var result = Text(model.title)
+      .font(.title)
+      .fontWeight(.bold)
+
+    if model.flags.contains(.explicit) {
+      result =
+        result
+        + Text(" \(Image(systemName: "e.square.fill"))")
+        .font(.footnote)
+        .baselineOffset(8)
+        .foregroundStyle(.secondary)
+    }
+
+    if model.flags.contains(.abridged) {
+      result =
+        result
+        + Text(" \(Image(systemName: "a.square.fill"))")
+        .font(.footnote)
+        .baselineOffset(8)
+        .foregroundStyle(.secondary)
+    }
+
+    return
+      result
+      .multilineTextAlignment(.leading)
+      .frame(maxWidth: .infinity, alignment: .leading)
   }
 
   private var contentTabsSection: some View {
@@ -750,6 +776,13 @@ extension BookDetailsView {
 extension BookDetailsView {
   @Observable
   class Model: ObservableObject {
+    struct Flags: OptionSet {
+      let rawValue: Int
+
+      static let explicit = Flags(rawValue: 1 << 0)
+      static let abridged = Flags(rawValue: 1 << 1)
+    }
+
     let bookID: String
     var title: String
     var authors: [Author]
@@ -763,6 +796,7 @@ extension BookDetailsView {
     var isLoading: Bool
     var isEbook: Bool
     var isCurrentlyPlaying: Bool
+    var flags: Flags
     var error: String?
     var publisher: String?
     var publishedYear: String?
@@ -800,6 +834,7 @@ extension BookDetailsView {
       isLoading: Bool = true,
       isEbook: Bool = false,
       isCurrentlyPlaying: Bool = false,
+      flags: Flags = [],
       error: String? = nil,
       publisher: String? = nil,
       publishedYear: String? = nil,
@@ -825,6 +860,7 @@ extension BookDetailsView {
       self.isLoading = isLoading
       self.isEbook = isEbook
       self.isCurrentlyPlaying = isCurrentlyPlaying
+      self.flags = flags
       self.error = error
       self.publisher = publisher
       self.publishedYear = publishedYear
@@ -891,6 +927,7 @@ extension BookDetailsView.Model {
       timeRemaining: "6hr 52min",
       downloadState: .downloaded,
       isLoading: false,
+      flags: [.explicit],
       description:
         "As the Colony continues to develop and thrive, there's too much to do! Territory to seize, nests to build, Champions to train! Anthony will have his mandibles full trying to teach his new protege Brilliant while trying to keep a war from breaking out with the ka'armodo. However, when the Mother Tree comes looking for his help against a particular breed of monster, there is no way he can refuse. After all, no ant can resist a fight against their ancient nemesis... the Termite! Book 7 of the hit monster-evolution LitRPG series with nearly 30 Million views on Royal Road. Grab your copy today!",
       tabs: [
