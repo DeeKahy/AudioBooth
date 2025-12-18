@@ -395,7 +395,7 @@ extension BookPlayerModel {
       RunLoop.current.perform {
         if let playbackProgress = self?.playbackProgress as? PlaybackProgressViewModel {
           playbackProgress.updateProgress()
-          WidgetCenter.shared.reloadAllTimelines()
+          self?.syncPlayback()
         }
 
         self?.observeSpeedChanged()
@@ -1176,7 +1176,8 @@ extension BookPlayerModel {
       coverURL: item.coverURL,
       currentTime: mediaProgress.currentTime,
       duration: mediaProgress.duration,
-      isPlaying: isPlaying
+      isPlaying: isPlaying,
+      playbackSpeed: speed.playbackSpeed
     )
 
     if let sharedDefaults = UserDefaults(suiteName: "group.me.jgrenier.audioBS"),

@@ -8,6 +8,7 @@ public struct PlaybackState: Codable, Sendable {
   public let currentTime: Double
   public let duration: Double
   public let isPlaying: Bool
+  public let playbackSpeed: Float
 
   public init(
     bookID: String,
@@ -16,7 +17,8 @@ public struct PlaybackState: Codable, Sendable {
     coverURL: URL?,
     currentTime: Double,
     duration: Double,
-    isPlaying: Bool
+    isPlaying: Bool,
+    playbackSpeed: Float = 1.0
   ) {
     self.bookID = bookID
     self.title = title
@@ -25,6 +27,7 @@ public struct PlaybackState: Codable, Sendable {
     self.currentTime = currentTime
     self.duration = duration
     self.isPlaying = isPlaying
+    self.playbackSpeed = playbackSpeed
   }
 
   public var progress: Double {

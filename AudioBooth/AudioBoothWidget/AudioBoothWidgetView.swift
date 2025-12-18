@@ -7,6 +7,8 @@ import WidgetKit
 struct AudioBoothWidgetView: View {
   let entry: AudioBoothWidgetEntry
   @Environment(\.widgetFamily) var widgetFamily
+  @AppStorage("timeRemainingAdjustsWithSpeed", store: UserDefaults(suiteName: "group.me.jgrenier.audioBS"))
+  var timeRemainingAdjustsWithSpeed: Bool = true
 
   var body: some View {
     if let playbackState = entry.playbackState {
@@ -20,7 +22,7 @@ struct AudioBoothWidgetView: View {
           smallWidgetView(playbackState: playbackState)
         }
       }
-      .widgetURL(URL(string: "audiobooth://play/\(playbackState.bookID)"))
+      .widgetURL(URL(string: "audiobooth://open/\(playbackState.bookID)"))
       .containerBackground(for: .widget) {
         LinearGradient(
           colors: [Color.black.opacity(0.8), Color.black.opacity(0.95)],
@@ -65,7 +67,7 @@ struct AudioBoothWidgetView: View {
       HStack(spacing: 4) {
         playPauseButton(isPlaying: playbackState.isPlaying)
 
-        let remaining = playbackState.duration - playbackState.currentTime
+        let remaining = calculateTimeRemaining(playbackState: playbackState)
         Text(formatTime(remaining))
           .font(.caption2)
           .foregroundStyle(.white.opacity(0.8))
@@ -125,7 +127,7 @@ struct AudioBoothWidgetView: View {
           }
           .frame(height: 6)
 
-          let remaining = playbackState.duration - playbackState.currentTime
+          let remaining = calculateTimeRemaining(playbackState: playbackState)
           Text(formatTime(remaining))
             .font(.caption2)
             .foregroundStyle(.white.opacity(0.8))
@@ -161,6 +163,14 @@ struct AudioBoothWidgetView: View {
         .buttonStyle(.plain)
       }
     }
+  }
+
+  private func calculateTimeRemaining(playbackState: PlaybackState) -> TimeInterval {
+    var remaining = playbackState.duration - playbackState.currentTime
+    if timeRemainingAdjustsWithSpeed {
+      remaining /= Double(playbackState.playbackSpeed)
+    }
+    return remaining
   }
 
   private func formatTime(_ seconds: TimeInterval) -> String {

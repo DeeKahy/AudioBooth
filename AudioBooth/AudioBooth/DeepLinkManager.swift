@@ -20,6 +20,8 @@ class DeepLinkManager: ObservableObject {
     switch components.host {
     case "play":
       handlePlayDeepLink(components)
+    case "open":
+      handleOpenDeepLink(components)
     case "connection":
       handleConnectionDeepLink(url)
     default:
@@ -40,6 +42,26 @@ class DeepLinkManager: ObservableObject {
           let book = try await Audiobookshelf.shared.books.fetch(id: bookID)
           playerManager.setCurrent(book)
           playerManager.play()
+        }
+      } catch {
+        print("Failed to load book for deep link: \(error)")
+      }
+    }
+  }
+
+  private func handleOpenDeepLink(_ components: URLComponents) {
+    let bookID = String(components.path.dropFirst())
+    let playerManager = PlayerManager.shared
+
+    Task {
+      do {
+        if playerManager.current?.id == bookID {
+          playerManager.showFullPlayer()
+        } else if let localBook = try LocalBook.fetch(bookID: bookID) {
+          playerManager.setCurrent(localBook)
+        } else {
+          let book = try await Audiobookshelf.shared.books.fetch(id: bookID)
+          playerManager.setCurrent(book)
         }
       } catch {
         print("Failed to load book for deep link: \(error)")
