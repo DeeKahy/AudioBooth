@@ -3,6 +3,7 @@ import Combine
 import Foundation
 import Logging
 import Models
+import Nuke
 import SafariServices
 import UIKit
 
@@ -93,7 +94,23 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     }
   }
 
+  private func refreshCover() {
+    Task {
+      do {
+        let request = ImageRequest(url: coverURL, options: .reloadIgnoringCachedData)
+        _ = try await ImagePipeline.shared.image(for: request)
+        let coverURL = self.coverURL
+        self.coverURL = nil
+        Task { @MainActor in
+          self.coverURL = coverURL
+        }
+      } catch {}
+    }
+  }
+
   private func loadBookFromAPI() async {
+    refreshCover()
+
     do {
       let book = try await booksService.fetch(id: bookID)
       self.book = book
