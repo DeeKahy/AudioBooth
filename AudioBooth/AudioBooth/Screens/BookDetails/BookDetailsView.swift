@@ -304,6 +304,7 @@ struct BookDetailsView: View {
                   icon: "person.circle.fill",
                   color: .blue
                 )
+                .accessibilityLabel("\(author.name) author")
               }
             }
 
@@ -315,6 +316,7 @@ struct BookDetailsView: View {
                     icon: "person.wave.2.fill",
                     color: .blue
                   )
+                  .accessibilityLabel("\(narrator) narrator")
                 }
               }
             }

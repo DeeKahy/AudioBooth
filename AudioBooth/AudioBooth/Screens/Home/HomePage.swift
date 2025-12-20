@@ -27,6 +27,19 @@ struct HomePage: View {
     }
   }
 
+  var connectionStatusLabel: String {
+    switch authentication.server?.status {
+    case .connected:
+      return "Connected"
+    case .connectionError:
+      return "Connection error"
+    case .authenticationError:
+      return "Authentication error"
+    case .none:
+      return "Disconnected"
+    }
+  }
+
   var body: some View {
     NavigationStack {
       content
@@ -91,6 +104,7 @@ struct HomePage: View {
           }
           .frame(maxWidth: 250)
         }
+        .accessibilityLabel("Server: \(libraries.current?.name ?? "Server"), \(connectionStatusLabel)")
       }
 
       ToolbarItem(placement: .navigationBarTrailing) {
