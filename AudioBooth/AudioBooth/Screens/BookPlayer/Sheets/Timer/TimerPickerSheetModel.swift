@@ -9,6 +9,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
   private var sleepTimer: Timer?
   private var timerStartTime: Date?
   private var originalTimerDuration: TimeInterval = 0
+  private var originalTimerType: TimerPickerSheet.Model.Selection = .none
   private var cancellables = Set<AnyCancellable>()
   private let orientationManager = DeviceOrientationManager.shared
 
@@ -45,7 +46,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     case .preset(let seconds), .custom(let seconds):
       if seconds > 0 && seconds <= threshold {
         AppLogger.player.info("Flip detected - restarting timer with \(seconds)s remaining")
-        restartTimer()
+        restartTimerWithOriginalDuration()
       } else {
         AppLogger.player.debug("Flip detected but timer has \(seconds)s remaining (threshold: \(threshold)s)")
       }
@@ -54,12 +55,12 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     }
   }
   
-  private func restartTimer() {
+  private func restartTimerWithOriginalDuration() {
     guard originalTimerDuration > 0 else { return }
     
-    // Restart the timer with the original duration
+    // Restart the timer with the original duration and type
     startSleepTimer(duration: originalTimerDuration)
-    current = .preset(originalTimerDuration)
+    current = originalTimerType
     
     // Resume playback if paused
     if player?.rate == 0 {
@@ -102,10 +103,12 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     current = selected
     switch selected {
     case .preset(let duration):
+      originalTimerType = .preset(duration)
       startSleepTimer(duration: duration)
     case .custom(let duration):
       let totalMinutes = customHours * 60 + customMinutes
       UserPreferences.shared.customTimerMinutes = totalMinutes
+      originalTimerType = .custom(duration)
       startSleepTimer(duration: duration)
     case .chapters:
       break
@@ -135,6 +138,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     sleepTimer = nil
     timerStartTime = nil
     originalTimerDuration = 0
+    originalTimerType = .none
   }
 
   private func updateSleepTimer() {
@@ -207,7 +211,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
   private func extendTimer() {
     if originalTimerDuration > 0 {
       startSleepTimer(duration: originalTimerDuration)
-      current = .preset(originalTimerDuration)
+      current = originalTimerType
 
       player?.play()
 
@@ -224,6 +228,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     sleepTimer = nil
     timerStartTime = nil
     originalTimerDuration = 0
+    originalTimerType = .none
     AppLogger.player.info("Timer reset from alert")
   }
 

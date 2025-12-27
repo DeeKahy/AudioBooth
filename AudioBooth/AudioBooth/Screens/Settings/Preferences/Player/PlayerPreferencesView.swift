@@ -89,7 +89,7 @@ struct PlayerPreferencesView: View {
           Text("Timer".uppercased())
             .bold()
 
-          Text("Customize timer behavior for falling asleep.")
+          Text("Extends timer when you shake your phone or flip it face-down before it expires.")
         }
         .font(.caption)
 

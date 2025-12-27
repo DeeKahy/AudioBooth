@@ -2,6 +2,7 @@ import Combine
 import CoreMotion
 import Foundation
 import Logging
+import UIKit
 
 final class DeviceOrientationManager: ObservableObject {
   static let shared = DeviceOrientationManager()
@@ -27,7 +28,22 @@ final class DeviceOrientationManager: ObservableObject {
   }
   
   private init() {
+    setupAppLifecycleObservers()
     startMonitoring()
+  }
+  
+  private func setupAppLifecycleObservers() {
+    NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
+      .sink { [weak self] _ in
+        self?.stopMonitoring()
+      }
+      .store(in: &cancellables)
+    
+    NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+      .sink { [weak self] _ in
+        self?.startMonitoring()
+      }
+      .store(in: &cancellables)
   }
   
   func startMonitoring() {
@@ -97,9 +113,5 @@ final class DeviceOrientationManager: ObservableObject {
     if currentOrientation != lastOrientation && currentOrientation != .other {
       lastOrientation = currentOrientation
     }
-  }
-  
-  deinit {
-    stopMonitoring()
   }
 }
