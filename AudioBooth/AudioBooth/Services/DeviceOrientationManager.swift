@@ -57,7 +57,7 @@ final class DeviceOrientationManager: ObservableObject {
       return
     }
     
-    motionManager.deviceMotionUpdateInterval = 0.2
+    motionManager.deviceMotionUpdateInterval = 0.5
     motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
       guard let self, let motion = motion else {
         if let error = error {
@@ -109,8 +109,8 @@ final class DeviceOrientationManager: ObservableObject {
       flipDetectedSubject.send()
     }
     
-    // Update last orientation if it changed
-    if currentOrientation != lastOrientation && currentOrientation != .other {
+    // Update last orientation for all changes
+    if currentOrientation != lastOrientation {
       lastOrientation = currentOrientation
     }
   }
