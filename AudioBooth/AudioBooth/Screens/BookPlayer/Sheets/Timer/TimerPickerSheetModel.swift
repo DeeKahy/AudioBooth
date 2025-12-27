@@ -1,4 +1,5 @@
 import AVFoundation
+import Combine
 import Foundation
 import Logging
 import SwiftUI
@@ -8,6 +9,8 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
   private var sleepTimer: Timer?
   private var timerStartTime: Date?
   private var originalTimerDuration: TimeInterval = 0
+  private var cancellables = Set<AnyCancellable>()
+  private let orientationManager = DeviceOrientationManager.shared
 
   override init() {
     super.init()
@@ -15,10 +18,55 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     let totalMinutes = UserPreferences.shared.customTimerMinutes
     customHours = totalMinutes / 60
     customMinutes = totalMinutes % 60
+    
+    setupFlipObserver()
   }
 
   func setPlayer(_ player: AVPlayer?) {
     self.player = player
+  }
+  
+  private func setupFlipObserver() {
+    orientationManager.flipDetected
+      .sink { [weak self] in
+        guard let self else { return }
+        if UserPreferences.shared.flipToRestartTimer {
+          self.handleFlipDetected()
+        }
+      }
+      .store(in: &cancellables)
+  }
+  
+  private func handleFlipDetected() {
+    // Only restart if timer is active and close to expiring
+    let threshold = UserPreferences.shared.flipToRestartThreshold
+    
+    switch current {
+    case .preset(let seconds), .custom(let seconds):
+      if seconds > 0 && seconds <= threshold {
+        AppLogger.player.info("Flip detected - restarting timer with \(seconds)s remaining")
+        restartTimer()
+      } else {
+        AppLogger.player.debug("Flip detected but timer has \(seconds)s remaining (threshold: \(threshold)s)")
+      }
+    case .none, .chapters:
+      break
+    }
+  }
+  
+  private func restartTimer() {
+    guard originalTimerDuration > 0 else { return }
+    
+    // Restart the timer with the original duration
+    startSleepTimer(duration: originalTimerDuration)
+    current = .preset(originalTimerDuration)
+    
+    // Resume playback if paused
+    if player?.rate == 0 {
+      player?.play()
+    }
+    
+    AppLogger.player.info("Timer restarted via flip gesture")
   }
 
   override var isPresented: Bool {

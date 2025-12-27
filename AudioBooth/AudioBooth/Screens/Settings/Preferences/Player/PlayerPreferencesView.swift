@@ -96,6 +96,27 @@ struct PlayerPreferencesView: View {
         Toggle("Shake to extend", isOn: $preferences.shakeToExtendTimer)
           .font(.subheadline)
           .bold()
+        
+        Toggle("Flip to restart", isOn: $preferences.flipToRestartTimer)
+          .font(.subheadline)
+          .bold()
+        
+        if preferences.flipToRestartTimer {
+          VStack(alignment: .leading, spacing: 4) {
+            Text("Restart when timer is below")
+              .font(.subheadline)
+              .bold()
+            
+            Picker("Flip threshold", selection: $preferences.flipToRestartThreshold) {
+              Text("30s").tag(30.0)
+              Text("1 min").tag(60.0)
+              Text("2 min").tag(120.0)
+              Text("3 min").tag(180.0)
+              Text("5 min").tag(300.0)
+            }
+            .pickerStyle(.segmented)
+          }
+        }
 
         Picker("Audio Fade Out", selection: $preferences.timerFadeOut) {
           Text("Off").tag(0.0)

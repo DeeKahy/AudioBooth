@@ -34,6 +34,12 @@ final class UserPreferences: ObservableObject {
   @AppStorage("shakeToExtendTimer")
   var shakeToExtendTimer: Bool = true
 
+  @AppStorage("flipToRestartTimer")
+  var flipToRestartTimer: Bool = false
+
+  @AppStorage("flipToRestartThreshold")
+  var flipToRestartThreshold: Double = 120.0
+
   @AppStorage("customTimerMinutes")
   var customTimerMinutes: Int = 1
 
