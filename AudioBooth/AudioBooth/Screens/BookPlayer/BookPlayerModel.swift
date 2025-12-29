@@ -226,14 +226,19 @@ extension BookPlayerModel {
 
     mediaProgress.currentTime = time
 
+    var current: TimeInterval?
     if let model = playbackProgress as? PlaybackProgressViewModel {
+      current = model.current
+      nowPlaying.update(rate: 0, current: model.current)
       model.updateProgress()
-      nowPlaying.update(current: model.current)
     }
 
     let seekTime = CMTime(seconds: time, preferredTimescale: 1000)
     player.seek(to: seekTime) { _ in
       AppLogger.player.debug("Seeked to position: \(time)s")
+      if player.rate != 0, let current {
+        self.nowPlaying.update(rate: player.rate, current: current)
+      }
     }
     PlaybackHistory.record(itemID: id, action: .seek, position: time)
   }
