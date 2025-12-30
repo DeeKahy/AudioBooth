@@ -164,6 +164,20 @@ final class LibraryPageModel: LibraryPage.Model {
     }
   }
 
+  override func onDownloadAllTapped() {
+    Task {
+      for book in books {
+        if let localBook = try? LocalBook.fetch(bookID: book.id) {
+          guard !localBook.isDownloaded else { continue }
+          try? localBook.download()
+        } else {
+          let remoteBook = try? await audiobookshelf.books.fetch(id: book.id)
+          try? remoteBook?.download()
+        }
+      }
+    }
+  }
+
   private func loadBooks() async {
     guard hasMorePages && !isLoadingNextPage && search.searchText.isEmpty else { return }
 

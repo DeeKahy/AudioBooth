@@ -83,6 +83,15 @@ struct LibraryPage: View {
         if #available(iOS 26.0, *) {
           ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
         }
+      } else {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button {
+            model.onDownloadAllTapped()
+          } label: {
+            Label("Download All", systemImage: "arrow.down.circle")
+          }
+          .tint(.primary)
+        }
       }
 
       ToolbarItem(placement: .navigationBarTrailing) {
@@ -205,6 +214,7 @@ extension LibraryPage {
     func loadNextPageIfNeeded() {}
     func onDisplayModeTapped() {}
     func onCollapseSeriesToggled() {}
+    func onDownloadAllTapped() {}
 
     init(
       isLoading: Bool = true,
