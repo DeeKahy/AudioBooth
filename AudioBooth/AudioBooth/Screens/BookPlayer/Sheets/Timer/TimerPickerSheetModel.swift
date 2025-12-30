@@ -8,6 +8,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
   private var sleepTimer: Timer?
   private var timerStartTime: Date?
   private var originalTimerDuration: TimeInterval = 0
+  private var currentChapterIndex: Int = 0
 
   override init() {
     super.init()
@@ -208,11 +209,11 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
     completedAlert = nil
   }
 
-  func onChapterChanged(previous: Int, current: Int, total: Int) {
+  func onChapterChanged(current: Int, total: Int) {
     maxRemainingChapters = total - current - 1
 
     if case .chapters(let chapters) = self.current {
-      if previous < current {
+      if currentChapterIndex < current {
         if chapters > 1 {
           self.current = .chapters(chapters - 1)
         } else {
@@ -220,6 +221,7 @@ final class TimerPickerSheetViewModel: TimerPickerSheet.Model {
         }
       }
     }
-  }
 
+    currentChapterIndex = current
+  }
 }

@@ -696,6 +696,10 @@ extension BookPlayerModel {
             current: self.playbackProgress.current,
             duration: current.end - current.start
           )
+
+          if let timerViewModel = self.timer as? TimerPickerSheetViewModel {
+            timerViewModel.onChapterChanged(current: chapters.currentIndex, total: chapters.chapters.count)
+          }
         }
 
         self.observeCurrentChapter()
@@ -848,16 +852,6 @@ extension BookPlayerModel {
       let currentTime = CMTimeGetSeconds(time)
       if currentTime > 0 || self.mediaProgress.currentTime == 0 {
         self.mediaProgress.currentTime = currentTime
-      }
-
-      if let model = self.chapters as? ChapterPickerSheetViewModel {
-        if let timerViewModel = self.timer as? TimerPickerSheetViewModel {
-          timerViewModel.onChapterChanged(
-            previous: model.currentIndex,
-            current: model.currentIndex,
-            total: model.chapters.count
-          )
-        }
       }
 
       self.timerSecondsCounter += 1
