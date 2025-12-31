@@ -101,6 +101,7 @@ If you encounter any issues or have questions:
 ## Dependencies
 
 - [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) - Secure credential storage
+- [KSCrash](https://github.com/kstenerud/KSCrash) - Local crash reporting and diagnostics
 - [Nuke](https://github.com/kean/Nuke) - Efficient image loading and caching
 - [Pulse](https://github.com/kean/Pulse) - Network logger and debugging tool
 - [Readium Swift Toolkit](https://github.com/readium/swift-toolkit) - EPUB and PDF ebook reader

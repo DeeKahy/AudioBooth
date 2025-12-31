@@ -18,6 +18,8 @@ struct AudioBoothApp: App {
   init() {
     AppLogger.bootstrap()
 
+    _ = CrashReporter.shared
+
     LegacyMigration.migrateIfNeeded()
 
     setupDatabaseCallbacks()

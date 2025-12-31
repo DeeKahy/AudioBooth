@@ -13,6 +13,7 @@ enum AppLogger {
   static let persistence = Logger(label: "persistence")
   static let general = Logger(label: "general")
   static let authentication = Logger(label: "authentication")
+  static let crash = Logger(label: "crash")
 
   static func bootstrap() {
     configureNetworkLogger()
