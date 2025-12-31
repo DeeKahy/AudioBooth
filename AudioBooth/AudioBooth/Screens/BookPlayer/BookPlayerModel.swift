@@ -136,11 +136,6 @@ final class BookPlayerModel: BookPlayer.Model {
       return
     }
 
-    guard let player, player.status == .readyToPlay else {
-      pendingPlay = true
-      return
-    }
-
     if sessionManager.current == nil {
       AppLogger.player.warning("Session was closed, recreating and reloading player")
 
@@ -159,9 +154,14 @@ final class BookPlayerModel: BookPlayer.Model {
           AppLogger.player.error("Failed to recreate session: \(error)")
         }
       }
-    } else {
-      applySmartRewind()
     }
+
+    guard let player, player.status == .readyToPlay else {
+      pendingPlay = true
+      return
+    }
+
+    applySmartRewind()
 
     timerSecondsCounter = 0
     player.play()
