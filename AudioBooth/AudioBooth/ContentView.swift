@@ -101,6 +101,7 @@ struct ContentView: View {
   private var legacyTabView: some View {
     TabView {
       HomePage(model: HomePageModel())
+        .padding(.bottom, 0.5)
         .safeAreaInset(edge: .bottom) { miniPlayer }
         .tabItem {
           Image(systemName: "house")
@@ -109,6 +110,7 @@ struct ContentView: View {
 
       if hasSelectedLibrary {
         LibraryRootPage()
+          .padding(.bottom, 0.5)
           .safeAreaInset(edge: .bottom) { miniPlayer }
           .tabItem {
             Image(systemName: "books.vertical.fill")
@@ -116,6 +118,7 @@ struct ContentView: View {
           }
 
         CollectionsRootPage()
+          .padding(.bottom, 0.5)
           .safeAreaInset(edge: .bottom) { miniPlayer }
           .tabItem {
             Image(systemName: "square.stack.3d.up.fill")
@@ -123,6 +126,7 @@ struct ContentView: View {
           }
 
         AuthorsPage(model: AuthorsPageModel())
+          .padding(.bottom, 0.5)
           .safeAreaInset(edge: .bottom) { miniPlayer }
           .tabItem {
             Image(systemName: "person.crop.rectangle.stack")

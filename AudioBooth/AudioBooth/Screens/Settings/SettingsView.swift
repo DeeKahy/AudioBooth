@@ -93,6 +93,7 @@ struct SettingsView: View {
             .font(.caption)
             .foregroundColor(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
+            .textSelection(.enabled)
         }
         .contentShape(Rectangle())
         .onTapGesture(count: 5) {

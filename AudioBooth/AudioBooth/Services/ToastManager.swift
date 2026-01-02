@@ -162,6 +162,7 @@ struct ToastView: View {
           .foregroundColor(.secondary)
           .font(.caption)
       }
+      .contentShape(Rectangle())
     }
     .padding()
     .glassEffect()
@@ -193,6 +194,7 @@ struct ToastView: View {
           .foregroundColor(.white)
           .font(.caption)
       }
+      .contentShape(Rectangle())
     }
     .padding()
     .background(backgroundColor)
