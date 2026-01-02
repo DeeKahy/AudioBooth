@@ -49,6 +49,9 @@ final class UserPreferences: ObservableObject {
   @AppStorage("showFullBookDuration")
   var showFullBookDuration: Bool = false
 
+  @AppStorage("volumeBoost")
+  var volumeBoost: VolumeBoost = .none
+
   @AppStorage("libraryDisplayMode")
   var libraryDisplayMode: BookCard.DisplayMode = .card
 
@@ -195,6 +198,31 @@ enum ShakeSensitivity: String, CaseIterable {
     case .medium: "Medium"
     case .high: "High"
     case .veryHigh: "Very High"
+    }
+  }
+}
+
+enum VolumeBoost: String, CaseIterable {
+  case none
+  case low
+  case medium
+  case high
+
+  var multiplier: Float {
+    switch self {
+    case .none: 1.0
+    case .low: 1.5
+    case .medium: 2.0
+    case .high: 3.0
+    }
+  }
+
+  var displayText: String {
+    switch self {
+    case .none: "None"
+    case .low: "Low"
+    case .medium: "Medium"
+    case .high: "High"
     }
   }
 }

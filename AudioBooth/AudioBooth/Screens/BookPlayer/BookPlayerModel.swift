@@ -73,6 +73,7 @@ final class BookPlayerModel: BookPlayer.Model {
     setupDownloadStateBinding(bookID: book.id)
     setupHistory()
     observeSpeedChanged()
+    observeVolumeBoostChanged()
 
     onLoad()
   }
@@ -109,6 +110,7 @@ final class BookPlayerModel: BookPlayer.Model {
     setupDownloadStateBinding(bookID: item.bookID)
     setupHistory()
     observeSpeedChanged()
+    observeVolumeBoostChanged()
 
     onLoad()
   }
@@ -444,6 +446,7 @@ extension BookPlayerModel {
 
     let player = AVPlayer(playerItem: playerItem)
     self.player = player
+    player.volume = userPreferences.volumeBoost.multiplier
 
     if mediaProgress.currentTime > 0 {
       let seekTime = CMTime(seconds: mediaProgress.currentTime, preferredTimescale: 1000)
@@ -648,6 +651,7 @@ extension BookPlayerModel {
       }
 
       player.replaceCurrentItem(with: playerItem)
+      player.volume = userPreferences.volumeBoost.multiplier
       setupPlayerObservers()
       setupTimeObserver()
 
@@ -682,6 +686,15 @@ extension BookPlayerModel {
         self.observeSpeedChanged()
       }
     }
+  }
+
+  private func observeVolumeBoostChanged() {
+    userPreferences.objectWillChange
+      .sink { [weak self] _ in
+        guard let self, let player = self.player else { return }
+        player.volume = self.userPreferences.volumeBoost.multiplier
+      }
+      .store(in: &cancellables)
   }
 
   private func observeCurrentChapter() {

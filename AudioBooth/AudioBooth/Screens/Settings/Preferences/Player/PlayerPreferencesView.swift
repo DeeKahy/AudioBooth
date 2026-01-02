@@ -274,6 +274,30 @@ struct PlayerPreferencesView: View {
           .bold()
       }
       .listRowSeparator(.hidden)
+      .listSectionSpacing(.custom(12))
+
+      Section {
+        VStack(alignment: .leading) {
+          Text("Volume Boost".uppercased())
+            .bold()
+            .accessibilityAddTraits(.isHeader)
+
+          Text("Boost the volume for quieter audiobooks.")
+        }
+        .font(.caption)
+
+        Picker("Volume Boost", selection: $preferences.volumeBoost) {
+          Text("None").tag(VolumeBoost.none)
+          Text("Low").tag(VolumeBoost.low)
+          Text("Medium").tag(VolumeBoost.medium)
+          Text("High").tag(VolumeBoost.high)
+        }
+        .font(.subheadline)
+        .bold()
+        .accessibilityLabel("Volume Boost")
+        .accessibilityValue(preferences.volumeBoost.displayText)
+      }
+      .listRowSeparator(.hidden)
     }
     .navigationTitle("Player")
   }
