@@ -82,7 +82,7 @@ final class PlayerManager: ObservableObject, Sendable {
     isShowingFullPlayer = false
     UserDefaults.standard.removeObject(forKey: Self.currentBookIDKey)
     sharedDefaults?.removeObject(forKey: "playbackState")
-    watchConnectivity.clearPlaybackState()
+    watchConnectivity.sendPlaybackRate(nil)
     SessionManager.shared.clearSession()
     WidgetCenter.shared.reloadAllTimelines()
   }

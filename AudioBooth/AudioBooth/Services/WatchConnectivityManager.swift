@@ -35,7 +35,6 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
   func syncContinueListening(books: [Book]) {
     var context = session?.applicationContext ?? [:]
-    let currentBookID = PlayerManager.shared.current?.id
 
     let allProgress = (try? MediaProgress.fetchAll()) ?? []
     let progressByBookID = Dictionary(
@@ -46,8 +45,6 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     var progress: [String: Double] = [:]
 
     for book in books {
-      if book.id == currentBookID { continue }
-
       continueListening.append([
         "id": book.id,
         "title": book.title,
@@ -76,6 +73,26 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     AppLogger.watchConnectivity.info(
       "Synced \(continueListening.count) continue listening books"
     )
+  }
+
+  private func refreshContinueListening() {
+    Task {
+      do {
+        let personalized = try await Audiobookshelf.shared.libraries.fetchPersonalized()
+
+        for section in personalized.sections {
+          if section.id == "continue-listening" {
+            if case .books(let books) = section.entities {
+              syncContinueListening(books: books)
+              AppLogger.watchConnectivity.info("Refreshed continue listening from server on watch request")
+            }
+            break
+          }
+        }
+      } catch {
+        AppLogger.watchConnectivity.error("Failed to fetch personalized data for watch refresh: \(error)")
+      }
+    }
   }
 
   private func refreshProgress() {
@@ -124,44 +141,18 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     }
   }
 
-  func sendPlaybackState(
-    isPlaying: Bool,
-    currentTime: Double,
-    bookID: String,
-    title: String,
-    author: String?,
-    coverURL: URL?,
-    duration: Double,
-    chapters: [[String: Any]],
-    playbackSpeed: Float
-  ) {
+  func sendPlaybackRate(_ rate: Float?) {
     guard let session = session else { return }
 
     var context = session.applicationContext
-    var progress = context["progress"] as? [String: Double] ?? [:]
-    progress[bookID] = currentTime
+    if let rate {
+      context["playbackRate"] = rate
+      context["hasCurrentBook"] = true
+    } else {
+      context.removeValue(forKey: "playbackRate")
+      context.removeValue(forKey: "hasCurrentBook")
+    }
 
-    context["current"] = [
-      "id": bookID,
-      "title": title,
-      "author": author as Any,
-      "coverURL": watchCompatibleCoverURL(from: coverURL) as Any,
-      "duration": duration,
-      "chapters": chapters,
-    ]
-    context["playback"] = [
-      "speed": playbackSpeed,
-      "isPlaying": isPlaying,
-    ]
-    context["progress"] = progress
-
-    updateContext(context)
-  }
-
-  func clearPlaybackState() {
-    guard let session = session else { return }
-    var context = session.applicationContext
-    context.removeValue(forKey: "current")
     updateContext(context)
   }
 
@@ -251,6 +242,12 @@ extension WatchConnectivityManager: WCSessionDelegate {
       case "skipBackward":
         let interval = UserDefaults.standard.double(forKey: "skipBackwardInterval")
         PlayerManager.shared.current?.onSkipBackwardTapped(seconds: interval)
+      case "changePlaybackRate":
+        if let rate = message["rate"] as? Float {
+          PlayerManager.shared.current?.speed.onSpeedChanged(rate)
+        }
+      case "refreshContinueListening":
+        refreshContinueListening()
       case "requestContext":
         refreshProgress()
       case "reportProgress":

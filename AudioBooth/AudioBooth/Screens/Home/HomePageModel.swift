@@ -172,6 +172,8 @@ extension HomePageModel {
     }
 
     self.sections = orderedSections
+
+    WatchConnectivityManager.shared.syncContinueListening(books: continueListeningBooks)
     saveRecentBooksToWidget()
   }
 

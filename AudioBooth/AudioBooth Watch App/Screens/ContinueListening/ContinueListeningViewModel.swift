@@ -35,6 +35,12 @@ final class ContinueListeningViewModel: ContinueListeningView.Model {
       .store(in: &cancellables)
   }
 
+  override func onRefresh() async {
+    isRefreshing = true
+    await connectivityManager.refreshContinueListening()
+    isRefreshing = false
+  }
+
   private func updateAllRows() {
     let localBooks = localStorage.books
     let downloadedBooks = localBooks.filter { $0.isDownloaded }

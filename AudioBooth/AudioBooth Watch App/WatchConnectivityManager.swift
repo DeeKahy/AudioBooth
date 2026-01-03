@@ -6,11 +6,10 @@ import WatchConnectivity
 final class WatchConnectivityManager: NSObject, ObservableObject {
   static let shared = WatchConnectivityManager()
 
-  @Published var isPlaying: Bool = false
-  @Published var currentBook: WatchBook?
-
   @Published var continueListeningBooks: [WatchBook] = []
   @Published var progress: [String: Double] = [:]
+  @Published var hasCurrentBook: Bool = false
+  @Published var playbackRate: Float = 1.0
 
   private var session: WCSession?
   private var cancellables = Set<AnyCancellable>()
@@ -96,6 +95,56 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
   func skipBackward() {
     sendCommand("skipBackward")
+  }
+
+  func playOnIPhone(bookID: String) {
+    guard let session = session, session.isReachable else {
+      AppLogger.watchConnectivity.warning("Cannot play on iPhone - session not reachable")
+      return
+    }
+
+    let message: [String: Any] = [
+      "command": "play",
+      "bookID": bookID,
+    ]
+    session.sendMessage(message, replyHandler: nil) { error in
+      AppLogger.watchConnectivity.error("Failed to send play command to iOS: \(error)")
+    }
+  }
+
+  func changePlaybackRate(_ rate: Float) {
+    guard let session = session, session.isReachable else {
+      AppLogger.watchConnectivity.warning("Cannot change playback rate - session not reachable")
+      return
+    }
+
+    let message: [String: Any] = [
+      "command": "changePlaybackRate",
+      "rate": rate,
+    ]
+    session.sendMessage(message, replyHandler: nil) { error in
+      AppLogger.watchConnectivity.error("Failed to send playback rate command to iOS: \(error)")
+    }
+  }
+
+  func refreshContinueListening() async {
+    guard let session = session, session.isReachable else {
+      AppLogger.watchConnectivity.warning("Cannot refresh - session not reachable")
+      return
+    }
+
+    await withCheckedContinuation { continuation in
+      let message: [String: Any] = ["command": "refreshContinueListening"]
+      session.sendMessage(
+        message,
+        replyHandler: { _ in
+          continuation.resume()
+        }
+      ) { error in
+        AppLogger.watchConnectivity.error("Failed to refresh continue listening: \(error)")
+        continuation.resume()
+      }
+    }
   }
 
   func sendDownloadedBookIDs(_ ids: [String]) {
@@ -279,57 +328,26 @@ extension WatchConnectivityManager: WCSessionDelegate {
   }
 
   private func handleContext(_ context: [String: Any]) {
-    if let currentData = context["current"] as? [String: Any] {
-      handleCurrentBook(currentData)
-    } else {
-      currentBook = nil
-    }
-
-    if let playbackData = context["playback"] as? [String: Any],
-      let newIsPlaying = playbackData["isPlaying"] as? Bool
-    {
-      if newIsPlaying && !PlayerManager.shared.isPlayingOnWatch {
-        PlayerManager.shared.clearCurrent()
-      }
-      isPlaying = newIsPlaying
-    } else {
-      isPlaying = false
-    }
-
     let continueListeningData = context["continueListening"] as? [[String: Any]] ?? []
     handleContinueListening(continueListeningData)
 
     let progressData = context["progress"] as? [String: Double] ?? [:]
     handleProgress(progressData)
+
+    hasCurrentBook = context["hasCurrentBook"] as? Bool ?? false
+    playbackRate = context["playbackRate"] as? Float ?? 1.0
   }
 
   private func handleMessage(_ message: [String: Any]) {
     if let progressData = message["progress"] as? [String: Double] {
       handleProgress(progressData)
     }
-
-    if let playbackData = message["playback"] as? [String: Any] {
-      if let isPlaying = playbackData["isPlaying"] as? Bool {
-        if isPlaying && !PlayerManager.shared.isPlayingOnWatch {
-          PlayerManager.shared.clearCurrent()
-        }
-        self.isPlaying = isPlaying
-      }
-    }
-
-    if let currentData = message["current"] as? [String: Any] {
-      handleCurrentBook(currentData)
-    }
   }
 
   private func handleContinueListening(_ data: [[String: Any]]) {
-    var books = data.compactMap { dict -> WatchBook? in
+    let books = data.compactMap { dict -> WatchBook? in
       let currentTime = progress[dict["id"] as? String ?? ""] ?? 0
       return WatchBook(dictionary: dict, currentTime: currentTime)
-    }
-
-    if let currentBook, !books.contains(where: { $0.id == currentBook.id }) {
-      books.insert(currentBook, at: 0)
     }
 
     continueListeningBooks = books
@@ -339,28 +357,20 @@ extension WatchConnectivityManager: WCSessionDelegate {
   }
 
   private func handleProgress(_ data: [String: Double]) {
+    var updatedBooks = continueListeningBooks
+
     for (bookID, currentTime) in data {
       progress[bookID] = currentTime
 
-      if let index = continueListeningBooks.firstIndex(where: { $0.id == bookID }) {
-        continueListeningBooks[index].currentTime = currentTime
+      if let index = updatedBooks.firstIndex(where: { $0.id == bookID }) {
+        updatedBooks[index].currentTime = currentTime
       }
 
       LocalBookStorage.shared.updateProgress(for: bookID, currentTime: currentTime)
     }
 
+    continueListeningBooks = updatedBooks
     persistBooks(continueListeningBooks)
   }
 
-  private func handleCurrentBook(_ data: [String: Any]) {
-    let currentTime = progress[data["id"] as? String ?? ""] ?? 0
-    guard let book = WatchBook(dictionary: data, currentTime: currentTime) else { return }
-
-    currentBook = book
-
-    if !continueListeningBooks.contains(where: { $0.id == book.id }) {
-      continueListeningBooks.insert(book, at: 0)
-      persistBooks(continueListeningBooks)
-    }
-  }
 }

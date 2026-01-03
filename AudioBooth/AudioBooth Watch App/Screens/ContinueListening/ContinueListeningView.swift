@@ -31,6 +31,24 @@ struct ContinueListeningView: View {
             ContinueListeningRow(model: rowModel)
           }
         }
+
+        Button {
+          Task {
+            await model.onRefresh()
+          }
+        } label: {
+          if model.isRefreshing {
+            ProgressView()
+              .frame(maxWidth: .infinity)
+          } else {
+            Label("Refresh", systemImage: "arrow.clockwise")
+              .frame(maxWidth: .infinity)
+          }
+        }
+        .buttonStyle(.bordered)
+        .disabled(model.isRefreshing)
+        .padding(.horizontal)
+        .padding(.top, 8)
       }
     }
   }
@@ -51,6 +69,9 @@ extension ContinueListeningView {
   class Model: ObservableObject {
     var continueListeningRows: [ContinueListeningRow.Model]
     var availableOfflineRows: [ContinueListeningRow.Model]
+    var isRefreshing: Bool = false
+
+    func onRefresh() async {}
 
     init(
       continueListeningRows: [ContinueListeningRow.Model] = [],

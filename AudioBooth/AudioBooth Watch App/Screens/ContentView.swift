@@ -5,6 +5,7 @@ struct ContentView: View {
   @ObservedObject var playerManager = PlayerManager.shared
 
   @State private var player: PlayerView.Model?
+  @State private var showRemotePlayer = false
 
   var body: some View {
     NavigationStack {
@@ -14,6 +15,11 @@ struct ContentView: View {
         }
         .sheet(item: $player) { model in
           PlayerView(model: model)
+        }
+        .sheet(isPresented: $showRemotePlayer) {
+          NavigationStack {
+            RemotePlayerView()
+          }
         }
         .onChange(of: playerManager.isShowingFullPlayer) { _, newValue in
           if newValue, let model = playerManager.current {
@@ -33,14 +39,13 @@ struct ContentView: View {
 
   var activePlayerButton: PlayerButton {
     let hasWatchPlayer = playerManager.current is BookPlayerModel
-    let hasIPhonePlayer = connectivityManager.currentBook != nil
-    let isIPhonePlaying = hasIPhonePlayer && connectivityManager.isPlaying
+    let hasIPhonePlayer = connectivityManager.hasCurrentBook
 
     if playerManager.isPlayingOnWatch {
       return .watch
     }
 
-    if hasWatchPlayer && !isIPhonePlaying {
+    if hasWatchPlayer && !hasIPhonePlayer {
       return .watch
     }
 
@@ -61,21 +66,18 @@ struct ContentView: View {
         } label: {
           Image(systemName: "applewatch")
         }
-        .tint(.primary)
       }
     case .iphone:
       ToolbarItem(placement: .topBarTrailing) {
         Button {
-          player = RemotePlayerModel()
+          showRemotePlayer = true
         } label: {
           Image(systemName: "iphone")
         }
-        .tint(.primary)
       }
     case .none:
       ToolbarItem(placement: .topBarTrailing) {
         EmptyView()
-          .tint(.primary)
       }
     }
   }
