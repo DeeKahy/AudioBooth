@@ -279,6 +279,8 @@ extension BookPlayerModel {
   }
 
   private func applySmartRewind() {
+    guard !isPlaying else { return }
+
     let smartRewindInterval = userPreferences.smartRewindInterval
 
     guard smartRewindInterval > 0 else {
