@@ -1019,7 +1019,7 @@ extension BookPlayerModel {
       }
       lastPlaybackAt = nil
 
-      markAsFinishedIfNeeded()
+      recordBookCompletionIfNeeded()
       sessionManager.notifyPlaybackStopped()
     } else {
       AppLogger.player.debug(
@@ -1033,48 +1033,14 @@ extension BookPlayerModel {
     syncPlayback()
   }
 
-  private func markAsFinishedIfNeeded() {
-    guard !mediaProgress.isFinished, player?.status == .readyToPlay, mediaProgress.duration > 0 else { return }
-
-    let isNearEnd = mediaProgress.remaining <= 120
-
-    var shouldMarkFinished = isNearEnd
-
-    if let chaptersModel = chapters as? ChapterPickerSheetViewModel {
-      let isOnLastChapter =
-        chaptersModel.chapters.count > 1
-        && chaptersModel.currentIndex == chaptersModel.chapters.count - 1
-
-      shouldMarkFinished = isOnLastChapter
-      AppLogger.player.debug(
-        "📖 Chapter check: \(isOnLastChapter), Near end: \(isNearEnd)"
-      )
-    } else {
-      AppLogger.player.debug(
-        "📖 No chapters, using time-based check. Near end: \(isNearEnd)"
-      )
-    }
-
-    guard shouldMarkFinished else { return }
-
-    mediaProgress.isFinished = true
-    mediaProgress.progress = 1.0
-    try? mediaProgress.save()
+  private func recordBookCompletionIfNeeded() {
+    guard
+      !mediaProgress.isFinished, player?.status == .readyToPlay,
+      mediaProgress.duration > 0,
+      mediaProgress.remaining <= 120
+    else { return }
 
     ReviewRequestManager.shared.recordBookCompletion()
-
-    Task {
-      guard let item else { return }
-
-      do {
-        try await item.markAsFinished()
-        AppLogger.player.debug("Successfully marked book as finished on server")
-      } catch {
-        AppLogger.player.error(
-          "Failed to update book finished status on server: \(error)"
-        )
-      }
-    }
   }
 }
 
