@@ -10,7 +10,7 @@ extension User {
   public struct MediaProgress: Codable, Sendable {
     public let id: String
     public let libraryItemId: String
-    public let duration: Double
+    public let duration: Double?
     public let progress: Double
     public let ebookProgress: Double?
     public let isFinished: Bool

@@ -42,7 +42,7 @@ public final class MediaProgress {
 
     if apiProgress.isFinished {
       progress = 1.0
-      currentTime = apiProgress.duration
+      currentTime = apiProgress.duration ?? 0
     }
 
     self.init(
@@ -50,7 +50,7 @@ public final class MediaProgress {
       id: apiProgress.id,
       lastPlayedAt: Date(timeIntervalSince1970: TimeInterval(apiProgress.lastUpdate / 1000)),
       currentTime: currentTime,
-      duration: apiProgress.duration,
+      duration: apiProgress.duration ?? 0,
       progress: progress,
       isFinished: apiProgress.isFinished,
       lastUpdate: Date(timeIntervalSince1970: TimeInterval(apiProgress.lastUpdate / 1000))
