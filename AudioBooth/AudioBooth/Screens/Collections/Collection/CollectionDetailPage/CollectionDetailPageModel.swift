@@ -4,6 +4,7 @@ import SwiftUI
 
 final class CollectionDetailPageModel: CollectionDetailPage.Model {
   private let audiobookshelf = Audiobookshelf.shared
+  private let pinnedPlaylistManager = PinnedPlaylistManager.shared
   private let collectionID: String
   private var loadTask: Task<Void, Never>?
 
@@ -25,7 +26,9 @@ final class CollectionDetailPageModel: CollectionDetailPage.Model {
       canDelete = permissions?.delete == true
     }
 
-    super.init(mode: mode, canEdit: canEdit, canDelete: canDelete)
+    let isPinned = pinnedPlaylistManager.isPinned(collectionID)
+
+    super.init(mode: mode, canEdit: canEdit, canDelete: canDelete, isPinned: isPinned)
   }
 
   override func onAppear() {
@@ -151,6 +154,16 @@ final class CollectionDetailPageModel: CollectionDetailPage.Model {
         print("Failed to remove items: \(error)")
         await loadCollection()
       }
+    }
+  }
+
+  override func onTogglePin() {
+    if isPinned {
+      pinnedPlaylistManager.unpin()
+      isPinned = false
+    } else {
+      pinnedPlaylistManager.pin(collectionID)
+      isPinned = true
     }
   }
 

@@ -51,8 +51,10 @@ struct HomePage: View {
             OfflineListView(model: OfflineListViewModel())
           case .series, .author, .narrator, .genre, .tag:
             LibraryPage(model: LibraryPageModel(destination: destination))
-          case .playlist, .collection:
-            EmptyView()
+          case .playlist(let id):
+            CollectionDetailPage(model: CollectionDetailPageModel(collectionID: id, mode: .playlists))
+          case .collection(let id):
+            CollectionDetailPage(model: CollectionDetailPageModel(collectionID: id, mode: .collections))
           }
         }
     }
@@ -204,6 +206,36 @@ struct HomePage: View {
           .padding(.horizontal)
         }
 
+      case .playlist(let id, let items):
+        NavigationLink(value: NavigationDestination.playlist(id: id)) {
+          HStack {
+            Text(section.title)
+              .font(.title2)
+              .fontWeight(.semibold)
+              .foregroundColor(.primary)
+              .accessibilityAddTraits(.isHeader)
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+              .font(.body)
+              .foregroundColor(.secondary)
+          }
+          .padding(.horizontal)
+          .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(alignment: .top, spacing: 16) {
+            ForEach(items, id: \.id) { book in
+              BookCard(model: book)
+                .frame(width: 120)
+            }
+          }
+          .padding(.horizontal)
+        }
+
       case .continueListening(let items):
         Text(section.title)
           .font(.title2)
@@ -297,6 +329,7 @@ extension HomePage {
         case stats
         case continueListening([BookCard.Model])
         case offline([BookCard.Model])
+        case playlist(id: String, items: [BookCard.Model])
         case books([BookCard.Model])
         case series([SeriesCard.Model])
         case authors([AuthorCard.Model])

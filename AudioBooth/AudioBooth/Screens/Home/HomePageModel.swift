@@ -10,6 +10,7 @@ final class HomePageModel: HomePage.Model {
   private let downloadManager = DownloadManager.shared
   private let playerManager = PlayerManager.shared
   private let preferences = UserPreferences.shared
+  private let pinnedPlaylistManager = PinnedPlaylistManager.shared
 
   private var availableOfflineTask: Task<Void, Never>?
   private var cancellables = Set<AnyCancellable>()
@@ -17,6 +18,7 @@ final class HomePageModel: HomePage.Model {
   private var availableOffline: [LocalBook] = []
   private var continueListeningBooks: [Book] = []
   private var personalizedSections: [Personalized.Section] = []
+  private var pinnedPlaylist: Playlist?
 
   init() {
     super.init()
@@ -29,6 +31,15 @@ final class HomePageModel: HomePage.Model {
         }
       }
       .store(in: &cancellables)
+
+    pinnedPlaylistManager.objectWillChange
+      .sink { [weak self] _ in
+        Task {
+          await self?.fetchPinnedPlaylist()
+          self?.rebuildSections()
+        }
+      }
+      .store(in: &cancellables)
   }
 
   override func onAppear() {
@@ -37,7 +48,7 @@ final class HomePageModel: HomePage.Model {
     }
 
     Task {
-      await fetchRemoteContent()
+      await fetchContent()
     }
   }
 
@@ -45,7 +56,7 @@ final class HomePageModel: HomePage.Model {
     if Audiobookshelf.shared.libraries.current != nil {
       _ = try? await Audiobookshelf.shared.libraries.fetchFilterData()
     }
-    await fetchRemoteContent()
+    await fetchContent()
   }
 
   override func onReset(_ shouldRefresh: Bool) {
@@ -54,6 +65,7 @@ final class HomePageModel: HomePage.Model {
     availableOffline = []
     continueListeningBooks = []
     personalizedSections = []
+    pinnedPlaylist = nil
     sections = []
     isLoading = false
 
@@ -67,6 +79,31 @@ final class HomePageModel: HomePage.Model {
 
   override func onPreferencesChanged() {
     rebuildSections()
+  }
+}
+
+extension HomePageModel {
+  private func fetchContent() async {
+    async let pinnedPlaylistFetch = fetchPinnedPlaylist
+    async let remoteContentFetch = fetchRemoteContent
+
+    _ = await [pinnedPlaylistFetch(), remoteContentFetch()]
+  }
+
+  private func fetchPinnedPlaylist() async {
+    guard let playlistID = pinnedPlaylistManager.pinnedPlaylistID else {
+      pinnedPlaylist = nil
+      return
+    }
+
+    do {
+      let playlist = try await Audiobookshelf.shared.playlists.fetch(id: playlistID)
+      pinnedPlaylist = playlist
+    } catch {
+      AppLogger.viewModel.error("Failed to fetch pinned playlist: \(error)")
+      pinnedPlaylist = nil
+      pinnedPlaylistManager.unpin()
+    }
   }
 }
 
@@ -146,6 +183,7 @@ extension HomePageModel {
 
     let continueListeningSection = buildContinueListeningSection()
     let offlineSection = buildOfflineSection()
+    let pinnedPlaylistSection = buildPinnedPlaylistSection()
 
     var orderedSections: [Section] = []
 
@@ -153,6 +191,11 @@ extension HomePageModel {
       switch sectionID {
       case .listeningStats:
         orderedSections.append(Section(id: "listening-stats", title: "", items: .stats))
+
+      case .pinnedPlaylist:
+        if let pinnedPlaylistSection {
+          orderedSections.append(pinnedPlaylistSection)
+        }
 
       case .continueListening:
         if let continueListeningSection {
@@ -272,6 +315,19 @@ extension HomePageModel {
       id: "available-offline",
       title: "Available Offline",
       items: .offline(models)
+    )
+  }
+
+  private func buildPinnedPlaylistSection() -> Section? {
+    guard let playlist = pinnedPlaylist else { return nil }
+    guard !playlist.books.isEmpty else { return nil }
+
+    let models = playlist.books.map { BookCardModel($0, sortBy: .title) }
+
+    return Section(
+      id: "pinned-playlist",
+      title: playlist.name,
+      items: .playlist(id: playlist.id, items: models)
     )
   }
 }

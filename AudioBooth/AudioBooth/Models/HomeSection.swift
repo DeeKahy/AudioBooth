@@ -2,6 +2,7 @@ import Foundation
 
 public enum HomeSection: String, CaseIterable, Identifiable, Codable {
   case listeningStats = "listening-stats"
+  case pinnedPlaylist = "pinned-playlist"
   case continueListening = "continue-listening"
   case availableOffline = "available-offline"
   case continueSeries = "continue-series"
@@ -16,6 +17,7 @@ public enum HomeSection: String, CaseIterable, Identifiable, Codable {
   public var displayName: String {
     switch self {
     case .listeningStats: return "Listening Stats"
+    case .pinnedPlaylist: return "Pinned Playlist"
     case .continueListening: return "Continue Listening"
     case .availableOffline: return "Available Offline"
     case .continueSeries: return "Continue Series"
@@ -28,7 +30,7 @@ public enum HomeSection: String, CaseIterable, Identifiable, Codable {
   }
 
   public var canBeDisabled: Bool {
-    ![.continueListening, .availableOffline].contains(self)
+    ![.pinnedPlaylist, .continueListening, .availableOffline].contains(self)
   }
 
   public static var defaultCases: [HomeSection] {

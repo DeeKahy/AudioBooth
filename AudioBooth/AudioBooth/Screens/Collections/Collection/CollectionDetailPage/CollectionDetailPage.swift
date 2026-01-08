@@ -24,6 +24,17 @@ struct CollectionDetailPage: View {
     .listStyle(.plain)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
+      if model.mode == .playlists {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button {
+            model.onTogglePin()
+          } label: {
+            Image(systemName: model.isPinned ? "pin.fill" : "pin")
+          }
+          .tint(.primary)
+        }
+      }
+
       if model.canEdit {
         ToolbarItem(placement: .navigationBarTrailing) {
           EditButton()
@@ -186,6 +197,7 @@ extension CollectionDetailPage {
     var mode: CollectionMode
     var canEdit: Bool
     var canDelete: Bool
+    var isPinned: Bool
 
     func onAppear() {}
     func refresh() async {}
@@ -193,6 +205,7 @@ extension CollectionDetailPage {
     func onUpdateCollection(name: String, description: String?) {}
     func onMove(from source: IndexSet, to destination: Int) {}
     func onDelete(at indexSet: IndexSet) {}
+    func onTogglePin() {}
 
     init(
       isLoading: Bool = false,
@@ -201,7 +214,8 @@ extension CollectionDetailPage {
       books: [ItemRow.Model] = [],
       mode: CollectionMode = .playlists,
       canEdit: Bool = false,
-      canDelete: Bool = false
+      canDelete: Bool = false,
+      isPinned: Bool = false
     ) {
       self.isLoading = isLoading
       self.collectionName = collectionName
@@ -210,6 +224,7 @@ extension CollectionDetailPage {
       self.mode = mode
       self.canEdit = canEdit
       self.canDelete = canDelete
+      self.isPinned = isPinned
     }
   }
 }
