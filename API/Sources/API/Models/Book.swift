@@ -107,7 +107,7 @@ extension Book {
     public let tags: [String]?
     public let ebookFile: LibraryFile?
 
-    public struct Metadata: Codable, Sendable {
+    public struct Metadata: Sendable {
       public let title: String
       public let subtitle: String?
       public let authors: [Author]?
@@ -127,36 +127,6 @@ extension Book {
       public let language: String?
       public let explicit: Bool?
       public let abridged: Bool?
-
-      public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        title = try container.decode(String.self, forKey: .title)
-        subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
-        authors = try container.decodeIfPresent([Author].self, forKey: .authors)
-        narrators = try container.decodeIfPresent([String].self, forKey: .narrators)
-        publishedYear = try container.decodeIfPresent(String.self, forKey: .publishedYear)
-        publishedDate = try container.decodeIfPresent(String.self, forKey: .publishedDate)
-        authorName = try container.decodeIfPresent(String.self, forKey: .authorName)
-        narratorName = try container.decodeIfPresent(String.self, forKey: .narratorName)
-        seriesName = try container.decodeIfPresent(String.self, forKey: .seriesName)
-        publisher = try container.decodeIfPresent(String.self, forKey: .publisher)
-        description = try container.decodeIfPresent(String.self, forKey: .description)
-        descriptionPlain = try container.decodeIfPresent(String.self, forKey: .descriptionPlain)
-        genres = try container.decodeIfPresent([String].self, forKey: .genres)
-        isbn = try container.decodeIfPresent(String.self, forKey: .isbn)
-        asin = try container.decodeIfPresent(String.self, forKey: .asin)
-        language = try container.decodeIfPresent(String.self, forKey: .language)
-        explicit = try container.decodeIfPresent(Bool.self, forKey: .explicit)
-        abridged = try container.decodeIfPresent(Bool.self, forKey: .abridged)
-
-        if let seriesArray = try? container.decode([Series].self, forKey: .series) {
-          series = seriesArray
-        } else if let singleSeries = try? container.decode(Series.self, forKey: .series) {
-          series = [singleSeries]
-        } else {
-          series = nil
-        }
-      }
     }
 
     public struct Author: Codable, Sendable {
@@ -164,7 +134,7 @@ extension Book {
       public let name: String
     }
 
-    public struct Series: Codable, Sendable {
+    public struct Series: Sendable {
       public let id: String
       public let name: String
       public let sequence: String
@@ -224,5 +194,46 @@ extension Book.LibraryFile {
       let raw = try container.decode(RawValue.self)
       self = Self(rawValue: raw) ?? .unknown
     }
+  }
+}
+
+extension Book.Media.Metadata: Codable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    title = try container.decode(String.self, forKey: .title)
+    subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
+    authors = try container.decodeIfPresent([Book.Media.Author].self, forKey: .authors)
+    narrators = try container.decodeIfPresent([String].self, forKey: .narrators)
+    publishedYear = try container.decodeIfPresent(String.self, forKey: .publishedYear)
+    publishedDate = try container.decodeIfPresent(String.self, forKey: .publishedDate)
+    authorName = try container.decodeIfPresent(String.self, forKey: .authorName)
+    narratorName = try container.decodeIfPresent(String.self, forKey: .narratorName)
+    seriesName = try container.decodeIfPresent(String.self, forKey: .seriesName)
+    publisher = try container.decodeIfPresent(String.self, forKey: .publisher)
+    description = try container.decodeIfPresent(String.self, forKey: .description)
+    descriptionPlain = try container.decodeIfPresent(String.self, forKey: .descriptionPlain)
+    genres = try container.decodeIfPresent([String].self, forKey: .genres)
+    isbn = try container.decodeIfPresent(String.self, forKey: .isbn)
+    asin = try container.decodeIfPresent(String.self, forKey: .asin)
+    language = try container.decodeIfPresent(String.self, forKey: .language)
+    explicit = try container.decodeIfPresent(Bool.self, forKey: .explicit)
+    abridged = try container.decodeIfPresent(Bool.self, forKey: .abridged)
+
+    if let seriesArray = try? container.decode([Book.Media.Series].self, forKey: .series) {
+      series = seriesArray
+    } else if let singleSeries = try? container.decode(Book.Media.Series.self, forKey: .series) {
+      series = [singleSeries]
+    } else {
+      series = nil
+    }
+  }
+}
+
+extension Book.Media.Series: Codable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(String.self, forKey: .id)
+    name = try container.decode(String.self, forKey: .name)
+    sequence = try container.decodeIfPresent(String.self, forKey: .sequence) ?? ""
   }
 }
