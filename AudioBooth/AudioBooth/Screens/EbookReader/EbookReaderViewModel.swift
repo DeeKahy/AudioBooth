@@ -100,14 +100,24 @@ final class EbookReaderViewModel: EbookReaderView.Model {
       let httpServer = GCDHTTPServer(assetRetriever: assetRetriever)
       self.httpServer = httpServer
 
-      let progress: Double
+      let initialLocation: Locator?
       if let bookID {
-        progress = MediaProgress.progress(for: bookID)
+        let mediaProgress = try? MediaProgress.fetch(bookID: bookID)
+
+        if let locationString = mediaProgress?.ebookLocation,
+          let locator = try? Locator(jsonString: locationString)
+        {
+          initialLocation = locator
+          AppLogger.viewModel.info("Restored from ebookLocation")
+        } else {
+          let progress = MediaProgress.progress(for: bookID)
+          initialLocation = await publication.locate(progression: progress)
+          AppLogger.viewModel.info("Restored from ebookProgress: \(progress)")
+        }
       } else {
-        progress = 0.0
+        initialLocation = nil
       }
 
-      let initialLocation = await publication.locate(progression: progress)
       let navigator = try createNavigator(
         for: publication,
         httpServer: httpServer,
@@ -296,11 +306,17 @@ final class EbookReaderViewModel: EbookReaderView.Model {
   private func syncProgressToServer(_ progress: Double) {
     guard let bookID else { return }
 
+    var location = navigator?.currentLocation
+    location?.locations.totalProgression = nil
+
+    let ebookLocation = location?.jsonString
+
     try? MediaProgress.updateProgress(
       for: bookID,
       currentTime: 0,
       duration: 0,
-      progress: progress
+      progress: progress,
+      ebookLocation: ebookLocation
     )
 
     let now = Date()
@@ -314,7 +330,8 @@ final class EbookReaderViewModel: EbookReaderView.Model {
       do {
         try await audiobookshelf.books.updateEbookProgress(
           bookID: bookID,
-          progress: progress
+          progress: progress,
+          location: ebookLocation
         )
         AppLogger.viewModel.debug("Synced ebook progress: \(progress)")
       } catch {

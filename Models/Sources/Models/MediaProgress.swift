@@ -11,6 +11,7 @@ public final class MediaProgress {
   public var currentTime: TimeInterval
   public var duration: TimeInterval
   public var progress: Double
+  public var ebookLocation: String?
   public var isFinished: Bool
   public var lastUpdate: Date
 
@@ -23,6 +24,7 @@ public final class MediaProgress {
     currentTime: TimeInterval = 0,
     duration: TimeInterval = .infinity,
     progress: Double = 0,
+    ebookLocation: String? = nil,
     isFinished: Bool = false,
     lastUpdate: Date = Date()
   ) {
@@ -32,6 +34,7 @@ public final class MediaProgress {
     self.currentTime = currentTime
     self.duration = duration
     self.progress = progress
+    self.ebookLocation = ebookLocation
     self.isFinished = isFinished
     self.lastUpdate = lastUpdate
   }
@@ -52,6 +55,7 @@ public final class MediaProgress {
       currentTime: currentTime,
       duration: apiProgress.duration ?? 0,
       progress: progress,
+      ebookLocation: apiProgress.ebookLocation,
       isFinished: apiProgress.isFinished,
       lastUpdate: Date(timeIntervalSince1970: TimeInterval(apiProgress.lastUpdate / 1000))
     )
@@ -105,6 +109,7 @@ extension MediaProgress {
       existingProgress.currentTime = self.currentTime
       existingProgress.duration = self.duration
       existingProgress.progress = self.progress
+      existingProgress.ebookLocation = self.ebookLocation
       existingProgress.isFinished = self.isFinished
       existingProgress.lastUpdate = self.lastUpdate
     } else {
@@ -158,12 +163,14 @@ extension MediaProgress {
     for bookID: String,
     currentTime: TimeInterval,
     duration: TimeInterval,
-    progress: Double
+    progress: Double,
+    ebookLocation: String? = nil
   ) throws {
     if let existingProgress = try MediaProgress.fetch(bookID: bookID) {
       existingProgress.currentTime = currentTime
       existingProgress.duration = duration
       existingProgress.progress = progress
+      existingProgress.ebookLocation = ebookLocation
       existingProgress.lastUpdate = Date()
       existingProgress.isFinished = progress >= 1.0
       try existingProgress.save()
@@ -175,6 +182,7 @@ extension MediaProgress {
         currentTime: currentTime,
         duration: duration,
         progress: progress,
+        ebookLocation: ebookLocation,
         isFinished: progress >= 1.0,
         lastUpdate: Date()
       )
@@ -231,6 +239,7 @@ extension MediaProgress {
           local.lastPlayedAt = remote.lastPlayedAt
           local.currentTime = remote.currentTime
           local.progress = remote.progress
+          local.ebookLocation = remote.ebookLocation
           local.isFinished = remote.isFinished
           local.lastUpdate = remote.lastUpdate
         }
