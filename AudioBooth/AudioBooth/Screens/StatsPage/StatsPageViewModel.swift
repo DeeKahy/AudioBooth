@@ -39,7 +39,7 @@ final class StatsPageViewModel: StatsPageView.Model {
         StatsPageView.Model.SessionData(
           id: session.id,
           title: session.displayTitle,
-          timeListening: session.timeListening,
+          timeListening: session.timeListening ?? 0,
           updatedAt: session.updatedAt
         )
       }
