@@ -8,12 +8,11 @@ final class SeriesPageModel: SeriesPage.Model {
   private var fetchedSeries: [SeriesCard.Model] = []
 
   private var currentPage: Int = 0
-  private var hasMorePages: Bool = true
   private var isLoadingNextPage: Bool = false
   private let itemsPerPage: Int = 50
 
   init() {
-    super.init()
+    super.init(hasMorePages: true)
     self.search = SearchViewModel()
   }
 
@@ -25,7 +24,7 @@ final class SeriesPageModel: SeriesPage.Model {
 
   override func refresh() async {
     currentPage = 0
-    hasMorePages = true
+    self.hasMorePages = true
     fetchedSeries.removeAll()
     series.removeAll()
     await loadSeries()
@@ -58,7 +57,7 @@ final class SeriesPageModel: SeriesPage.Model {
       self.series = fetchedSeries
       currentPage += 1
 
-      hasMorePages = (currentPage * itemsPerPage) < response.total
+      self.hasMorePages = (currentPage * itemsPerPage) < response.total
 
     } catch {
       AppLogger.viewModel.error("Failed to fetch series: \(error)")
@@ -72,7 +71,9 @@ final class SeriesPageModel: SeriesPage.Model {
     isLoading = false
   }
 
-  func loadNextPageIfNeeded() async {
-    await loadSeries()
+  override func loadNextPageIfNeeded() {
+    Task {
+      await loadSeries()
+    }
   }
 }

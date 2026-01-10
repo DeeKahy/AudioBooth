@@ -2,6 +2,8 @@ import SwiftUI
 
 struct SeriesView: View {
   let series: [SeriesCard.Model]
+  var hasMorePages: Bool = false
+  var onLoadMore: (() -> Void)?
 
   var body: some View {
     LazyVGrid(
@@ -10,6 +12,15 @@ struct SeriesView: View {
     ) {
       ForEach(series, id: \.id) { series in
         SeriesCard(model: series)
+      }
+
+      if hasMorePages {
+        ProgressView()
+          .frame(maxWidth: .infinity)
+          .padding()
+          .onAppear {
+            onLoadMore?()
+          }
       }
     }
   }

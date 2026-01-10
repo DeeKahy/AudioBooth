@@ -39,18 +39,12 @@ struct SeriesPage: View {
 
   var seriesContent: some View {
     ScrollView {
-      SeriesView(series: model.series)
-        .padding(.horizontal)
-
-      if let seriesModel = model as? SeriesPageModel {
-        Color.clear
-          .frame(height: 1)
-          .onAppear {
-            Task {
-              await seriesModel.loadNextPageIfNeeded()
-            }
-          }
-      }
+      SeriesView(
+        series: model.series,
+        hasMorePages: model.hasMorePages,
+        onLoadMore: model.loadNextPageIfNeeded
+      )
+      .padding(.horizontal)
     }
   }
 }
@@ -58,18 +52,22 @@ struct SeriesPage: View {
 extension SeriesPage {
   @Observable class Model: ObservableObject {
     var isLoading: Bool
+    var hasMorePages: Bool
 
     var series: [SeriesCard.Model]
     var search: SearchView.Model = SearchView.Model()
 
     func onAppear() {}
     func refresh() async {}
+    func loadNextPageIfNeeded() {}
 
     init(
       isLoading: Bool = false,
+      hasMorePages: Bool = false,
       series: [SeriesCard.Model] = []
     ) {
       self.isLoading = isLoading
+      self.hasMorePages = hasMorePages
       self.series = series
     }
   }
