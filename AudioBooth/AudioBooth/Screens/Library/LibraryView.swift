@@ -8,6 +8,8 @@ struct LibraryView: View {
 
   let books: [BookCard.Model]
   let displayMode: DisplayMode
+  var hasMorePages: Bool = false
+  var onLoadMore: (() -> Void)?
 
   var body: some View {
     switch displayMode {
@@ -20,11 +22,29 @@ struct LibraryView: View {
           BookCard(model: book)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+
+        if hasMorePages {
+          ProgressView()
+            .frame(maxWidth: .infinity)
+            .padding()
+            .onAppear {
+              onLoadMore?()
+            }
+        }
       }
     case .list:
       LazyVStack(spacing: 12) {
         ForEach(books) { book in
           BookCard(model: book)
+        }
+
+        if hasMorePages {
+          ProgressView()
+            .frame(maxWidth: .infinity)
+            .padding()
+            .onAppear {
+              onLoadMore?()
+            }
         }
       }
     }

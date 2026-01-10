@@ -10,9 +10,8 @@ final class LibraryPageModel: LibraryPage.Model {
   private var filter: Filter?
 
   private var currentPage: Int = 0
-  private var hasMorePages: Bool = true
   private var isLoadingNextPage: Bool = false
-  private let itemsPerPage: Int = 50
+  private let itemsPerPage: Int = 100
 
   private var filterData: FilterData? {
     didSet {
@@ -25,6 +24,7 @@ final class LibraryPageModel: LibraryPage.Model {
     self.filter = preferences.libraryFilter == .all ? nil : preferences.libraryFilter
 
     super.init(
+      hasMorePages: true,
       isRoot: true,
       sortBy: preferences.librarySortBy,
       search: SearchViewModel(),
@@ -41,6 +41,7 @@ final class LibraryPageModel: LibraryPage.Model {
     case .series(let id, let name):
       self.filter = .series(id, name)
       super.init(
+        hasMorePages: true,
         isRoot: false,
         sortBy: nil,
         title: name
@@ -48,6 +49,7 @@ final class LibraryPageModel: LibraryPage.Model {
     case .author(let id, let name):
       self.filter = .authors(id, name)
       super.init(
+        hasMorePages: true,
         isRoot: false,
         sortBy: nil,
         title: name
@@ -55,6 +57,7 @@ final class LibraryPageModel: LibraryPage.Model {
     case .narrator(let name):
       self.filter = .narrators(name)
       super.init(
+        hasMorePages: true,
         isRoot: false,
         sortBy: nil,
         title: name
@@ -62,6 +65,7 @@ final class LibraryPageModel: LibraryPage.Model {
     case .genre(let name):
       self.filter = .genres(name)
       super.init(
+        hasMorePages: true,
         isRoot: false,
         sortBy: nil,
         title: name
@@ -69,6 +73,7 @@ final class LibraryPageModel: LibraryPage.Model {
     case .tag(let name):
       self.filter = .tags(name)
       super.init(
+        hasMorePages: true,
         isRoot: false,
         sortBy: nil,
         title: name

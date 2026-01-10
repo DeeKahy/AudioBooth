@@ -50,22 +50,14 @@ struct LibraryPage: View {
           )
         } else {
           ScrollView {
-            LazyVStack {
-              LibraryView(
-                books: model.books,
-                displayMode: preferences.libraryDisplayMode == .card ? .grid : .list
-              )
-              .environment(\.bookCardDisplayMode, preferences.libraryDisplayMode)
-              .padding(.horizontal)
-
-              Color.clear
-                .frame(height: 1)
-                .onAppear {
-                  Task {
-                    model.loadNextPageIfNeeded()
-                  }
-                }
-            }
+            LibraryView(
+              books: model.books,
+              displayMode: preferences.libraryDisplayMode == .card ? .grid : .list,
+              hasMorePages: model.hasMorePages,
+              onLoadMore: model.loadNextPageIfNeeded
+            )
+            .environment(\.bookCardDisplayMode, preferences.libraryDisplayMode)
+            .padding(.horizontal)
           }
         }
       }
@@ -194,6 +186,7 @@ extension LibraryPage {
   @Observable
   class Model: ObservableObject {
     var isLoading: Bool
+    var hasMorePages: Bool
 
     var isRoot: Bool
 
@@ -218,6 +211,7 @@ extension LibraryPage {
 
     init(
       isLoading: Bool = true,
+      hasMorePages: Bool = false,
       isRoot: Bool = true,
       sortBy: BooksService.SortBy? = .title,
       books: [BookCard.Model] = [],
@@ -226,6 +220,7 @@ extension LibraryPage {
       title: String = "Library"
     ) {
       self.isLoading = isLoading
+      self.hasMorePages = hasMorePages
       self.isRoot = isRoot
       self.sortBy = sortBy
       self.books = books
