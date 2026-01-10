@@ -25,6 +25,9 @@ final class UserPreferences: ObservableObject {
   @AppStorage("smartRewindInterval")
   var smartRewindInterval: Double = 30.0
 
+  @AppStorage("smartRewindOnInterruptionInterval")
+  var smartRewindOnInterruptionInterval: Double = 0.0
+
   @AppStorage("shakeSensitivity")
   var shakeSensitivity: ShakeSensitivity = .medium
 

@@ -107,11 +107,11 @@ struct PlayerPreferencesView: View {
             .bold()
             .accessibilityAddTraits(.isHeader)
 
-          Text("Rewind after being paused for 10 minutes.")
+          Text("Rewind after being paused for 10 minutes or after audio interruptions.")
         }
         .font(.caption)
 
-        Picker("Back", selection: $preferences.smartRewindInterval) {
+        Picker("After Pause", selection: $preferences.smartRewindInterval) {
           Text("Off").tag(0.0)
           Text("5s").tag(5.0)
           Text("10s").tag(10.0)
@@ -124,9 +124,28 @@ struct PlayerPreferencesView: View {
         }
         .font(.subheadline)
         .bold()
-        .accessibilityLabel("Smart Rewind Duration")
+        .accessibilityLabel("Smart Rewind After Pause Duration")
         .accessibilityValue(
           preferences.smartRewindInterval == 0 ? "Off" : "\(Int(preferences.smartRewindInterval)) seconds"
+        )
+
+        Picker("On Interruption", selection: $preferences.smartRewindOnInterruptionInterval) {
+          Text("Off").tag(0.0)
+          Text("5s").tag(5.0)
+          Text("10s").tag(10.0)
+          Text("15s").tag(15.0)
+          Text("30s").tag(30.0)
+          Text("45s").tag(45.0)
+          Text("60s").tag(60.0)
+          Text("75s").tag(75.0)
+          Text("90s").tag(90.0)
+        }
+        .font(.subheadline)
+        .bold()
+        .accessibilityLabel("Smart Rewind On Interruption Duration")
+        .accessibilityValue(
+          preferences.smartRewindOnInterruptionInterval == 0
+            ? "Off" : "\(Int(preferences.smartRewindOnInterruptionInterval)) seconds"
         )
       }
       .listRowSeparator(.hidden)
