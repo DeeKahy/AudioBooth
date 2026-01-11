@@ -1,4 +1,5 @@
 import Combine
+import Models
 import SwiftUI
 
 struct BookmarkRow: View {
@@ -17,9 +18,21 @@ struct BookmarkRow: View {
       }
 
       VStack(alignment: .leading, spacing: 4) {
-        Text(model.title)
-          .font(.headline)
-          .lineLimit(1)
+        HStack(spacing: 4) {
+          Text(model.title)
+            .font(.headline)
+            .lineLimit(1)
+
+          if model.status == .pending {
+            Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          } else if model.status == .failed {
+            Image(systemName: "exclamationmark.arrow.trianglehead.2.clockwise.rotate.90")
+              .font(.caption)
+              .foregroundStyle(.orange)
+          }
+        }
 
         Text(formattedTime)
           .font(.subheadline)
@@ -54,17 +67,20 @@ extension BookmarkRow {
     var title: String
     let time: Int
     let createdAt: Date
+    var status: Bookmark.Status
 
     init(
       id: String = UUID().uuidString,
       title: String,
       time: Int,
-      createdAt: Date = Date()
+      createdAt: Date = Date(),
+      status: Bookmark.Status = .synced
     ) {
       self.id = id
       self.title = title
       self.time = time
       self.createdAt = createdAt
+      self.status = status
     }
   }
 }

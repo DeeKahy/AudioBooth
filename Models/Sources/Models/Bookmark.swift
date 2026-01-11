@@ -5,21 +5,36 @@ import SwiftData
 
 @Model
 public final class Bookmark {
+  public enum Status: String, Codable {
+    case pending
+    case synced
+    case failed
+  }
+
+  public enum Error: Swift.Error {
+    case notFound
+    case saveFailed
+    case syncFailed(Swift.Error)
+  }
+
   public var bookID: String
   public var time: Int
   public var title: String
   public var createdAt: Date
+  public var status: Status = Status.synced
 
   public init(
     bookID: String,
     time: Int,
     title: String,
-    createdAt: Date = Date()
+    createdAt: Date = Date(),
+    status: Status = .pending
   ) {
     self.bookID = bookID
     self.time = time
     self.title = title
     self.createdAt = createdAt
+    self.status = status
   }
 
   public convenience init(from apiBookmark: User.Bookmark) {
@@ -27,7 +42,8 @@ public final class Bookmark {
       bookID: apiBookmark.bookID,
       time: Int(apiBookmark.time),
       title: apiBookmark.title,
-      createdAt: Date(timeIntervalSince1970: TimeInterval(apiBookmark.createdAt / 1000))
+      createdAt: Date(timeIntervalSince1970: TimeInterval(apiBookmark.createdAt / 1000)),
+      status: .synced
     )
   }
 }
@@ -106,6 +122,7 @@ extension Bookmark {
       if let local = try Bookmark.fetch(bookID: apiBookmark.bookID, time: Int(apiBookmark.time)) {
         local.title = remote.title
         local.createdAt = remote.createdAt
+        local.status = .synced
       } else {
         context.insert(remote)
       }

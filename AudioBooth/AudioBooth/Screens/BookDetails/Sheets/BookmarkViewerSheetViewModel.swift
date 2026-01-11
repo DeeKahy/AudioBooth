@@ -36,7 +36,8 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
         BookmarkRow.Model(
           title: bookmark.title,
           time: bookmark.time,
-          createdAt: bookmark.createdAt
+          createdAt: bookmark.createdAt,
+          status: bookmark.status
         )
       }
 
@@ -50,7 +51,26 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
     }
   }
 
-  override func onAppear() {}
+  override func onAppear() {
+    refreshBookmarks()
+  }
+
+  private func refreshBookmarks() {
+    do {
+      let localBookmarks = try Models.Bookmark.fetch(bookID: bookID)
+
+      bookmarks = localBookmarks.map { bookmark in
+        BookmarkRow.Model(
+          title: bookmark.title,
+          time: bookmark.time,
+          createdAt: bookmark.createdAt,
+          status: bookmark.status
+        )
+      }
+    } catch {
+      AppLogger.player.error("Failed to refresh bookmarks: \(error)")
+    }
+  }
 
   override func onSelectBookmark(_ bookmark: BookmarkRow.Model) {
 
@@ -115,19 +135,14 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
   override func onEditBookmark(_ bookmark: BookmarkRow.Model) {
     Task {
       do {
-        let updatedAPIBookmark = User.Bookmark(
-          bookID: bookID,
-          time: Double(bookmark.time),
-          title: bookmark.title,
-          createdAt: Int64(bookmark.createdAt.timeIntervalSince1970 * 1000)
-        )
-
-        _ = try await audiobookshelf.bookmarks.update(bookmark: updatedAPIBookmark)
-
-        if let localBookmark = try Bookmark.fetch(bookID: bookID, time: bookmark.time) {
-          localBookmark.title = bookmark.title
-          try localBookmark.save()
+        guard let localBookmark = try Bookmark.fetch(bookID: bookID, time: bookmark.time) else {
+          throw Bookmark.Error.notFound
         }
+
+        try await BookmarkSyncQueue.shared.update(
+          bookmark: localBookmark,
+          newTitle: bookmark.title
+        )
 
         if let index = bookmarks.firstIndex(where: { $0.id == bookmark.id }) {
           bookmarks[index].title = bookmark.title
@@ -145,11 +160,12 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
   override func onDeleteBookmark(_ bookmark: BookmarkRow.Model) {
     Task {
       do {
-        try await audiobookshelf.bookmarks.delete(bookID: bookID, time: bookmark.time)
-
-        if let localBookmark = try Models.Bookmark.fetch(bookID: bookID, time: bookmark.time) {
-          try localBookmark.delete()
+        guard let localBookmark = try Models.Bookmark.fetch(bookID: bookID, time: bookmark.time)
+        else {
+          throw Bookmark.Error.notFound
         }
+
+        try await BookmarkSyncQueue.shared.delete(localBookmark)
 
         bookmarks.removeAll { $0.id == bookmark.id }
 
@@ -178,19 +194,17 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
 
     Task {
       do {
-        let createdBookmark = try await audiobookshelf.bookmarks.create(
+        let bookmark = try await BookmarkSyncQueue.shared.create(
           bookID: bookID,
           title: title,
           time: time
         )
 
-        let localBookmark = Models.Bookmark(from: createdBookmark)
-        try localBookmark.save()
-
         let bookmarkRowModel = BookmarkRow.Model(
-          title: createdBookmark.title,
-          time: Int(createdBookmark.time),
-          createdAt: Date(timeIntervalSince1970: TimeInterval(createdBookmark.createdAt / 1000))
+          title: bookmark.title,
+          time: bookmark.time,
+          createdAt: bookmark.createdAt,
+          status: bookmark.status
         )
 
         bookmarks.append(bookmarkRowModel)
@@ -198,15 +212,13 @@ final class BookmarkViewerSheetViewModel: BookmarkViewerSheet.Model {
 
         newBookmarkTitle = ""
 
-        AppLogger.player.info(
-          "Created bookmark: \(title) at \(time)s"
-        )
+        AppLogger.player.info("Created bookmark: \(title) at \(time)s")
         Toast(message: "Bookmark created").show()
 
         isPresented = false
       } catch {
-        AppLogger.player.error("Failed to create bookmark: \(error)")
-        Toast(error: "Failed to create bookmark").show()
+        AppLogger.player.error("Failed to save bookmark locally: \(error)")
+        Toast(error: "Failed to save bookmark").show()
       }
     }
   }

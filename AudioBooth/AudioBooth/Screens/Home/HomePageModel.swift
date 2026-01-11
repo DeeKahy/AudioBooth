@@ -358,6 +358,8 @@ extension HomePageModel {
       )
       try? Bookmark.syncFromAPI(userData: data.user)
 
+      BookmarkSyncQueue.shared.syncPending()
+
       let version = data.serverSettings.version
       if version.compare("2.22.0", options: .numeric) == .orderedAscending {
         error =
