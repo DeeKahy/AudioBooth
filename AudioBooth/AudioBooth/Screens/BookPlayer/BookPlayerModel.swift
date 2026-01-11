@@ -777,7 +777,6 @@ extension BookPlayerModel {
 
         let isNowPlaying = status == .playing
         self.handlePlaybackStateChange(isNowPlaying)
-        self.isPlaying = isNowPlaying
 
         if status == .waitingToPlayAtSpecifiedRate {
           self.isLoading = true
@@ -1045,6 +1044,7 @@ extension BookPlayerModel {
     try? mediaProgress.save()
     try? item?.save()
 
+    isPlaying = isNowPlaying
     syncPlayback()
   }
 

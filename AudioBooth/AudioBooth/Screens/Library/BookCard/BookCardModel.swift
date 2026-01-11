@@ -26,6 +26,7 @@ final class BookCardModel: BookCard.Model {
       details: item.authorNames,
       coverURL: item.coverURL,
       sequence: item.series.first?.sequence,
+      progress: MediaProgress.progress(for: id),
       author: item.authorNames,
       narrator: narrator,
       publishedYear: item.publishedYear,
@@ -131,12 +132,20 @@ final class BookCardModel: BookCard.Model {
     self.item = .remote(item)
     self.navigate = navigate
 
+    let initialProgress: Double?
+    if let collapsedSeries = item.collapsedSeries {
+      initialProgress = Self.calculateSeriesProgress(libraryItemIds: collapsedSeries.libraryItemIds)
+    } else {
+      initialProgress = MediaProgress.progress(for: id)
+    }
+
     super.init(
       id: id,
       title: title,
       details: details,
       coverURL: item.coverURL(),
       sequence: sequence,
+      progress: initialProgress,
       author: author,
       narrator: narrator,
       publishedYear: publishedYear,

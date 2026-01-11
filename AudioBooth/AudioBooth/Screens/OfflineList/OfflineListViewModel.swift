@@ -88,6 +88,8 @@ final class OfflineListViewModel: OfflineListView.Model {
     reorderedLocalBooks.move(fromOffsets: source, toOffset: destination)
     filteredBooks = reorderedLocalBooks
 
+    items = buildDisplayItems(from: filteredBooks)
+
     Task { @MainActor in
       await saveDisplayOrder()
     }
@@ -115,7 +117,7 @@ final class OfflineListViewModel: OfflineListView.Model {
         guard !Task.isCancelled, let self else { break }
 
         if !self.isReordering {
-          self.allBooks = books.filter { downloadManager.downloadStates[$0.bookID] == .downloaded }.sorted()
+          self.allBooks = books.filter { self.downloadManager.downloadStates[$0.bookID] == .downloaded }.sorted()
           self.filteredBooks = self.allBooks
           self.updateDisplayedBooks()
         }

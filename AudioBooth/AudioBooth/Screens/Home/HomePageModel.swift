@@ -19,6 +19,7 @@ final class HomePageModel: HomePage.Model {
   private var continueListeningBooks: [Book] = []
   private var personalizedSections: [Personalized.Section] = []
   private var pinnedPlaylist: Playlist?
+  private var isFetchingRemoteContent = false
 
   init() {
     super.init()
@@ -357,7 +358,14 @@ extension HomePageModel {
   }
 
   private func fetchRemoteContent() async {
-    guard Audiobookshelf.shared.isAuthenticated else { return }
+    guard Audiobookshelf.shared.isAuthenticated, !isFetchingRemoteContent else { return }
+
+    isFetchingRemoteContent = true
+
+    defer {
+      isFetchingRemoteContent = false
+      isLoading = false
+    }
 
     if sections.isEmpty {
       isLoading = true
@@ -384,8 +392,6 @@ extension HomePageModel {
     } catch {
       AppLogger.viewModel.error("Failed to fetch personalized content: \(error)")
     }
-
-    isLoading = false
   }
 }
 

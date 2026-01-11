@@ -87,7 +87,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
           authors: authors,
           narrators: localBook.narrators,
           series: series,
-          coverURL: localBook.coverURL,
+          coverURL: localBook.coverURL(raw: true),
           duration: localBook.duration,
           mediaType: mediaType,
           chapters: chapters,
