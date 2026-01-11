@@ -86,6 +86,15 @@ struct SettingsView: View {
         }
         .tint(.primary)
 
+        Section("Storage") {
+          NavigationLink(value: "storage") {
+            HStack {
+              Image(systemName: "internaldrive")
+              Text("Manage Storage")
+            }
+          }
+        }
+
         debug
 
         Section {
@@ -115,6 +124,10 @@ struct SettingsView: View {
           PlayerPreferencesView()
         case "advanced":
           AdvancedPreferencesView()
+        case "storage":
+          if let model = model.storagePreferences {
+            StoragePreferencesView(model: model)
+          }
         default:
           EmptyView()
         }
@@ -165,6 +178,7 @@ extension SettingsView {
     var navigationPath = NavigationPath()
     var tipJar: TipJarView.Model
     var playbackSessionList: PlaybackSessionListView.Model?
+    var storagePreferences: StoragePreferencesView.Model?
 
     var appVersion: String {
       let version =
@@ -178,10 +192,12 @@ extension SettingsView {
 
     init(
       tipJar: TipJarView.Model = .mock,
-      playbackSessionList: PlaybackSessionListView.Model? = nil
+      playbackSessionList: PlaybackSessionListView.Model? = nil,
+      storagePreferences: StoragePreferencesView.Model? = nil
     ) {
       self.tipJar = tipJar
       self.playbackSessionList = playbackSessionList
+      self.storagePreferences = storagePreferences
     }
   }
 }

@@ -16,7 +16,8 @@ final class SettingsViewModel: SettingsView.Model {
 
     super.init(
       tipJar: TipJarViewModel(),
-      playbackSessionList: PlaybackSessionListViewModel()
+      playbackSessionList: PlaybackSessionListViewModel(),
+      storagePreferences: StoragePreferencesViewModel()
     )
   }
 
