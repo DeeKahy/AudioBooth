@@ -9,26 +9,32 @@ final class BookCardModel: BookCard.Model {
     case remote(Book)
   }
   private let item: Item
-  private let navigate: ((NavigationDestination) -> Void)?
   private var downloadStateCancellable: AnyCancellable?
 
-  init(_ item: LocalBook, navigate: ((NavigationDestination) -> Void)? = nil) {
+  init(_ item: LocalBook) {
     let id = item.bookID
 
     self.item = .local(item)
-    self.navigate = navigate
 
-    let narrator = item.narrators.isEmpty ? nil : item.narrators.joined(separator: ", ")
+    var details = Duration.seconds(item.duration).formatted(
+      .units(
+        allowed: [.hours, .minutes],
+        width: .narrow
+      )
+    )
+
+    let size = item.tracks.reduce(0) { $0 + ($1.size ?? 0) }
+    if size > 0 {
+      details += ", \(size.formatted(.byteCount(style: .file)))"
+    }
 
     super.init(
       id: id,
       title: item.title,
-      details: item.authorNames,
+      details: details,
       coverURL: item.coverURL,
-      sequence: item.series.first?.sequence,
       progress: MediaProgress.progress(for: id),
       author: item.authorNames,
-      narrator: narrator,
       publishedYear: item.publishedYear,
       downloadProgress: nil,
       hasEbook: item.ebookFile != nil
@@ -46,8 +52,7 @@ final class BookCardModel: BookCard.Model {
 
   init(
     _ item: Book,
-    sortBy: BooksService.SortBy?,
-    navigate: ((NavigationDestination) -> Void)? = nil
+    sortBy: BooksService.SortBy?
   ) {
     let id: String
     let title: String
@@ -130,7 +135,6 @@ final class BookCardModel: BookCard.Model {
     }
 
     self.item = .remote(item)
-    self.navigate = navigate
 
     let initialProgress: Double?
     if let collapsedSeries = item.collapsedSeries {

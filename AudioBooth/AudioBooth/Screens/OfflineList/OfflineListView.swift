@@ -146,7 +146,6 @@ struct OfflineListView: View {
                   .foregroundColor(.secondary)
               }
             }
-            .padding(.vertical, 8)
           }
           .listRowBackground(Color.clear)
         }
@@ -217,10 +216,13 @@ extension OfflineListView {
             rowMetadata(icon: "pencil", value: author)
           }
 
-          if let sequence = sequence {
+          if let details = book.details {
+            Text(details)
+              .font(.caption2)
+              .foregroundColor(.secondary)
+              .lineLimit(1)
+          } else if let sequence = sequence {
             rowMetadata(icon: "number", value: sequence)
-          } else if let narrator = book.narrator, !narrator.isEmpty {
-            rowMetadata(icon: "person.wave.2.fill", value: narrator)
           }
 
           Spacer(minLength: 0)
