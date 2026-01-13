@@ -27,13 +27,14 @@ final class SessionManager {
   private func startSession(
     itemID: String,
     item: LocalBook?,
-    mediaProgress: MediaProgress
+    mediaProgress: MediaProgress,
+    forceTranscode: Bool
   ) async throws -> (session: Session, updatedItem: LocalBook) {
     AppLogger.session.info("Fetching session from server...")
 
     let audiobookshelfSession = try await audiobookshelf.sessions.start(
       itemID: itemID,
-      forceTranscode: false
+      forceTranscode: forceTranscode
     )
 
     guard let session = Session(from: audiobookshelfSession) else {
@@ -178,7 +179,8 @@ final class SessionManager {
   func ensureSession(
     itemID: String,
     item: LocalBook?,
-    mediaProgress: MediaProgress
+    mediaProgress: MediaProgress,
+    forceTranscode: Bool
   ) async throws -> LocalBook {
     if let current, current.libraryItemID != itemID {
       AppLogger.session.info(
@@ -196,7 +198,12 @@ final class SessionManager {
     }
 
     do {
-      let result = try await startSession(itemID: itemID, item: item, mediaProgress: mediaProgress)
+      let result = try await startSession(
+        itemID: itemID,
+        item: item,
+        mediaProgress: mediaProgress,
+        forceTranscode: forceTranscode
+      )
       return result.updatedItem
     } catch {
       AppLogger.session.warning("Failed to create remote session: \(error)")

@@ -142,7 +142,7 @@ final class BookPlayerModel: BookPlayer.Model {
 
       Task {
         do {
-          try await setupSession()
+          try await setupSession(forceTranscode: false)
           AppLogger.player.info("Session recreated successfully")
 
           if isPlayerUsingRemoteURL() {
@@ -262,11 +262,12 @@ extension BookPlayerModel {
 }
 
 extension BookPlayerModel {
-  private func setupSession() async throws {
+  private func setupSession(forceTranscode: Bool) async throws {
     item = try await sessionManager.ensureSession(
       itemID: id,
       item: item,
-      mediaProgress: mediaProgress
+      mediaProgress: mediaProgress,
+      forceTranscode: forceTranscode
     )
 
     if let pendingSeekTime {
@@ -394,7 +395,7 @@ extension BookPlayerModel {
       await loadLocalBookIfAvailable()
 
       do {
-        try await setupSession()
+        try await setupSession(forceTranscode: false)
 
         if downloadManager.downloadStates[id] != .downloaded {
           let autoDownloadMode = userPreferences.autoDownloadBooks
@@ -1081,7 +1082,6 @@ extension BookPlayerModel {
     }
 
     isRecovering = true
-    recoveryAttempts += 1
 
     AppLogger.player.warning(
       "Stream failure detected (attempt \(self.recoveryAttempts)/\(self.maxRecoveryAttempts))"
@@ -1098,6 +1098,8 @@ extension BookPlayerModel {
       return
     }
 
+    recoveryAttempts += 1
+
     let isDownloaded = downloadManager.downloadStates[id] == .downloaded
 
     player.pause()
@@ -1113,7 +1115,7 @@ extension BookPlayerModel {
     }
 
     do {
-      try await setupSession()
+      try await setupSession(forceTranscode: recoveryAttempts > 1)
 
       if !isDownloaded {
         await reloadPlayer()

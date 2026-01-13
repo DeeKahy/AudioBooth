@@ -26,11 +26,4 @@ public struct Session {
     self.itemID = playSession.libraryItemId
     self.url = url
   }
-
-  public func url(for track: Track) -> URL {
-    if let localPath = track.localPath {
-      return localPath
-    }
-    return url.appendingPathComponent("track/\(track.index)")
-  }
 }

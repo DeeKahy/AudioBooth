@@ -14,21 +14,4 @@ public struct PlaySession: Codable, Sendable {
     public var track: Book.Media.Track
     public var url: URL
   }
-
-  public var streamingTracks: [StreamingTrack]? {
-    guard let serverURL = Audiobookshelf.shared.authentication.serverURL, let audioTracks else {
-      return nil
-    }
-
-    let baseURL = serverURL.absoluteString.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-
-    var tracks = [StreamingTrack]()
-    for track in audioTracks {
-      let streamingPath = "/public/session/\(id)/track/\(track.index)"
-      guard let url = URL(string: "\(baseURL)\(streamingPath)") else { return nil }
-      tracks.append(StreamingTrack(track: track, url: url))
-    }
-
-    return tracks
-  }
 }
