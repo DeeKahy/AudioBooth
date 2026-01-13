@@ -13,7 +13,7 @@ struct ContentView: View {
   @State private var selectedTab: TabSelection = .home
 
   enum TabSelection {
-    case home, library, collections, search
+    case home, library, collections, downloads, search
   }
 
   private var hasSelectedLibrary: Bool {
@@ -64,6 +64,10 @@ struct ContentView: View {
 
         Tab("Collections", systemImage: "square.stack.3d.up.fill", value: .collections) {
           CollectionsRootPage()
+        }
+
+        Tab("Downloads", systemImage: "arrow.down.circle.fill", value: .downloads) {
+          OfflineListView(model: OfflineListViewModel())
         }
 
         Tab("Search", systemImage: "magnifyingglass", value: .search, role: .search) {
@@ -119,6 +123,14 @@ struct ContentView: View {
           .tabItem {
             Image(systemName: "square.stack.3d.up.fill")
             Text("Collections")
+          }
+
+        OfflineListView(model: OfflineListViewModel())
+          .padding(.bottom, 0.5)
+          .safeAreaInset(edge: .bottom) { miniPlayer }
+          .tabItem {
+            Image(systemName: "arrow.down.circle.fill")
+            Text("Downloads")
           }
       }
     }

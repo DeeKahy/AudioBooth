@@ -12,10 +12,8 @@ final class HomePageModel: HomePage.Model {
   private let preferences = UserPreferences.shared
   private let pinnedPlaylistManager = PinnedPlaylistManager.shared
 
-  private var availableOfflineTask: Task<Void, Never>?
   private var cancellables = Set<AnyCancellable>()
 
-  private var availableOffline: [LocalBook] = []
   private var continueListeningBooks: [Book] = []
   private var personalizedSections: [Personalized.Section] = []
   private var pinnedPlaylist: Playlist?
@@ -44,13 +42,11 @@ final class HomePageModel: HomePage.Model {
   }
 
   override func onAppear() {
-    if Audiobookshelf.shared.isAuthenticated && availableOfflineTask == nil {
-      setupLocalBooksObservation()
-    }
-
     Task {
       await fetchContent()
     }
+
+    updateDownloadStates()
   }
 
   override func refresh() async {
@@ -63,15 +59,11 @@ final class HomePageModel: HomePage.Model {
   override func onReset(_ shouldRefresh: Bool) {
     playerManager.clearCurrent()
 
-    availableOffline = []
     continueListeningBooks = []
     personalizedSections = []
     pinnedPlaylist = nil
     sections = []
     isLoading = false
-
-    availableOfflineTask?.cancel()
-    availableOfflineTask = nil
 
     if shouldRefresh {
       onAppear()
@@ -80,6 +72,20 @@ final class HomePageModel: HomePage.Model {
 
   override func onPreferencesChanged() {
     rebuildSections()
+  }
+}
+
+extension HomePageModel {
+  private func updateDownloadStates() {
+    guard let books = try? LocalBook.fetchAll() else { return }
+
+    for book in books {
+      if book.isDownloaded {
+        downloadManager.downloadStates[book.bookID] = .downloaded
+      } else {
+        downloadManager.downloadStates[book.bookID] = .notDownloaded
+      }
+    }
   }
 }
 
@@ -109,27 +115,6 @@ extension HomePageModel {
 }
 
 extension HomePageModel {
-  private func setupLocalBooksObservation() {
-    availableOfflineTask = Task { [weak self] in
-      for await books in LocalBook.observeAll() {
-        guard !Task.isCancelled else { break }
-        self?.availableOffline = books
-        self?.updateDownloadStates(for: books)
-        self?.rebuildSections()
-      }
-    }
-  }
-
-  private func updateDownloadStates(for books: [LocalBook]) {
-    for book in books {
-      if book.isDownloaded {
-        downloadManager.downloadStates[book.bookID] = .downloaded
-      } else {
-        downloadManager.downloadStates[book.bookID] = .notDownloaded
-      }
-    }
-  }
-
   private func processSections(_ personalized: [Personalized.Section]) {
     personalizedSections = personalized
 
@@ -194,7 +179,6 @@ extension HomePageModel {
     }
 
     let continueListeningSection = buildContinueListeningSection()
-    let offlineSection = buildOfflineSection()
     let pinnedPlaylistSection = buildPinnedPlaylistSection()
 
     var orderedSections: [Section] = []
@@ -212,11 +196,6 @@ extension HomePageModel {
       case .continueListening:
         if let continueListeningSection {
           orderedSections.append(continueListeningSection)
-        }
-
-      case .availableOffline:
-        if let offlineSection {
-          orderedSections.append(offlineSection)
         }
 
       default:
@@ -302,36 +281,6 @@ extension HomePageModel {
     )
   }
 
-  private func buildOfflineSection() -> Section? {
-    var downloadedBooks: [LocalBook] = []
-
-    for book in availableOffline {
-      let isDownloaded = downloadManager.downloadStates[book.bookID] == .downloaded
-
-      if !downloadManager.isDownloading(for: book.bookID),
-        !isDownloaded,
-        playerManager.current?.id != book.bookID
-      {
-        Task {
-          try? book.delete()
-        }
-      } else if isDownloaded {
-        downloadedBooks.append(book)
-      }
-    }
-
-    guard !downloadedBooks.isEmpty else { return nil }
-
-    let sortedBooks = downloadedBooks.sorted()
-    let models = sortedBooks.map { BookCardModel($0) }
-
-    return Section(
-      id: "available-offline",
-      title: "Available Offline",
-      items: .offline(models)
-    )
-  }
-
   private func buildPinnedPlaylistSection() -> Section? {
     guard let playlist = pinnedPlaylist else { return nil }
     guard !playlist.books.isEmpty else { return nil }
@@ -412,9 +361,6 @@ extension HomePageModel {
         allProgress
         .sorted { $0.lastUpdate > $1.lastUpdate }
 
-      let offlineBooksByID = Dictionary(
-        uniqueKeysWithValues: availableOffline.map { ($0.bookID, $0) }
-      )
       let continueListeningByID = Dictionary(
         uniqueKeysWithValues: continueListeningBooks.map { ($0.id, $0) }
       )
@@ -424,7 +370,7 @@ extension HomePageModel {
       for progress in sortedProgress {
         guard books.count < 5 else { break }
 
-        if let localBook = offlineBooksByID[progress.bookID] {
+        if let localBook = try? LocalBook.fetch(bookID: progress.bookID) {
           let book = BookEntry(
             bookID: localBook.bookID,
             title: localBook.title,

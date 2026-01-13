@@ -2,9 +2,31 @@ import Combine
 import SwiftUI
 
 struct OfflineListView: View {
-  @ObservedObject var model: Model
+  @StateObject var model: Model
 
   var body: some View {
+    NavigationStack {
+      content
+        .navigationDestination(for: NavigationDestination.self) { destination in
+          switch destination {
+          case .book(let id):
+            BookDetailsView(model: BookDetailsViewModel(bookID: id))
+          case .author(let id, let name):
+            AuthorDetailsView(model: AuthorDetailsViewModel(authorID: id, name: name))
+          case .series, .narrator, .genre, .tag:
+            LibraryPage(model: LibraryPageModel(destination: destination))
+          case .playlist(let id):
+            CollectionDetailPage(model: CollectionDetailPageModel(collectionID: id, mode: .playlists))
+          case .collection(let id):
+            CollectionDetailPage(model: CollectionDetailPageModel(collectionID: id, mode: .collections))
+          case .offline, .stats:
+            EmptyView()
+          }
+        }
+    }
+  }
+
+  var content: some View {
     Group {
       if model.isLoading && model.books.isEmpty {
         ProgressView("Loading offline books...")
@@ -16,7 +38,7 @@ struct OfflineListView: View {
           description: Text("Books you download will appear here.")
         )
       } else {
-        content
+        list
       }
     }
     .overlay {
@@ -33,7 +55,7 @@ struct OfflineListView: View {
     .navigationTitle("Downloaded")
     .searchable(text: $model.searchText, prompt: "Filter books")
     .toolbar {
-      ToolbarItem(placement: .navigationBarTrailing) {
+      ToolbarItem(placement: .topBarLeading) {
         Button {
           model.onGroupSeriesToggled()
         } label: {
@@ -42,11 +64,7 @@ struct OfflineListView: View {
         .tint(.primary)
       }
 
-      if #available(iOS 26.0, *) {
-        ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
-      }
-
-      ToolbarItem(placement: .navigationBarTrailing) {
+      ToolbarItem(placement: .topBarTrailing) {
         Button(model.editMode == .active ? "Done" : "Select") {
           model.onEditModeTapped()
         }
@@ -55,10 +73,10 @@ struct OfflineListView: View {
 
       if model.editMode == .active {
         if #available(iOS 26.0, *) {
-          ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+          ToolbarSpacer(.fixed, placement: .topBarTrailing)
         }
 
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
           Menu {
             if !model.selectedBookIDs.isEmpty {
               Button {
@@ -105,7 +123,7 @@ struct OfflineListView: View {
     }
   }
 
-  private var content: some View {
+  private var list: some View {
     List {
       ForEach(model.items) { item in
         switch item {

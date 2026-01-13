@@ -4,7 +4,7 @@ public enum HomeSection: String, CaseIterable, Identifiable, Codable {
   case listeningStats = "listening-stats"
   case pinnedPlaylist = "pinned-playlist"
   case continueListening = "continue-listening"
-  case availableOffline = "available-offline"
+  case continueReading = "continue-reading"
   case continueSeries = "continue-series"
   case recentlyAdded = "recently-added"
   case recentSeries = "recent-series"
@@ -19,7 +19,7 @@ public enum HomeSection: String, CaseIterable, Identifiable, Codable {
     case .listeningStats: return "Listening Stats"
     case .pinnedPlaylist: return "Pinned Playlist"
     case .continueListening: return "Continue Listening"
-    case .availableOffline: return "Available Offline"
+    case .continueReading: return "Continue Reading"
     case .continueSeries: return "Continue Series"
     case .recentlyAdded: return "Recently Added"
     case .recentSeries: return "Recent Series"
@@ -30,13 +30,13 @@ public enum HomeSection: String, CaseIterable, Identifiable, Codable {
   }
 
   public var canBeDisabled: Bool {
-    ![.pinnedPlaylist, .continueListening, .availableOffline].contains(self)
+    ![.pinnedPlaylist, .continueListening, .continueReading].contains(self)
   }
 
   public static var defaultCases: [HomeSection] {
     [
       .continueListening,
-      .availableOffline,
+      .continueReading,
       .continueSeries,
       .recentlyAdded,
       .recentSeries,
