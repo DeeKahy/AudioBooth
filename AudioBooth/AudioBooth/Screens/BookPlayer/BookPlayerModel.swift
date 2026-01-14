@@ -89,7 +89,7 @@ final class BookPlayerModel: BookPlayer.Model {
       id: item.bookID,
       title: item.title,
       author: item.authorNames,
-      coverURL: item.coverURL,
+      coverURL: item.coverURL(raw: true),
       current: mediaProgress.currentTime,
       duration: mediaProgress.duration
     )
@@ -98,7 +98,7 @@ final class BookPlayerModel: BookPlayer.Model {
       id: item.bookID,
       title: item.title,
       author: item.authorNames,
-      coverURL: item.coverURL,
+      coverURL: item.coverURL(raw: true),
       speed: SpeedPickerSheet.Model(),
       timer: TimerPickerSheet.Model(),
       bookmarks: BookmarkViewerSheet.Model(),
@@ -1044,7 +1044,6 @@ extension BookPlayerModel {
     }
 
     try? mediaProgress.save()
-    try? item?.save()
 
     isPlaying = isNowPlaying
     syncPlayback()

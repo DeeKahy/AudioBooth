@@ -18,6 +18,8 @@ extension BookActionable {
         removeDownload()
       }
     }
+
+    ReviewRequestManager.shared.recordBookCompletion()
   }
 
   public func resetProgress() async throws {

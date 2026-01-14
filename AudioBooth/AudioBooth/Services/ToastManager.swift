@@ -74,23 +74,18 @@ public struct Toast {
     }
   }
 
-  private class PassThroughWindow: UIWindow {
+  private final class PassThroughWindow: UIWindow {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-      guard let hitView = super.hitTest(point, with: event) else { return nil }
+      guard let rootView = rootViewController?.view else { return nil }
 
-      let rootView = rootViewController?.view
-
-      guard hitView == rootView else { return hitView }
-
-      if rootView?.subviews.contains(where: {
-        let convertedPoint = $0.convert(point, from: hitView)
-        let innerView = $0.hitTest(convertedPoint, with: event)
-        return innerView != rootView && innerView != nil
-      }) == true {
-        return hitView
-      } else {
-        return nil
+      for subview in rootView.subviews {
+        let relativePoint = convert(point, to: subview)
+        if subview.bounds.contains(relativePoint) {
+          return super.hitTest(point, with: event)
+        }
       }
+
+      return nil
     }
   }
 }
@@ -161,8 +156,8 @@ struct ToastView: View {
         Image(systemName: "xmark")
           .foregroundColor(.secondary)
           .font(.caption)
+          .contentShape(Rectangle())
       }
-      .contentShape(Rectangle())
     }
     .padding()
     .glassEffect()

@@ -38,6 +38,20 @@ public final class LocalBook {
     return fileURL
   }
 
+  public func coverURL(raw: Bool = false) -> URL? {
+    guard var url = coverURL else { return nil }
+
+    #if os(watchOS)
+    url.append(queryItems: [URLQueryItem(name: "format", value: "jpg")])
+    #else
+    if raw {
+      url.append(queryItems: [URLQueryItem(name: "raw", value: "1")])
+    }
+    #endif
+
+    return url
+  }
+
   public init(
     bookID: String,
     title: String,
@@ -176,11 +190,9 @@ extension LocalBook {
   }
 
   public var isDownloaded: Bool {
-    // Ebook: check if ebookFile exists
     if tracks.isEmpty {
       return ebookFile != nil
     }
-    // Audiobook: check all tracks downloaded
     return tracks.allSatisfy { track in track.relativePath != nil }
   }
 

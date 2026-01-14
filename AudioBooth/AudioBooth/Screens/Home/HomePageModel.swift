@@ -77,7 +77,7 @@ final class HomePageModel: HomePage.Model {
 
 extension HomePageModel {
   private func updateDownloadStates() {
-    guard let books = try? LocalBook.fetchAll() else { return }
+    guard Audiobookshelf.shared.isAuthenticated, let books = try? LocalBook.fetchAll() else { return }
 
     for book in books {
       if book.isDownloaded {
