@@ -137,6 +137,11 @@ final class BookPlayerModel: BookPlayer.Model {
       return
     }
 
+    guard let player else {
+      pendingPlay = true
+      return
+    }
+
     if sessionManager.current == nil {
       AppLogger.player.warning("Session was closed, recreating and reloading player")
 
@@ -157,7 +162,7 @@ final class BookPlayerModel: BookPlayer.Model {
       }
     }
 
-    guard let player, player.status == .readyToPlay else {
+    guard player.status == .readyToPlay else {
       pendingPlay = true
       return
     }
