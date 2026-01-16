@@ -1,3 +1,4 @@
+import API
 import SwiftUI
 
 struct CollectionsRootPage: View {
@@ -7,6 +8,7 @@ struct CollectionsRootPage: View {
     case playlists
   }
 
+  @ObservedObject private var libraries = Audiobookshelf.shared.libraries
   @State private var selectedType: CollectionType = .series
 
   var body: some View {
@@ -21,6 +23,7 @@ struct CollectionsRootPage: View {
           CollectionsPage(model: CollectionsPageModel(mode: .playlists))
         }
       }
+      .id(libraries.current?.id)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .principal) {

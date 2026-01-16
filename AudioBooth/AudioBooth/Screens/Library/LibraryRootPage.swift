@@ -17,15 +17,13 @@ struct LibraryRootPage: View {
         switch selectedType {
         case .library:
           LibraryPage(model: LibraryPageModel())
-            .id(libraries.current?.id)
         case .authors:
           AuthorsPage(model: AuthorsPageModel())
-            .id(libraries.current?.id)
         case .narrators:
           NarratorsPage(model: NarratorsPageModel())
-            .id(libraries.current?.id)
         }
       }
+      .id(libraries.current?.id)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .principal) {
