@@ -4,7 +4,7 @@ extension UIApplication {
   private static let isTestFlight =
     Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
 
-  public static var isDebug: Bool {
+  static var isDebug: Bool {
     #if DEBUG
     return true
     #else
@@ -12,13 +12,13 @@ extension UIApplication {
     #endif
   }
 
-  public enum BuildType {
+  enum BuildType {
     case debug
     case testFlight
     case appStore
   }
 
-  public static var buildType: BuildType {
+  static var buildType: BuildType {
     if isDebug {
       return .debug
     } else if isTestFlight {
@@ -26,5 +26,12 @@ extension UIApplication {
     } else {
       return .appStore
     }
+  }
+
+  static var appVersion: String {
+    let version =
+      Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+    return "\(version) (\(build))"
   }
 }

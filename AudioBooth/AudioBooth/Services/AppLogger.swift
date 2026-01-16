@@ -2,6 +2,7 @@ import Foundation
 import Logging
 import Pulse
 import PulseLogHandler
+import UIKit
 
 enum AppLogger {
   static let session = Logger(label: "session")
@@ -24,6 +25,8 @@ enum AppLogger {
         PersistentLogHandler(label: label),
       ])
     }
+
+    general.info("Version \(UIApplication.appVersion)")
   }
 
   private static func configureNetworkLogger() {

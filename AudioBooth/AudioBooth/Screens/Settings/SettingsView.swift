@@ -180,12 +180,7 @@ extension SettingsView {
     var playbackSessionList: PlaybackSessionListView.Model?
     var storagePreferences: StoragePreferencesView.Model?
 
-    var appVersion: String {
-      let version =
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-      let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
-      return "Version \(version) (\(build))"
-    }
+    var appVersion: String = "Version \(UIApplication.appVersion)"
 
     func onClearStorageTapped() {}
     func onExportLogsTapped() {}
