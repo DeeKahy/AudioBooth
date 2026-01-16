@@ -76,6 +76,7 @@ final class DownloadManager: NSObject, ObservableObject {
   func cancelDownload(for bookID: String) {
     AppLogger.download.info("Cancelling download for book: \(bookID)")
     activeOperations[bookID]?.cancel()
+    downloadStates[bookID] = .notDownloaded
   }
 }
 
