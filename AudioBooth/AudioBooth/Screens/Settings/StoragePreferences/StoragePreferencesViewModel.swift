@@ -41,7 +41,7 @@ final class StoragePreferencesViewModel: StoragePreferencesView.Model {
   override func onConfirmClearCache() {
     Task {
       isLoading = true
-      storageManager.clearImageCache()
+      await storageManager.clearImageCache()
       try? await Task.sleep(for: .seconds(0.5))
       await loadStorageInfo()
       Toast(success: "Image cache cleared").show()

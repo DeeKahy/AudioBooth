@@ -56,9 +56,16 @@ final class StorageManager {
     return downloadSize + cacheSize
   }
 
-  func clearImageCache() {
+  func clearImageCache() async {
     ImagePipeline.shared.cache.removeAll()
-    ImagePipeline.shared.configuration.dataCache?.removeAll()
+
+    guard let dataCache = ImagePipeline.shared.configuration.dataCache as? DataCache else {
+      return
+    }
+
+    dataCache.removeAll()
+    dataCache.flush()
+    URLCache.shared.removeAllCachedResponses()
   }
 
   private func calculateDirectorySize(at url: URL) -> Int64 {

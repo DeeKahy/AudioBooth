@@ -30,9 +30,11 @@ public final class Audiobookshelf: @unchecked Sendable {
 
     ImagePipeline.shared = ImagePipeline {
       let configuration = DataLoader.defaultConfiguration
-      configuration.requestCachePolicy = .returnCacheDataElseLoad
+      configuration.urlCache = nil
       configuration.httpAdditionalHeaders = authentication.server?.customHeaders
       $0.dataLoader = DataLoader(configuration: configuration)
+
+      $0.dataCache = try? DataCache(name: "me.jgrenier.audioBS.images")
     }
   }
 
