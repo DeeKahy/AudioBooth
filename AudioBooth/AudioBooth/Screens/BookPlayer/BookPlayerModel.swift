@@ -240,7 +240,7 @@ extension BookPlayerModel {
       if player.timeControlStatus == .playing, let model = self.playbackProgress as? PlaybackProgressViewModel {
         model.updateProgress()
       }
-      self.nowPlaying.didSeek(to: time)
+      self.nowPlaying.update()
     }
     PlaybackHistory.record(itemID: id, action: .seek, position: time)
   }
@@ -534,7 +534,7 @@ extension BookPlayerModel {
         speed: speed,
         onSeekCompleted: { [weak self] in
           guard let self else { return }
-          self.nowPlaying.didSeek(to: self.mediaProgress.currentTime)
+          self.nowPlaying.update()
         }
       )
     }
@@ -1008,6 +1008,8 @@ extension BookPlayerModel {
         AppLogger.player.error("Failed to update playback progress: \(error)")
         Toast(error: "Failed to update playback progress").show()
       }
+
+      nowPlaying.update()
     }
   }
 

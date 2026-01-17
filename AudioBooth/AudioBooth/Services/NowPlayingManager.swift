@@ -92,11 +92,7 @@ final class NowPlayingManager {
     observeChapterChanges()
     observePreferenceChanges()
 
-    updateNowPlaying()
-  }
-
-  func didSeek(to time: TimeInterval) {
-    updateNowPlaying()
+    update()
   }
 
   func clear() {
@@ -111,7 +107,7 @@ final class NowPlayingManager {
     player.publisher(for: \.rate)
       .receive(on: DispatchQueue.main)
       .sink { [weak self] _ in
-        self?.updateNowPlaying()
+        self?.update()
       }
       .store(in: &cancellables)
   }
@@ -124,7 +120,7 @@ final class NowPlayingManager {
     } onChange: { [weak self] in
       guard let self else { return }
       RunLoop.main.perform {
-        self.updateNowPlaying()
+        self.update()
         self.observeSpeedChanges()
       }
     }
@@ -138,7 +134,7 @@ final class NowPlayingManager {
     } onChange: { [weak self] in
       guard let self else { return }
       RunLoop.main.perform {
-        self.updateNowPlaying()
+        self.update()
         self.observeChapterChanges()
       }
     }
@@ -150,13 +146,13 @@ final class NowPlayingManager {
     } onChange: { [weak self] in
       guard let self else { return }
       RunLoop.main.perform {
-        self.updateNowPlaying()
+        self.update()
         self.observePreferenceChanges()
       }
     }
   }
 
-  private func updateNowPlaying() {
+  func update() {
     guard let player, let mediaProgress else { return }
 
     info[MPMediaItemPropertyArtwork] = artwork
@@ -166,12 +162,7 @@ final class NowPlayingManager {
     info[MPNowPlayingInfoPropertyDefaultPlaybackRate] = speed?.playbackSpeed ?? 1.0
     info[MPNowPlayingInfoPropertyPlaybackRate] = rate
 
-    if preferences.showFullBookDuration {
-      info[MPMediaItemPropertyTitle] = title
-      info[MPMediaItemPropertyArtist] = author
-      info[MPMediaItemPropertyPlaybackDuration] = mediaProgress.duration
-      info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = mediaProgress.currentTime
-    } else if let chapters, let current = chapters.current {
+    if !preferences.showFullBookDuration, let chapters, let current = chapters.current {
       info[MPMediaItemPropertyTitle] = current.title
       info[MPMediaItemPropertyArtist] = title
       info[MPMediaItemPropertyPlaybackDuration] = current.end - current.start
@@ -188,7 +179,9 @@ final class NowPlayingManager {
     MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     MPNowPlayingInfoCenter.default().playbackState = playbackState
   }
+}
 
+extension NowPlayingManager {
   private func loadArtwork(from url: URL) {
     Task {
       do {
@@ -201,7 +194,7 @@ final class NowPlayingManager {
         )
 
         info[MPMediaItemPropertyArtwork] = artwork
-        updateNowPlaying()
+        update()
       } catch {
         AppLogger.player.error("Failed to load cover image for now playing: \(error)")
       }
