@@ -402,29 +402,7 @@ extension BookPlayerModel {
       do {
         try await setupSession(forceTranscode: false)
 
-        if downloadManager.downloadStates[id] != .downloaded {
-          let autoDownloadMode = userPreferences.autoDownloadBooks
-          let networkMonitor = NetworkMonitor.shared
-
-          let shouldAutoDownload: Bool
-          switch autoDownloadMode {
-          case .off:
-            shouldAutoDownload = false
-          case .wifiOnly:
-            shouldAutoDownload = networkMonitor.interfaceType == .wifi
-          case .wifiAndCellular:
-            shouldAutoDownload = networkMonitor.isConnected
-          }
-
-          if shouldAutoDownload {
-            AppLogger.player.info("Auto-download starting (mode: \(autoDownloadMode.rawValue))")
-            try? item?.download()
-          } else {
-            AppLogger.player.debug(
-              "Auto-download skipped (mode: \(autoDownloadMode.rawValue))"
-            )
-          }
-        }
+        autoDownloadIfNeeded()
       } catch {
         AppLogger.player.error("Background session fetch failed: \(error)")
       }
@@ -440,6 +418,33 @@ extension BookPlayerModel {
       }
 
       isLoading = false
+    }
+  }
+
+  private func autoDownloadIfNeeded() {
+    let mode = userPreferences.autoDownloadBooks
+
+    guard let item, !item.isDownloaded, mode != .off else { return }
+
+    let networkMonitor = NetworkMonitor.shared
+
+    let shouldAutoDownload: Bool
+    switch mode {
+    case .off:
+      return
+    case .wifiOnly:
+      shouldAutoDownload = networkMonitor.interfaceType == .wifi
+    case .wifiAndCellular:
+      shouldAutoDownload = networkMonitor.isConnected
+    }
+
+    if shouldAutoDownload {
+      AppLogger.player.info("Auto-download starting (mode: \(mode.rawValue))")
+      try? item.download()
+    } else {
+      AppLogger.player.debug(
+        "Auto-download skipped (mode: \(mode.rawValue))"
+      )
     }
   }
 
