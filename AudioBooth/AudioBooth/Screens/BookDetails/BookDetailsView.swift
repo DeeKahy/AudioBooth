@@ -15,7 +15,6 @@ struct BookDetailsView: View {
   @State private var selectedTabIndex: Int = 0
   @State private var isDescriptionExpanded: Bool = false
   @State private var isShowingFullScreenCover = false
-  @State private var isShowingDeleteConfirmation = false
 
   private enum CoordinateSpaces {
     case scrollView
@@ -59,6 +58,28 @@ struct BookDetailsView: View {
       }
     }
     .toolbar {
+      if model.downloadState != .downloaded {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            model.onDownloadTapped()
+          } label: {
+            switch model.downloadState {
+            case .notDownloaded:
+              Label("Download", systemImage: "arrow.down.circle")
+            case .downloading:
+              Label("Cancel", systemImage: "stop.circle")
+            case .downloaded:
+              EmptyView()
+            }
+          }
+          .tint(.primary)
+        }
+
+        if #available(iOS 26.0, *) {
+          ToolbarSpacer(.fixed, placement: .topBarTrailing)
+        }
+      }
+
       ToolbarItem(placement: .navigationBarTrailing) {
         Menu {
           if model.canManageCollections {
@@ -78,7 +99,7 @@ struct BookDetailsView: View {
           }
 
           if Audiobookshelf.shared.authentication.permissions?.download == true {
-            Button(action: onDownloadButtonTapped) {
+            Button(action: { model.onDownloadTapped() }) {
               Label(downloadButtonText, systemImage: downloadButtonIcon)
             }
           }
@@ -269,10 +290,11 @@ struct BookDetailsView: View {
             ProgressBarView(progress: model.progress)
           }
         }
+        .overlay { downloadProgress }
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(radius: 4)
         .frame(width: 250, height: 250)
-        .offset(y: 40)
+        .offset(y: 50)
         .onTapGesture {
           guard model.coverURL != nil else { return }
           isShowingFullScreenCover = true
@@ -290,6 +312,7 @@ struct BookDetailsView: View {
             ProgressBarView(progress: model.progress)
           }
         }
+        .overlay { downloadProgress }
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(radius: 4)
         .padding()
@@ -309,6 +332,33 @@ struct BookDetailsView: View {
       }
     }
     .ignoresSafeArea(edges: .vertical)
+  }
+
+  @ViewBuilder
+  var downloadProgress: some View {
+    if case .downloading(let progress) = model.downloadState {
+      ZStack {
+        Color.black.opacity(0.6)
+
+        Button(
+          action: { model.onDownloadTapped() },
+          label: {
+            ProgressView(value: progress)
+              .progressViewStyle(GaugeProgressViewStyle(tint: .white, lineWidth: 6))
+              .frame(width: 100, height: 100)
+              .overlay {
+                Text(progress.formatted(.percent.precision(.fractionLength(0))))
+                  .font(.system(size: 20))
+                  .fontWeight(.medium)
+                  .foregroundStyle(Color.white)
+              }
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
+              .contentShape(Rectangle())
+          }
+        )
+        .buttonStyle(.plain)
+      }
+    }
   }
 
   private var headerSection: some View {
@@ -431,21 +481,6 @@ struct BookDetailsView: View {
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 
-  @ViewBuilder
-  private var downloadStateView: some View {
-    switch model.downloadState {
-    case .downloading(let progress):
-      HStack {
-        Image(systemName: "arrow.down.circle")
-        Text("Downloading: \(progress.formatted(.percent.precision(.fractionLength(0))))")
-      }
-      .font(.subheadline)
-      .frame(maxWidth: .infinity, alignment: .leading)
-    case .downloaded, .notDownloaded:
-      EmptyView()
-    }
-  }
-
   private var actionButtons: some View {
     VStack(spacing: 12) {
       if model.hasAudio {
@@ -503,60 +538,6 @@ struct BookDetailsView: View {
           .cornerRadius(12)
         }
       }
-
-      HStack(spacing: 12) {
-        if Audiobookshelf.shared.authentication.permissions?.download == true {
-          Button(role: downloadButtonRole, action: onDownloadButtonTapped) {
-            HStack {
-              Image(systemName: downloadButtonIcon)
-              Text(downloadButtonText)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(8)
-            .background(Color.secondary.opacity(0.2))
-            .cornerRadius(12)
-          }
-          .confirmationDialog(
-            "Remove Download",
-            isPresented: $isShowingDeleteConfirmation,
-            titleVisibility: .visible
-          ) {
-            Button("Remove", role: .destructive) {
-              model.onDownloadTapped()
-            }
-            Button("Cancel", role: .cancel) {}
-          } message: {
-            Text("Are you sure you want to remove this download? You can download it again later.")
-          }
-        }
-
-        if let progress = model.progress, progress >= 1.0 {
-          Button(action: model.onResetProgressTapped) {
-            HStack {
-              Image(systemName: "arrow.counterclockwise")
-              Text("Reset Progress")
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(8)
-            .background(Color.secondary.opacity(0.2))
-          }
-          .cornerRadius(12)
-        } else {
-          Button(action: model.onMarkFinishedTapped) {
-            HStack {
-              Image(systemName: "checkmark.shield")
-              Text("Mark as Finished")
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(8)
-            .background(Color.secondary.opacity(0.2))
-          }
-          .cornerRadius(12)
-        }
-      }
-      .font(.subheadline)
-
-      downloadStateView
     }
   }
 
@@ -604,14 +585,6 @@ struct BookDetailsView: View {
       return "Remove Download"
     case .notDownloaded:
       return "Download"
-    }
-  }
-
-  private func onDownloadButtonTapped() {
-    if case .downloaded = model.downloadState {
-      isShowingDeleteConfirmation = true
-    } else {
-      model.onDownloadTapped()
     }
   }
 
