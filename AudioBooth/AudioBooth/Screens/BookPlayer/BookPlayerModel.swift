@@ -138,7 +138,7 @@ final class BookPlayerModel: BookPlayer.Model {
       return
     }
 
-    guard let player else {
+    guard let player, !isLoading else {
       pendingPlay = true
       return
     }
@@ -164,6 +164,12 @@ final class BookPlayerModel: BookPlayer.Model {
     }
 
     guard player.status == .readyToPlay else {
+      if sessionManager.current != nil, !pendingPlay {
+        AppLogger.player.warning("Player not ready (status: \(player.status.rawValue)), reloading")
+        Task {
+          await reloadPlayer()
+        }
+      }
       pendingPlay = true
       return
     }
@@ -177,6 +183,8 @@ final class BookPlayerModel: BookPlayer.Model {
     if let timerViewModel = timer as? TimerPickerSheetViewModel {
       timerViewModel.activateAutoTimerIfNeeded()
     }
+
+    pendingPlay = false
   }
 
   override func onSkipForwardTapped(seconds: Double) {
@@ -499,8 +507,7 @@ extension BookPlayerModel {
     syncPlayback()
 
     if pendingPlay {
-      player.play()
-      pendingPlay = false
+      onPlayTapped()
     }
   }
 
@@ -692,11 +699,12 @@ extension BookPlayerModel {
       setupPlayerObservers()
       setupTimeObserver()
 
-      player.seek(to: currentTime) { _ in
-        if wasPlaying {
-          player.play()
-        }
+      player.seek(to: currentTime) { [weak self] _ in
         AppLogger.player.info("Restored playback position and state after reload")
+        guard let self else { return }
+        if wasPlaying || self.pendingPlay {
+          self.onPlayTapped()
+        }
       }
 
     } catch {
@@ -810,21 +818,22 @@ extension BookPlayerModel {
       currentItem.publisher(for: \.status)
         .receive(on: DispatchQueue.main)
         .sink { [weak self] status in
+          guard let self else { return }
           switch status {
           case .readyToPlay:
-            self?.isLoading = false
-            self?.recoveryAttempts = 0
-            let duration = currentItem.duration
-            if duration.isValid && !duration.isIndefinite {
+            self.isLoading = false
+            self.recoveryAttempts = 0
+            if self.pendingPlay {
+              self.onPlayTapped()
             }
 
           case .failed:
-            self?.isLoading = false
+            self.isLoading = false
             let errorMessage = currentItem.error?.localizedDescription ?? "Unknown error"
             AppLogger.player.error("Player item failed: \(errorMessage)")
-            self?.handleStreamFailure(error: currentItem.error)
+            self.handleStreamFailure(error: currentItem.error)
           case .unknown:
-            self?.isLoading = true
+            self.isLoading = true
           @unknown default:
             break
           }
