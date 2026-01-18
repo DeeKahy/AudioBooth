@@ -15,6 +15,7 @@ struct BookDetailsView: View {
   @State private var selectedTabIndex: Int = 0
   @State private var isDescriptionExpanded: Bool = false
   @State private var isShowingFullScreenCover = false
+  @State private var isShowingDeleteConfirmation = false
 
   private enum CoordinateSpaces {
     case scrollView
@@ -77,7 +78,7 @@ struct BookDetailsView: View {
           }
 
           if Audiobookshelf.shared.authentication.permissions?.download == true {
-            Button(action: model.onDownloadTapped) {
+            Button(action: onDownloadButtonTapped) {
               Label(downloadButtonText, systemImage: downloadButtonIcon)
             }
           }
@@ -505,7 +506,7 @@ struct BookDetailsView: View {
 
       HStack(spacing: 12) {
         if Audiobookshelf.shared.authentication.permissions?.download == true {
-          Button(role: downloadButtonRole, action: model.onDownloadTapped) {
+          Button(role: downloadButtonRole, action: onDownloadButtonTapped) {
             HStack {
               Image(systemName: downloadButtonIcon)
               Text(downloadButtonText)
@@ -514,6 +515,18 @@ struct BookDetailsView: View {
             .padding(8)
             .background(Color.secondary.opacity(0.2))
             .cornerRadius(12)
+          }
+          .confirmationDialog(
+            "Remove Download",
+            isPresented: $isShowingDeleteConfirmation,
+            titleVisibility: .visible
+          ) {
+            Button("Remove", role: .destructive) {
+              model.onDownloadTapped()
+            }
+            Button("Cancel", role: .cancel) {}
+          } message: {
+            Text("Are you sure you want to remove this download? You can download it again later.")
           }
         }
 
@@ -591,6 +604,14 @@ struct BookDetailsView: View {
       return "Remove Download"
     case .notDownloaded:
       return "Download"
+    }
+  }
+
+  private func onDownloadButtonTapped() {
+    if case .downloaded = model.downloadState {
+      isShowingDeleteConfirmation = true
+    } else {
+      model.onDownloadTapped()
     }
   }
 
