@@ -84,12 +84,12 @@ struct BookDetailsView: View {
         Menu {
           if model.canManageCollections {
             Button(action: { collectionSelector = .collections }) {
-              Label("Collections", systemImage: "square.stack.3d.up.fill")
+              Label("Add to Collection", systemImage: "square.stack.3d.up.fill")
             }
           }
 
           Button(action: { collectionSelector = .playlists }) {
-            Label("Your Playlists", systemImage: "music.note.list")
+            Label("Add to Playlist", systemImage: "music.note.list")
           }
 
           if let bookmarks = model.bookmarks, !bookmarks.bookmarks.isEmpty {
