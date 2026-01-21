@@ -867,7 +867,7 @@
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.41.0;
+				minimumVersion = 5.55.2;
 			};
 		};
 		3F5C74552EDE598700976431 /* XCRemoteSwiftPackageReference "swift-log" */ = {
@@ -875,7 +875,7 @@
 			repositoryURL = "https://github.com/apple/swift-log";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.6.4;
+				minimumVersion = 1.9.1;
 			};
 		};
 		3F5C74582EDE5B2400976431 /* XCRemoteSwiftPackageReference "PulseLogHandler" */ = {
