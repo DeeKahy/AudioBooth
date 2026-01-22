@@ -87,11 +87,21 @@ struct LibraryPage: View {
       } else {
         ToolbarItem(placement: .topBarTrailing) {
           Button {
-            model.onDownloadAllTapped()
+            model.showingDownloadConfirmation = true
           } label: {
             Label("Download All", systemImage: "arrow.down.circle")
           }
           .tint(.primary)
+          .confirmationDialog(
+            "Download All Books",
+            isPresented: $model.showingDownloadConfirmation,
+            titleVisibility: .visible
+          ) {
+            Button("Download All", action: model.onDownloadAllTapped)
+            Button("Cancel", role: .cancel) {}
+          } message: {
+            Text("This will download all books in this collection. This may use significant storage space.")
+          }
         }
       }
 
@@ -227,6 +237,7 @@ extension LibraryPage {
 
     var filters: FilterPicker.Model?
     var showingFilterSelection: Bool = false
+    var showingDownloadConfirmation: Bool = false
 
     func onAppear() {}
     func refresh() async {}
