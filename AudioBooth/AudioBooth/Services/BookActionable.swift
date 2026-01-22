@@ -4,6 +4,9 @@ import Models
 
 public protocol BookActionable {
   var bookID: String { get }
+  var title: String { get }
+  var details: String? { get }
+  var coverURL: URL? { get }
 }
 
 @MainActor
@@ -116,9 +119,28 @@ extension BookActionable {
 
 extension Book: BookActionable {
   public var bookID: String { id }
+  public var details: String? {
+    Duration.seconds(duration).formatted(
+      .units(
+        allowed: [.hours, .minutes],
+        width: .narrow
+      )
+    )
+  }
+  public var coverURL: URL? { coverURL() }
 }
 
-extension LocalBook: BookActionable {}
+extension LocalBook: BookActionable {
+  public var details: String? {
+    Duration.seconds(duration).formatted(
+      .units(
+        allowed: [.hours, .minutes],
+        width: .narrow
+      )
+    )
+  }
+  public var coverURL: URL? { coverURL() }
+}
 
 enum BookActionableError: Error {
   case unsupportedType

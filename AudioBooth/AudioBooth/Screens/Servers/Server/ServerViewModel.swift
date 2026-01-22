@@ -402,6 +402,7 @@ final class ServerViewModel: ServerView.Model {
 
     if audiobookshelf.authentication.server?.id == serverID {
       playerManager.current = nil
+      playerManager.clearQueue()
     }
 
     audiobookshelf.logout(serverID: serverID)

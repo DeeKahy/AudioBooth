@@ -15,14 +15,23 @@ final class PlayerManager: ObservableObject, Sendable {
 
   @Published var current: BookPlayer.Model?
   @Published var isShowingFullPlayer = false
+  @Published var isShowingQueue = false
   @Published var reader: EbookReaderView.Model?
 
+  @Published private(set) var queue: [QueueItem] = [] {
+    didSet {
+      saveQueue()
+    }
+  }
+
   private static let currentBookIDKey = "currentBookID"
+  private static let queueKey = "playerQueue"
   private let sharedDefaults = UserDefaults(suiteName: "group.me.jgrenier.audioBS")
 
   private var cancellables = Set<AnyCancellable>()
 
   private init() {
+    loadQueue()
     setupRemoteCommandCenter()
   }
 
@@ -54,6 +63,7 @@ final class PlayerManager: ObservableObject, Sendable {
       if let currentPlayer = current as? BookPlayerModel {
         currentPlayer.stopPlayer()
       }
+      removeFromQueue(bookID: book.bookID)
       current = BookPlayerModel(book)
       UserDefaults.standard.set(book.bookID, forKey: Self.currentBookIDKey)
       WidgetCenter.shared.reloadAllTimelines()
@@ -67,6 +77,7 @@ final class PlayerManager: ObservableObject, Sendable {
       if let currentPlayer = current as? BookPlayerModel {
         currentPlayer.stopPlayer()
       }
+      removeFromQueue(bookID: book.id)
       current = BookPlayerModel(book)
       UserDefaults.standard.set(book.id, forKey: Self.currentBookIDKey)
       WidgetCenter.shared.reloadAllTimelines()
@@ -373,5 +384,74 @@ extension PlayerManager {
     }
 
     observeSkipIntervalChanges()
+  }
+}
+
+extension PlayerManager {
+  func addToQueue(_ item: BookActionable) {
+    guard item.bookID != current?.id else { return }
+    guard !queue.contains(where: { $0.bookID == item.bookID }) else { return }
+    queue.append(QueueItem(from: item))
+  }
+
+  func removeFromQueue(bookID: String) {
+    queue.removeAll { $0.bookID == bookID }
+  }
+
+  func reorderQueue(_ newQueue: [QueueItem]) {
+    queue = newQueue
+  }
+
+  func clearQueue() {
+    queue.removeAll()
+  }
+
+  func playNext() {
+    guard !queue.isEmpty else { return }
+    guard userPreferences.autoPlayNextInQueue else { return }
+
+    let nextItem = queue.removeFirst()
+
+    Task {
+      await play(nextItem.bookID)
+    }
+  }
+
+  func playFromQueue(_ item: QueueItem) {
+    if let current, !isCurrentBookCompleted() {
+      let currentQueueItem = QueueItem(
+        bookID: current.id,
+        title: current.title,
+        details: current.author,
+        coverURL: current.coverURL
+      )
+      queue.insert(currentQueueItem, at: 0)
+    }
+
+    queue.removeAll { $0.bookID == item.bookID }
+
+    Task {
+      await play(item.bookID)
+    }
+  }
+
+  fileprivate func isCurrentBookCompleted() -> Bool {
+    guard let current else { return true }
+    let progress = MediaProgress.progress(for: current.id)
+    return progress >= 1.0
+  }
+
+  fileprivate func saveQueue() {
+    if let data = try? JSONEncoder().encode(queue) {
+      UserDefaults.standard.set(data, forKey: Self.queueKey)
+    }
+  }
+
+  fileprivate func loadQueue() {
+    if let data = UserDefaults.standard.data(forKey: Self.queueKey),
+      let savedQueue = try? JSONDecoder().decode([QueueItem].self, from: data)
+    {
+      queue = savedQueue
+    }
   }
 }

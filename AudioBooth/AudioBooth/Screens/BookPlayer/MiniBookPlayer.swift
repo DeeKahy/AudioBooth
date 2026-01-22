@@ -41,7 +41,8 @@ struct MiniBookPlayer: View, Equatable {
 
       VStack(alignment: .leading, spacing: 2) {
         Text(player.title)
-          .font(.system(size: 14, weight: .medium))
+          .font(.footnote)
+          .fontWeight(.medium)
           .foregroundColor(.primary)
           .lineLimit(1)
           .frame(maxWidth: .infinity, alignment: .leading)
@@ -52,7 +53,7 @@ struct MiniBookPlayer: View, Equatable {
           .fontWeight(.medium)
       }
 
-      button
+      buttons
     }
   }
 
@@ -62,27 +63,40 @@ struct MiniBookPlayer: View, Equatable {
   }
 
   @ViewBuilder
-  private var button: some View {
+  private var buttons: some View {
     if placement != .inline {
-      Button(action: player.onTogglePlaybackTapped) {
-        ZStack {
-          Circle()
-            .fill(Color.accentColor)
-            .aspectRatio(1, contentMode: .fit)
+      HStack(spacing: 8) {
+        Button(action: player.onTogglePlaybackTapped) {
+          ZStack {
+            Circle()
+              .fill(Color.accentColor)
+              .aspectRatio(1, contentMode: .fit)
 
-          if player.isLoading {
-            ProgressView()
-              .progressViewStyle(CircularProgressViewStyle(tint: .white))
-              .scaleEffect(0.7)
-          } else {
-            Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-              .font(.system(size: 10))
-              .foregroundColor(.white)
+            if player.isLoading {
+              ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                .scaleEffect(0.7)
+            } else {
+              Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                .font(.system(size: 10))
+                .foregroundColor(.white)
+            }
           }
         }
+        .disabled(player.isLoading)
+        .buttonStyle(.borderless)
+
+        if !playerManager.queue.isEmpty {
+          Button {
+            playerManager.isShowingQueue = true
+          } label: {
+            Image(systemName: "list.bullet")
+              .font(.system(size: 12))
+              .foregroundColor(.secondary)
+          }
+          .buttonStyle(.borderless)
+        }
       }
-      .disabled(player.isLoading)
-      .buttonStyle(.borderless)
     }
   }
 
@@ -115,13 +129,6 @@ struct LegacyMiniBookPlayer: View {
     .onTapGesture {
       playerManager.showFullPlayer()
     }
-    .contextMenu {
-      Button {
-        playerManager.clearCurrent()
-      } label: {
-        Label("Stop", systemImage: "xmark.circle")
-      }
-    }
     .frame(maxHeight: 56)
   }
 
@@ -132,7 +139,8 @@ struct LegacyMiniBookPlayer: View {
 
       VStack(alignment: .leading, spacing: 2) {
         Text(player.title)
-          .font(.system(size: 14, weight: .medium))
+          .font(.footnote)
+          .fontWeight(.medium)
           .foregroundColor(.primary)
           .lineLimit(1)
 
@@ -144,26 +152,39 @@ struct LegacyMiniBookPlayer: View {
 
       Spacer()
 
-      Button(action: player.onTogglePlaybackTapped) {
-        ZStack {
-          Circle()
-            .fill(Color.accentColor)
-            .frame(width: 40, height: 40)
+      HStack(spacing: 12) {
+        Button(action: player.onTogglePlaybackTapped) {
+          ZStack {
+            Circle()
+              .fill(Color.accentColor)
+              .frame(width: 40, height: 40)
 
-          if player.isLoading {
-            ProgressView()
-              .progressViewStyle(CircularProgressViewStyle(tint: .white))
-              .scaleEffect(0.7)
-          } else {
-            Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-              .font(.system(size: 16))
-              .foregroundColor(.white)
-              .offset(x: player.isPlaying ? 0 : 2)
+            if player.isLoading {
+              ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                .scaleEffect(0.7)
+            } else {
+              Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                .font(.system(size: 16))
+                .foregroundColor(.white)
+                .offset(x: player.isPlaying ? 0 : 2)
+            }
           }
         }
+        .disabled(player.isLoading)
+        .buttonStyle(.borderless)
+
+        if !playerManager.queue.isEmpty {
+          Button {
+            playerManager.isShowingQueue = true
+          } label: {
+            Image(systemName: "list.bullet")
+              .font(.system(size: 16))
+              .foregroundColor(.secondary)
+          }
+          .buttonStyle(.borderless)
+        }
       }
-      .disabled(player.isLoading)
-      .buttonStyle(.borderless)
     }
   }
 

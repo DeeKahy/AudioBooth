@@ -58,6 +58,7 @@ final class HomePageModel: HomePage.Model {
 
   override func onReset(_ shouldRefresh: Bool) {
     playerManager.clearCurrent()
+    playerManager.clearQueue()
 
     continueListeningBooks = []
     personalizedSections = []

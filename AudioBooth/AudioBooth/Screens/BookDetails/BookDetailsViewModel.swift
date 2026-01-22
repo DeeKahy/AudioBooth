@@ -28,13 +28,11 @@ final class BookDetailsViewModel: BookDetailsView.Model {
   }
 
   init(bookID: String) {
-    let canManageCollections = Audiobookshelf.shared.authentication.permissions?.update == true
     let initialMediaProgress = try? MediaProgress.fetch(bookID: bookID)
     super.init(
       bookID: bookID,
       progress: MediaProgress.progress(for: bookID),
       isLoading: false,
-      canManageCollections: canManageCollections,
       tabs: [],
       metadata: .init(
         audioProgress: initialMediaProgress?.progress,
@@ -42,6 +40,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
       )
     )
     mediaProgress = initialMediaProgress
+    updateActions()
   }
 
   isolated deinit {
@@ -58,6 +57,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     setupProgressObservation()
     setupItemObservation()
     setupPlayerStateObservation()
+    setupQueueObservation()
   }
 
   private func loadLocalBook() async {
@@ -295,6 +295,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
     }
 
     self.tabs = tabs
+    updateActions()
   }
 
   private func convertChapters(
@@ -358,8 +359,56 @@ final class BookDetailsViewModel: BookDetailsView.Model {
       .sink { [weak self] current in
         guard let self else { return }
         self.observeIsPlaying(current)
+        self.updateActions()
       }
       .store(in: &cancellables)
+  }
+
+  private func setupQueueObservation() {
+    playerManager.$queue
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.updateActions()
+      }
+      .store(in: &cancellables)
+  }
+
+  private func updateActions() {
+    var updatedActions: BookDetailsView.Model.Actions = []
+
+    if authenticationService.permissions?.update == true {
+      updatedActions.insert(.addToCollection)
+    }
+
+    if let bookmarks, !bookmarks.bookmarks.isEmpty {
+      updatedActions.insert(.viewBookmarks)
+    }
+
+    if playerManager.current?.id != bookID {
+      let isInQueue = playerManager.queue.contains { $0.bookID == bookID }
+      updatedActions.insert(isInQueue ? .removeFromQueue : .addToQueue)
+    }
+
+    let currentProgress = progress ?? 0
+    if currentProgress < 1.0 {
+      updatedActions.insert(.markAsFinished)
+    }
+    if currentProgress > 0 {
+      updatedActions.insert(.resetProgress)
+    }
+
+    if UserPreferences.shared.showNFCTagWriting {
+      updatedActions.insert(.writeNFCTag)
+    }
+
+    if metadata.isEbook {
+      updatedActions.insert(.openOnWeb)
+      if !ereaderDevices.isEmpty {
+        updatedActions.insert(.sendToEbook)
+      }
+    }
+
+    actions = updatedActions
   }
 
   private func observeIsPlaying(_ current: BookPlayer.Model?) {
@@ -462,6 +511,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
           try await localBook.markAsFinished()
         }
         progress = 1.0
+        updateActions()
         Toast(success: "Marked as finished").show()
       } catch {
         Toast(error: "Failed to mark as finished").show()
@@ -483,6 +533,7 @@ final class BookDetailsViewModel: BookDetailsView.Model {
         progress = 0
         metadata.timeRemaining = Duration.seconds(duration)
           .formatted(.units(allowed: [.hours, .minutes], width: .narrow))
+        updateActions()
         Toast(success: "Progress reset").show()
       } catch {
         Toast(error: "Failed to reset progress").show()
@@ -505,6 +556,24 @@ final class BookDetailsViewModel: BookDetailsView.Model {
         Toast(error: "Unable to send ebook to \(device)").show()
       }
     }
+  }
+
+  override func onAddToQueueTapped() {
+    if let book {
+      playerManager.addToQueue(book)
+    } else if let localBook {
+      playerManager.addToQueue(localBook)
+    }
+    updateActions()
+  }
+
+  override func onRemoveFromQueueTapped() {
+    if let book {
+      playerManager.removeFromQueue(bookID: book.id)
+    } else if let localBook {
+      playerManager.removeFromQueue(bookID: localBook.bookID)
+    }
+    updateActions()
   }
 
 }
@@ -546,6 +615,7 @@ extension BookDetailsViewModel {
       }
 
       updateChapterStatuses()
+      updateActions()
     }
   }
 

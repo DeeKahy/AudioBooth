@@ -3,7 +3,6 @@ import SwiftUI
 struct ParallaxHeader<Content: View, Space: Hashable>: View {
   let content: () -> Content
   let coordinateSpace: Space
-  @State var height: CGFloat = 0
 
   init(
     coordinateSpace: Space,
@@ -24,12 +23,7 @@ struct ParallaxHeader<Content: View, Space: Hashable>: View {
           height: proxy.size.height + heightModifier
         )
         .offset(y: offset)
-        .onAppear {
-          height = min(370, proxy.size.width)
-        }
-        .onChange(of: proxy.size.width) { _, new in height = min(370, new) }
     }
-    .frame(height: height)
     .accessibilityHidden(true)
   }
 

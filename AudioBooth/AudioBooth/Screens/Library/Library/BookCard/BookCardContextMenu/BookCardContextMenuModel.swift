@@ -6,8 +6,16 @@ final class BookCardContextMenuModel: BookCardContextMenu.Model {
   enum Item {
     case local(LocalBook)
     case remote(Book)
+
+    var bookID: String {
+      switch self {
+      case .local(let localBook): localBook.bookID
+      case .remote(let book): book.id
+      }
+    }
   }
 
+  private let playerManager = PlayerManager.shared
   private let item: Item
   private let onProgressChanged: ((Double) -> Void)?
   private let onRemoveFromContinueListening: (() -> Void)?
@@ -49,6 +57,12 @@ final class BookCardContextMenuModel: BookCardContextMenu.Model {
     }
     if onRemoveFromContinueListening != nil {
       actions.insert(.removeFromContinueListening)
+    }
+
+    let isCurrentBook = playerManager.current?.id == item.bookID
+    if !isCurrentBook {
+      let isInQueue = playerManager.queue.contains { $0.bookID == item.bookID }
+      actions.insert(isInQueue ? .removeFromQueue : .addToQueue)
     }
 
     super.init(
@@ -142,6 +156,11 @@ final class BookCardContextMenuModel: BookCardContextMenu.Model {
       actions.insert(.removeFromContinueListening)
     }
 
+    if let current = playerManager.current, current.id != item.id {
+      let isInQueue = playerManager.queue.contains { $0.bookID == item.id }
+      actions.insert(isInQueue ? .removeFromQueue : .addToQueue)
+    }
+
     super.init(
       downloadState: downloadState,
       actions: actions,
@@ -152,15 +171,7 @@ final class BookCardContextMenuModel: BookCardContextMenu.Model {
   }
 
   override func onAppear() {
-    var bookID: String
-
-    switch item {
-    case .local(let localBook):
-      bookID = localBook.bookID
-    case .remote(let book):
-      bookID = book.id
-    }
-
+    let bookID = item.bookID
     let progress = MediaProgress.progress(for: bookID)
 
     downloadState = DownloadManager.shared.downloadStates[bookID] ?? .notDownloaded
@@ -175,6 +186,13 @@ final class BookCardContextMenuModel: BookCardContextMenu.Model {
     if onRemoveFromContinueListening != nil {
       updatedActions.insert(.removeFromContinueListening)
     }
+
+    let isCurrentBook = playerManager.current?.id == bookID
+    if !isCurrentBook {
+      let isInQueue = playerManager.queue.contains { $0.bookID == bookID }
+      updatedActions.insert(isInQueue ? .removeFromQueue : .addToQueue)
+    }
+
     actions = updatedActions
   }
 
@@ -212,6 +230,28 @@ final class BookCardContextMenuModel: BookCardContextMenu.Model {
     case .remote(let book):
       book.play()
     }
+  }
+
+  override func onAddToQueueTapped() {
+    switch item {
+    case .local(let localBook):
+      playerManager.addToQueue(localBook)
+    case .remote(let book):
+      playerManager.addToQueue(book)
+    }
+    actions.remove(.addToQueue)
+    actions.insert(.removeFromQueue)
+  }
+
+  override func onRemoveFromQueueTapped() {
+    switch item {
+    case .local(let localBook):
+      playerManager.removeFromQueue(bookID: localBook.bookID)
+    case .remote(let book):
+      playerManager.removeFromQueue(bookID: book.id)
+    }
+    actions.remove(.removeFromQueue)
+    actions.insert(.addToQueue)
   }
 
   override func onMarkAsFinishedTapped() {

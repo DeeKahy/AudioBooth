@@ -106,6 +106,9 @@ final class UserPreferences: ObservableObject {
   @AppStorage("continueSectionSize")
   var continueSectionSize: ContinueSectionSize = .default
 
+  @AppStorage("autoPlayNextInQueue")
+  var autoPlayNextInQueue: Bool = true
+
   let cloud = NSUbiquitousKeyValueStore.default
   var cloudObserver: NSObjectProtocol?
   var localObserver: NSObjectProtocol?

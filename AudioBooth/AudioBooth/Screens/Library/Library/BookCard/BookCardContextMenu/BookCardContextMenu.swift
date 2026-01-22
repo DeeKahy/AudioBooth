@@ -14,6 +14,16 @@ struct BookCardContextMenu: View {
           Label("Play", systemImage: "play.fill")
         }
 
+        if model.actions.contains(.addToQueue) {
+          Button(action: model.onAddToQueueTapped) {
+            Label("Add to Queue", systemImage: "text.badge.plus")
+          }
+        } else if model.actions.contains(.removeFromQueue) {
+          Button(action: model.onRemoveFromQueueTapped) {
+            Label("Remove from Queue", systemImage: "text.line.last.and.arrowtriangle.forward")
+          }
+        }
+
         if audiobookshelf.authentication.permissions?.download == true {
           switch model.downloadState {
           case .notDownloaded:
@@ -115,6 +125,8 @@ extension BookCardContextMenu {
       static let markAsFinished = Actions(rawValue: 1 << 0)
       static let resetProgress = Actions(rawValue: 1 << 1)
       static let removeFromContinueListening = Actions(rawValue: 1 << 2)
+      static let addToQueue = Actions(rawValue: 1 << 3)
+      static let removeFromQueue = Actions(rawValue: 1 << 4)
     }
 
     var downloadState: DownloadManager.DownloadState
@@ -128,6 +140,8 @@ extension BookCardContextMenu {
     func onCancelDownloadTapped() {}
     func onRemoveDownloadTapped() {}
     func onPlayTapped() {}
+    func onAddToQueueTapped() {}
+    func onRemoveFromQueueTapped() {}
     func onMarkAsFinishedTapped() {}
     func onResetProgressTapped() {}
     func onRemoveFromContinueListeningTapped() {}

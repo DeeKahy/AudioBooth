@@ -7,7 +7,6 @@ import SwiftUI
 
 struct BookDetailsView: View {
   @Environment(\.verticalSizeClass) private var verticalSizeClass
-  @ObservedObject var preferences = UserPreferences.shared
 
   @StateObject var model: Model
 
@@ -82,7 +81,7 @@ struct BookDetailsView: View {
 
       ToolbarItem(placement: .navigationBarTrailing) {
         Menu {
-          if model.canManageCollections {
+          if model.actions.contains(.addToCollection) {
             Button(action: { collectionSelector = .collections }) {
               Label("Add to Collection", systemImage: "square.stack.3d.up.fill")
             }
@@ -92,7 +91,7 @@ struct BookDetailsView: View {
             Label("Add to Playlist", systemImage: "music.note.list")
           }
 
-          if let bookmarks = model.bookmarks, !bookmarks.bookmarks.isEmpty {
+          if model.actions.contains(.viewBookmarks) {
             Button(action: { model.bookmarks?.isPresented = true }) {
               Label("Your Bookmarks", systemImage: "bookmark.fill")
             }
@@ -111,19 +110,31 @@ struct BookDetailsView: View {
             }
           }
 
-          if let progress = model.progress, progress >= 1.0 {
-            Button(action: model.onResetProgressTapped) {
-              Label("Reset Progress", systemImage: "arrow.counterclockwise")
+          if model.actions.contains(.addToQueue) {
+            Button(action: model.onAddToQueueTapped) {
+              Label("Add to Queue", systemImage: "text.badge.plus")
             }
-          } else {
+          } else if model.actions.contains(.removeFromQueue) {
+            Button(action: model.onRemoveFromQueueTapped) {
+              Label("Remove from Queue", systemImage: "text.badge.minus")
+            }
+          }
+
+          if model.actions.contains(.markAsFinished) {
             Button(action: model.onMarkFinishedTapped) {
               Label("Mark as Finished", systemImage: "checkmark.shield")
             }
           }
 
+          if model.actions.contains(.resetProgress) {
+            Button(action: model.onResetProgressTapped) {
+              Label("Reset Progress", systemImage: "arrow.counterclockwise")
+            }
+          }
+
           ereaderDevices
 
-          if preferences.showNFCTagWriting {
+          if model.actions.contains(.writeNFCTag) {
             Divider()
 
             Button(action: model.onWriteTagTapped) {
@@ -155,18 +166,21 @@ struct BookDetailsView: View {
   }
 
   private var portraitLayout: some View {
-    ScrollView {
-      VStack(spacing: 0) {
-        cover
+    GeometryReader { proxy in
+      ScrollView {
+        VStack(spacing: 0) {
+          cover(offset: proxy.safeAreaInsets.top)
+            .frame(height: 266 + proxy.safeAreaInsets.top)
 
-        contentSections
-          .padding()
-          .background()
+          contentSections
+            .padding()
+            .background()
+        }
+        .padding(.vertical)
       }
-      .padding(.vertical)
+      .coordinateSpace(name: CoordinateSpaces.scrollView)
+      .ignoresSafeArea(edges: .top)
     }
-    .coordinateSpace(name: CoordinateSpaces.scrollView)
-    .ignoresSafeArea(edges: .top)
   }
 
   private var landscapeLayout: some View {
@@ -275,7 +289,7 @@ struct BookDetailsView: View {
     }
   }
 
-  private var cover: some View {
+  private func cover(offset: CGFloat) -> some View {
     ParallaxHeader(coordinateSpace: CoordinateSpaces.scrollView) {
       ZStack(alignment: .center) {
         LazyImage(url: model.coverURL) { state in
@@ -309,7 +323,7 @@ struct BookDetailsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(radius: 4)
         .frame(width: 250, height: 250)
-        .offset(y: 50)
+        .offset(y: offset / 2 - 8)
         .onTapGesture {
           guard model.coverURL != nil else { return }
           isShowingFullScreenCover = true
@@ -573,7 +587,7 @@ struct BookDetailsView: View {
 extension BookDetailsView {
   @ViewBuilder
   private var ereaderDevices: some View {
-    if model.metadata.isEbook {
+    if model.actions.contains(.openOnWeb) {
       Divider()
 
       Button(
@@ -583,7 +597,7 @@ extension BookDetailsView {
         }
       )
 
-      if !model.ereaderDevices.isEmpty {
+      if model.actions.contains(.sendToEbook) {
         Menu {
           ForEach(model.ereaderDevices, id: \.self) { device in
             Button(device) {
@@ -608,6 +622,20 @@ extension BookDetailsView {
       static let abridged = Flags(rawValue: 1 << 1)
     }
 
+    struct Actions: OptionSet {
+      let rawValue: Int
+
+      static let addToCollection = Actions(rawValue: 1 << 0)
+      static let viewBookmarks = Actions(rawValue: 1 << 1)
+      static let addToQueue = Actions(rawValue: 1 << 2)
+      static let removeFromQueue = Actions(rawValue: 1 << 3)
+      static let markAsFinished = Actions(rawValue: 1 << 4)
+      static let resetProgress = Actions(rawValue: 1 << 5)
+      static let writeNFCTag = Actions(rawValue: 1 << 6)
+      static let openOnWeb = Actions(rawValue: 1 << 7)
+      static let sendToEbook = Actions(rawValue: 1 << 8)
+    }
+
     let bookID: String
     var title: String
     var subtitle: String?
@@ -624,7 +652,7 @@ extension BookDetailsView {
     var genres: [String]?
     var tags: [String]?
     var description: String?
-    var canManageCollections: Bool
+    var actions: Actions
     var bookmarks: BookmarkViewerSheet.Model?
     var ereaderDevices: [String]
     var ebookReader: EbookReaderView.Model?
@@ -641,6 +669,8 @@ extension BookDetailsView {
     func onResetProgressTapped() {}
     func onWriteTagTapped() {}
     func onSendToEbookTapped(_ device: String) {}
+    func onAddToQueueTapped() {}
+    func onRemoveFromQueueTapped() {}
 
     init(
       bookID: String,
@@ -651,7 +681,7 @@ extension BookDetailsView {
       series: [Series] = [],
       coverURL: URL? = nil,
       progress: Double? = nil,
-      downloadState: DownloadManager.DownloadState = .notDownloaded,
+      downloadState: DownloadManager.DownloadState = .downloaded,
       isLoading: Bool = true,
       isCurrentlyPlaying: Bool = false,
       flags: Flags = [],
@@ -659,7 +689,7 @@ extension BookDetailsView {
       genres: [String]? = nil,
       tags: [String]? = nil,
       description: String? = nil,
-      canManageCollections: Bool = false,
+      actions: Actions = [],
       bookmarks: BookmarkViewerSheet.Model? = nil,
       ereaderDevices: [String] = [],
       ebookReader: EbookReaderView.Model? = nil,
@@ -682,7 +712,7 @@ extension BookDetailsView {
       self.genres = genres
       self.tags = tags
       self.description = description
-      self.canManageCollections = canManageCollections
+      self.actions = actions
       self.bookmarks = bookmarks
       self.ereaderDevices = ereaderDevices
       self.ebookReader = ebookReader

@@ -1092,12 +1092,18 @@ extension BookPlayerModel {
 
   private func recordBookCompletionIfNeeded() {
     guard
-      !mediaProgress.isFinished, player?.status == .readyToPlay,
+      !mediaProgress.isFinished,
+      player?.status == .readyToPlay,
       mediaProgress.duration > 0,
-      mediaProgress.remaining <= 120
+      mediaProgress.remaining <= 60
     else { return }
 
+    Task {
+      try? await item?.markAsFinished()
+    }
+
     ReviewRequestManager.shared.recordBookCompletion()
+    playerManager.playNext()
   }
 }
 
