@@ -288,9 +288,7 @@ public final class AuthenticationService: ObservableObject {
   }
 
   public func restoreConnection(_ connection: Connection) {
-    var allConnections = connections
-    allConnections[connection.id] = connection
-    connections = allConnections
+    connections[connection.id] = connection
 
     let restoredServer = Server(connection: connection)
     servers[connection.id] = restoredServer
@@ -302,9 +300,7 @@ public final class AuthenticationService: ObservableObject {
 
     server.alias = alias
 
-    var allConnections = connections
-    allConnections[serverID] = Connection(server)
-    connections = allConnections
+    connections[serverID] = Connection(server)
   }
 
   public func updateCustomHeaders(_ serverID: String, customHeaders: [String: String]) {
@@ -329,9 +325,7 @@ public final class AuthenticationService: ObservableObject {
 
     server.token = token
 
-    var allConnections = connections
-    allConnections[serverID] = Connection(server)
-    connections = allConnections
+    connections[serverID] = Connection(server)
   }
 
   public func removeServer(_ serverID: String) {
@@ -502,9 +496,9 @@ public final class AuthenticationService: ObservableObject {
     }
   }
 
-  func refreshToken(for server: Server) async throws {
+  func refreshToken(for server: Server) async throws -> Credentials {
     guard case .bearer(_, let refreshToken, _) = server.token else {
-      return
+      throw Audiobookshelf.AudiobookshelfError.loginFailed("Token not in correct format")
     }
 
     struct Response: Codable {
@@ -540,7 +534,10 @@ public final class AuthenticationService: ObservableObject {
       expiresAt: newExpiresAt
     )
 
+    server.token = newToken
     updateToken(server.id, token: newToken)
+
+    return newToken
   }
 
   public func checkServersHealth() async {

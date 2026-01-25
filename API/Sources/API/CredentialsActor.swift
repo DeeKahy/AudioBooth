@@ -31,7 +31,6 @@ actor CredentialsActor {
 
       let task = Task<Credentials, Error> { @MainActor [server] in
         try await Audiobookshelf.shared.authentication.refreshToken(for: server)
-        return server.token
       }
 
       refreshTask = task

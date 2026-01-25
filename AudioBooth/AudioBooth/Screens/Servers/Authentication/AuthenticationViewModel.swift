@@ -33,6 +33,7 @@ final class AuthenticationViewModel: AuthenticationView.Model {
         )
         password = ""
         onAuthenticationSuccess()
+        shouldDismiss = true
       } catch {
         AppLogger.viewModel.error("Re-authentication failed: \(error.localizedDescription)")
         Toast(error: error.localizedDescription).show()
@@ -57,6 +58,7 @@ final class AuthenticationViewModel: AuthenticationView.Model {
         isLoading = false
         Toast(success: "Successfully authenticated with SSO").show()
         onAuthenticationSuccess()
+        shouldDismiss = true
       } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
         isLoading = false
       } catch {
