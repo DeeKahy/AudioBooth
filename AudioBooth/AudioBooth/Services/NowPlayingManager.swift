@@ -91,6 +91,7 @@ final class NowPlayingManager {
     observeSpeedChanges()
     observeChapterChanges()
     observePreferenceChanges()
+    observeSeekEvents()
 
     update()
   }
@@ -150,6 +151,15 @@ final class NowPlayingManager {
         self.observePreferenceChanges()
       }
     }
+  }
+
+  private func observeSeekEvents() {
+    NotificationCenter.default.publisher(for: AVPlayerItem.timeJumpedNotification)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.update()
+      }
+      .store(in: &cancellables)
   }
 
   func update() {

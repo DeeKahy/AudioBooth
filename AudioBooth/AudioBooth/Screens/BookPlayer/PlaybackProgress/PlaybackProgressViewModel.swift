@@ -9,7 +9,6 @@ final class PlaybackProgressViewModel: PlaybackProgressView.Model {
   private var chapters: ChapterPickerSheet.Model?
   private var speed: SpeedPickerSheet.Model?
   private let preferences = UserPreferences.shared
-  private var onSeekCompleted: (() -> Void)?
   private var cancellables = Set<AnyCancellable>()
 
   private let mediaProgress: MediaProgress
@@ -47,13 +46,11 @@ final class PlaybackProgressViewModel: PlaybackProgressView.Model {
   func configure(
     player: AVPlayer?,
     chapters: ChapterPickerSheet.Model?,
-    speed: SpeedPickerSheet.Model,
-    onSeekCompleted: (() -> Void)? = nil
+    speed: SpeedPickerSheet.Model
   ) {
     self.player = player
     self.chapters = chapters
     self.speed = speed
-    self.onSeekCompleted = onSeekCompleted
     updateProgress()
   }
 
@@ -139,15 +136,11 @@ final class PlaybackProgressViewModel: PlaybackProgressView.Model {
     if let chapter = chapters?.current {
       let duration = chapter.end - chapter.start
       let currentTime = chapter.start + (duration * progress)
-      player.seek(to: CMTime(seconds: currentTime, preferredTimescale: 1000)) { [weak self] _ in
-        self?.onSeekCompleted?()
-      }
+      player.seek(to: CMTime(seconds: currentTime, preferredTimescale: 1000))
       PlaybackHistory.record(itemID: itemID, action: .seek, position: currentTime)
     } else {
       let currentTime = total * progress
-      player.seek(to: CMTime(seconds: currentTime, preferredTimescale: 1000)) { [weak self] _ in
-        self?.onSeekCompleted?()
-      }
+      player.seek(to: CMTime(seconds: currentTime, preferredTimescale: 1000))
       PlaybackHistory.record(itemID: itemID, action: .seek, position: currentTime)
     }
   }

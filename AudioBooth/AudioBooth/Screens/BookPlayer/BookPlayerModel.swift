@@ -249,7 +249,6 @@ extension BookPlayerModel {
       if player.timeControlStatus == .playing, let model = self.playbackProgress as? PlaybackProgressViewModel {
         model.updateProgress()
       }
-      self.nowPlaying.update()
     }
     PlaybackHistory.record(itemID: id, action: .seek, position: time)
   }
@@ -542,11 +541,7 @@ extension BookPlayerModel {
       playbackProgress.configure(
         player: player,
         chapters: chapters,
-        speed: speed,
-        onSeekCompleted: { [weak self] in
-          guard let self else { return }
-          self.nowPlaying.update()
-        }
+        speed: speed
       )
     }
 
