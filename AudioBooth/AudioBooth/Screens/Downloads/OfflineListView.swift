@@ -117,8 +117,8 @@ struct OfflineListView: View {
 
         case .series(let group):
           DisclosureGroup {
-            ForEach(group.books) { seriesBook in
-              bookRow(seriesBook.book)
+            ForEach(group.books) { book in
+              bookRow(book)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
@@ -198,17 +198,10 @@ enum OfflineListItem: Identifiable {
   }
 }
 
-struct SeriesBookItem: Identifiable {
-  let book: BookCard.Model
-  let sequence: String
-
-  var id: String { book.id }
-}
-
 struct SeriesGroup: Identifiable {
   let id: String
   let name: String
-  let books: [SeriesBookItem]
+  let books: [BookCard.Model]
   let coverURL: URL?
 
   var displayName: String {

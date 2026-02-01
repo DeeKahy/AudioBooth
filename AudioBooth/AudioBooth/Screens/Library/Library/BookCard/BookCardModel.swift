@@ -4,6 +4,12 @@ import Foundation
 import Models
 
 final class BookCardModel: BookCard.Model {
+  struct Options: OptionSet {
+    let rawValue: Int
+    static let ignorePrefix = Options(rawValue: 1 << 0)
+    static let showSequence = Options(rawValue: 1 << 1)
+  }
+
   enum Item {
     case local(LocalBook)
     case remote(Book)
@@ -11,7 +17,7 @@ final class BookCardModel: BookCard.Model {
   private let item: Item
   private var downloadStateCancellable: AnyCancellable?
 
-  init(_ item: LocalBook) {
+  init(_ item: LocalBook, options: Options = []) {
     let id = item.bookID
 
     self.item = .local(item)
@@ -40,7 +46,7 @@ final class BookCardModel: BookCard.Model {
       title: item.title,
       details: details,
       cover: cover,
-      sequence: item.series.first?.sequence,
+      sequence: options.contains(.showSequence) ? item.series.first?.sequence : nil,
       author: item.authorNames,
       publishedYear: item.publishedYear,
       hasEbook: item.ebookFile != nil
@@ -58,7 +64,8 @@ final class BookCardModel: BookCard.Model {
 
   init(
     _ item: Book,
-    sortBy: BooksService.SortBy?
+    sortBy: BooksService.SortBy?,
+    options: Options = []
   ) {
     let id: String
     let title: String
@@ -81,13 +88,13 @@ final class BookCardModel: BookCard.Model {
     } else {
       id = item.id
 
-      if sortBy == .title, Audiobookshelf.shared.libraries.sortingIgnorePrefix {
+      if sortBy == .title, options.contains(.ignorePrefix) {
         title = item.titleIgnorePrefix
       } else {
         title = item.title
       }
 
-      sequence = item.series?.first?.sequence
+      sequence = options.contains(.showSequence) ? item.series?.first?.sequence : nil
       author = item.authorName
       narrator = item.media.metadata.narratorName
       publishedYear = item.publishedYear

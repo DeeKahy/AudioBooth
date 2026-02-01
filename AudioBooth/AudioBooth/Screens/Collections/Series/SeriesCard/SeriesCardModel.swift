@@ -3,7 +3,7 @@ import Models
 import SwiftUI
 
 final class SeriesCardModel: SeriesCard.Model {
-  init(series: API.Series) {
+  init(series: API.Series, sortingIgnorePrefix: Bool = false) {
     let bookCovers = series.books.prefix(10).map { book in
       Cover.Model(
         url: book.coverURL(),
@@ -14,7 +14,7 @@ final class SeriesCardModel: SeriesCard.Model {
     let progress = Self.progress(books: series.books)
 
     let title: String
-    if Audiobookshelf.shared.libraries.sortingIgnorePrefix {
+    if sortingIgnorePrefix {
       title = series.nameIgnorePrefix
     } else {
       title = series.name

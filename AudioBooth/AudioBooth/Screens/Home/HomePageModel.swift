@@ -156,6 +156,13 @@ extension HomePageModel {
             title: section.label,
             items: .continueBooks(books)
           )
+        } else if section.id == "continue-series" {
+          let books = items.map({ BookCardModel($0, sortBy: .title, options: .showSequence) })
+          sectionsByID[section.id] = .init(
+            id: section.id,
+            title: section.label,
+            items: .books(books)
+          )
         } else {
           let books = items.map({ BookCardModel($0, sortBy: .title) })
           sectionsByID[section.id] = .init(

@@ -252,9 +252,13 @@ final class LibraryPageModel: LibraryPage.Model {
       var bookCards = [BookCardModel]()
       for book in response.results {
         if case .series = self.filter {
-          bookCards.append(BookCardModel(book, sortBy: .title))
+          bookCards.append(BookCardModel(book, sortBy: .title, options: .showSequence))
         } else {
-          bookCards.append(BookCardModel(book, sortBy: self.sortBy))
+          if isRoot, audiobookshelf.libraries.sortingIgnorePrefix {
+            bookCards.append(BookCardModel(book, sortBy: self.sortBy, options: .ignorePrefix))
+          } else {
+            bookCards.append(BookCardModel(book, sortBy: self.sortBy))
+          }
         }
       }
 

@@ -164,10 +164,7 @@ final class OfflineListViewModel: OfflineListView.Model {
       }
 
       let seriesBooks = sortedBooks.map { localBook in
-        SeriesBookItem(
-          book: BookCardModel(localBook),
-          sequence: localBook.series.first?.sequence ?? ""
-        )
+        BookCardModel(localBook, options: .showSequence)
       }
 
       let coverURL = sortedBooks.first?.coverURL
