@@ -446,22 +446,22 @@ struct BookPlayer: View {
   private var downloadIcon: String {
     switch model.downloadState {
     case .downloading:
-      return "stop.circle"
+      "stop.circle"
     case .downloaded:
-      return "internaldrive"
+      "internaldrive"
     case .notDownloaded:
-      return "icloud.and.arrow.down"
+      "icloud.and.arrow.down"
     }
   }
 
   private var downloadText: String {
     switch model.downloadState {
     case .downloading:
-      return "Cancel"
+      String(localized: "Cancel")
     case .downloaded:
-      return "Remove"
+      String(localized: "Remove")
     case .notDownloaded:
-      return "Download"
+      String(localized: "Download")
     }
   }
 }

@@ -711,10 +711,10 @@ extension BookDetailsView.Model {
 
     var title: String {
       switch self {
-      case .chapters: "Chapters"
-      case .tracks: "Tracks"
-      case .ebooks: "eBooks"
-      case .sessions: "Sessions"
+      case .chapters: String(localized: "Chapters")
+      case .tracks: String(localized: "Tracks")
+      case .ebooks: String(localized: "eBooks")
+      case .sessions: String(localized: "Sessions")
       }
     }
   }

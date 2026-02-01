@@ -38,7 +38,7 @@ struct CollectionRow: View {
             .lineLimit(2)
         }
 
-        Text("\(model.count) \(model.count == 1 ? "book" : "books")")
+        Text("^[\(model.count) book](inflect: true)")
           .font(.caption)
           .foregroundStyle(.tertiary)
       }

@@ -203,10 +203,6 @@ struct SeriesGroup: Identifiable {
   let name: String
   let books: [BookCard.Model]
   let coverURL: URL?
-
-  var displayName: String {
-    "\(name) (\(books.count) \(books.count == 1 ? "book" : "books"))"
-  }
 }
 
 extension OfflineListView {

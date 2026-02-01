@@ -126,27 +126,27 @@ struct CollectionDetailPage: View {
   private var emptyStateMessage: String {
     switch model.mode {
     case .playlists:
-      return "This playlist is empty."
+      String(localized: "This playlist is empty.")
     case .collections:
-      return "This collection is empty."
+      String(localized: "This collection is empty.")
     }
   }
 
   private var deleteActionTitle: String {
     switch model.mode {
     case .playlists:
-      return "Delete Playlist"
+      String(localized: "Delete Playlist")
     case .collections:
-      return "Delete Collection"
+      String(localized: "Delete Collection")
     }
   }
 
   private var deleteConfirmationMessage: String {
     switch model.mode {
     case .playlists:
-      return "Are you sure you want to remove your playlist \"\(model.collectionName)\"?"
+      String(localized: "Are you sure you want to remove your playlist \"\(model.collectionName)\"?")
     case .collections:
-      return "Are you sure you want to remove this collection?"
+      String(localized: "Are you sure you want to remove this collection?")
     }
   }
 
@@ -219,7 +219,7 @@ struct CollectionDetailPage: View {
         }
       }
 
-      Text("\(model.books.count) \(model.books.count == 1 ? "book" : "books")")
+      Text("^[\(model.books.count) book](inflect: true)")
         .font(.caption)
         .foregroundStyle(.tertiary)
     }

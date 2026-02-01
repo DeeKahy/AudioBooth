@@ -30,13 +30,13 @@ struct HomePage: View {
   var connectionStatusLabel: String {
     switch authentication.server?.status {
     case .connected:
-      return "Connected"
+      return String(localized: "Connected")
     case .connectionError:
-      return "Connection error"
+      return String(localized: "Connection error")
     case .authenticationError:
-      return "Authentication error"
+      return String(localized: "Authentication error")
     case .none:
-      return "Disconnected"
+      return String(localized: "Disconnected")
     }
   }
 
@@ -95,7 +95,7 @@ struct HomePage: View {
       }
       .padding(.bottom)
     }
-    .navigationTitle(model.title)
+    .navigationTitle("Home")
     .toolbar {
       ToolbarItem(placement: .topBarLeading) {
         Button {
@@ -291,7 +291,6 @@ extension HomePage {
   class Model: ObservableObject {
     var isLoading: Bool
     var isRoot: Bool
-    var title: String
 
     var error: String?
 
@@ -326,13 +325,11 @@ extension HomePage {
     init(
       isLoading: Bool = false,
       isRoot: Bool = true,
-      title: String = "Home",
       error: String? = nil,
       sections: [Section] = []
     ) {
       self.isLoading = isLoading
       self.isRoot = isRoot
-      self.title = title
       self.error = error
       self.sections = sections
     }
