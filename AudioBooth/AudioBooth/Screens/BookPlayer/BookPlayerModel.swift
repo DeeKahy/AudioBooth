@@ -1084,6 +1084,9 @@ extension BookPlayerModel {
       sessionManager.notifyPlaybackStarted()
     } else if !isNowPlaying && isPlaying {
       AppLogger.player.debug("🎵 State: Stopping playback")
+      if let player {
+        mediaProgress.currentTime = max(CMTimeGetSeconds(player.currentTime()), mediaProgress.currentTime)
+      }
       PlaybackHistory.record(itemID: id, action: .pause, position: mediaProgress.currentTime)
       if let lastPlaybackAt {
         let timeListened = now.timeIntervalSince(lastPlaybackAt)
