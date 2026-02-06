@@ -580,7 +580,7 @@ extension BookPlayerModel {
       AppLogger.player.debug("No chapters available in play session info")
     }
 
-    timer = TimerPickerSheetViewModel(player: player, chapters: chapters, speed: speed)
+    timer = TimerPickerSheetViewModel(itemID: id, player: player, chapters: chapters, speed: speed)
 
     if let playbackProgress = playbackProgress as? PlaybackProgressViewModel {
       playbackProgress.configure(
