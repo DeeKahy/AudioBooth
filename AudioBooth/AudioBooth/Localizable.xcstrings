@@ -16,6 +16,12 @@
             "state" : "translated",
             "value" : " %@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " %@"
+          }
         }
       }
     },
@@ -33,6 +39,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "-%@"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-%@"
           }
         }
       }
@@ -52,6 +64,12 @@
             "state" : "translated",
             "value" : "·"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "·"
+          }
         }
       }
     },
@@ -69,6 +87,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "**Débit :** %lld kbps"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**位元率：** %lld kbps"
           }
         }
       }
@@ -94,6 +118,12 @@
             "state" : "translated",
             "value" : "**Canal :** %1$lld (%2$@)"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**聲道：** %1$lld (%2$@)"
+          }
         }
       }
     },
@@ -111,6 +141,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "**Codec :** %@"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**編碼：** %@"
           }
         }
       }
@@ -130,6 +166,12 @@
             "state" : "translated",
             "value" : "**Durée :** %@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**時長：** %@"
+          }
         }
       }
     },
@@ -147,6 +189,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "**Langue :** %@"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**語言：** %@"
           }
         }
       }
@@ -166,6 +214,12 @@
             "state" : "translated",
             "value" : "**Publié :** %@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**出版：** %@"
+          }
         }
       }
     },
@@ -183,6 +237,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "**Éditeur :** %@"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**出版社：** %@"
           }
         }
       }
@@ -202,6 +262,12 @@
             "state" : "translated",
             "value" : "**Taille :** %@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "**大小：** %@"
+          }
         }
       }
     },
@@ -220,6 +286,12 @@
             "state" : "translated",
             "value" : "#%@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@"
+          }
         }
       }
     },
@@ -237,6 +309,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@"
           }
         }
       }
@@ -262,6 +340,12 @@
             "state" : "translated",
             "value" : "%1$@ → %2$@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ → %2$@"
+          }
         }
       }
     },
@@ -279,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ auteur"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 作者"
           }
         }
       }
@@ -298,6 +388,12 @@
             "state" : "translated",
             "value" : "%@ narrateur"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 朗讀者"
+          }
         }
       }
     },
@@ -315,6 +411,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@×"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@×"
           }
         }
       }
@@ -334,6 +436,12 @@
             "state" : "translated",
             "value" : "%lld"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
         }
       }
     },
@@ -351,6 +459,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld min"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 分鐘"
           }
         }
       }
@@ -370,6 +484,12 @@
             "state" : "translated",
             "value" : "%lld minutes"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 分鐘"
+          }
         }
       }
     },
@@ -385,6 +505,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld secondes"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 秒"
           }
         }
       }
@@ -404,6 +530,12 @@
             "state" : "translated",
             "value" : "%lld%% terminé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%% 完成"
+          }
         }
       }
     },
@@ -422,6 +554,12 @@
             "state" : "translated",
             "value" : "%lldms"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldms"
+          }
         }
       }
     },
@@ -437,6 +575,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "•"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "•"
           }
         }
       }
@@ -456,6 +600,12 @@
             "state" : "translated",
             "value" : "^[%lld livre](inflect: true)"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "^[%lld 本書](inflect: true)"
+          }
         }
       }
     },
@@ -473,6 +623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "^[%lld Livre](inflect: true)"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "^[%lld 本書](inflect: true)"
           }
         }
       }
@@ -492,6 +648,12 @@
             "state" : "translated",
             "value" : "●"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "●"
+          }
         }
       }
     },
@@ -509,6 +671,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "⚠️ Cela supprimera TOUTES les données de l'app, y compris le contenu téléchargé, les réglages et la progression. Vous devrez vous reconnecter. Redémarrage de l'app requis."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ 這將刪除所有應用程式資料，包括已下載的內容、設定和進度。你需要重新登入。需要重新啟動應用程式。"
           }
         }
       }
@@ -528,6 +696,12 @@
             "state" : "translated",
             "value" : "1 h"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 小時"
+          }
         }
       }
     },
@@ -543,6 +717,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "5 min"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 分鐘"
           }
         }
       }
@@ -560,6 +740,12 @@
             "state" : "translated",
             "value" : "5s"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 秒"
+          }
         }
       }
     },
@@ -575,6 +761,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "10 min"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 分鐘"
           }
         }
       }
@@ -592,6 +784,12 @@
             "state" : "translated",
             "value" : "10s"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 秒"
+          }
         }
       }
     },
@@ -607,6 +805,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "15 min"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 分鐘"
           }
         }
       }
@@ -624,6 +828,12 @@
             "state" : "translated",
             "value" : "15s"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 秒"
+          }
         }
       }
     },
@@ -639,6 +849,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "20 min"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20 分鐘"
           }
         }
       }
@@ -656,6 +872,12 @@
             "state" : "translated",
             "value" : "30 min"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 分鐘"
+          }
         }
       }
     },
@@ -671,6 +893,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "30s"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 秒"
           }
         }
       }
@@ -688,6 +916,12 @@
             "state" : "translated",
             "value" : "45 min"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "45 分鐘"
+          }
         }
       }
     },
@@ -703,6 +937,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "45s"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "45 秒"
           }
         }
       }
@@ -720,6 +960,12 @@
             "state" : "translated",
             "value" : "60 min"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60 分鐘"
+          }
         }
       }
     },
@@ -735,6 +981,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "60s"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60 秒"
           }
         }
       }
@@ -752,6 +1004,12 @@
             "state" : "translated",
             "value" : "75s"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "75 秒"
+          }
         }
       }
     },
@@ -767,6 +1025,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "90s"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "90 秒"
           }
         }
       }
@@ -786,6 +1050,12 @@
             "state" : "translated",
             "value" : "À propos"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關於"
+          }
         }
       }
     },
@@ -803,6 +1073,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Couleur d'accentuation"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "強調色"
           }
         }
       }
@@ -822,6 +1098,12 @@
             "state" : "translated",
             "value" : "Compte"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帳號"
+          }
         }
       }
     },
@@ -839,6 +1121,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajoutez **audiobooth://oauth** aux URI de redirection du serveur audiobookshelf"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將 **audiobooth://oauth** 加入 audiobookshelf 伺服器重定向 URI"
           }
         }
       }
@@ -858,6 +1146,12 @@
             "state" : "translated",
             "value" : "Ajouter un signet"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入書籤"
+          }
         }
       }
     },
@@ -876,6 +1170,12 @@
             "state" : "translated",
             "value" : "Ajouter un signet"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入書籤"
+          }
         }
       }
     },
@@ -891,6 +1191,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajouter un signet ${content}"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入書籤 ${content}"
           }
         }
       }
@@ -910,6 +1216,12 @@
             "state" : "translated",
             "value" : "Ajoutez des livres à la queue depuis la bibliothèque"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從圖書館新增書籍到佇列"
+          }
         }
       }
     },
@@ -927,6 +1239,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajouter un en-tête"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增標頭"
           }
         }
       }
@@ -946,6 +1264,12 @@
             "state" : "translated",
             "value" : "Ajouter un serveur"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增伺服器"
+          }
         }
       }
     },
@@ -963,6 +1287,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajouter à la collection"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增到合集"
           }
         }
       }
@@ -982,6 +1312,12 @@
             "state" : "translated",
             "value" : "Ajouter à la playlist"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增到播放清單"
+          }
         }
       }
     },
@@ -999,6 +1335,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajouter à la queue"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新增到佇列"
           }
         }
       }
@@ -1018,6 +1360,12 @@
             "state" : "translated",
             "value" : "Ajoute un signet à la position actuelle du livre audio en cours de lecture."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在目前播放的有聲書位置加入書籤。"
+          }
         }
       }
     },
@@ -1034,6 +1382,12 @@
             "state" : "translated",
             "value" : "Ajustez le niveau de volume des livres audio."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "調整有聲書的音量。"
+          }
         }
       }
     },
@@ -1049,6 +1403,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajuste la progression du chapitre"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "調整章節進度"
           }
         }
       }
@@ -1068,6 +1428,12 @@
             "state" : "translated",
             "value" : "Ajuste la taille des couvertures pour les sections Continuer l'écoute et Continuer la lecture."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "調整「繼續聆聽」和「繼續閱讀」區塊的封面大小。"
+          }
         }
       }
     },
@@ -1083,6 +1449,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajuste le temps restant"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "調整剩餘時間"
           }
         }
       }
@@ -1102,6 +1474,12 @@
             "state" : "translated",
             "value" : "Avancé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "進階"
+          }
         }
       }
     },
@@ -1120,6 +1498,12 @@
             "state" : "translated",
             "value" : "Typographie avancée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "進階排版"
+          }
         }
       }
     },
@@ -1135,6 +1519,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Après la pause"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停後"
           }
         }
       }
@@ -1154,6 +1544,12 @@
             "state" : "translated",
             "value" : "Alias (optionnel)"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別名（選填）"
+          }
         }
       }
     },
@@ -1169,6 +1565,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Autoriser le changement de position de lecture"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允許變更播放位置"
           }
         }
       }
@@ -1188,6 +1590,12 @@
             "state" : "translated",
             "value" : "Vous êtes déjà au premier chapitre."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已經在第一章。"
+          }
         }
       }
     },
@@ -1205,6 +1613,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vous êtes déjà au dernier chapitre."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已經在最後一章。"
           }
         }
       }
@@ -1224,6 +1638,12 @@
             "state" : "translated",
             "value" : "Icône de l'app"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "應用程式圖示"
+          }
         }
       }
     },
@@ -1241,6 +1661,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apparence"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外觀"
           }
         }
       }
@@ -1260,6 +1686,12 @@
             "state" : "translated",
             "value" : "Voulez-vous vraiment supprimer cette collection ?"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你確定要移除這個合集嗎？"
+          }
         }
       }
     },
@@ -1278,6 +1710,12 @@
             "state" : "translated",
             "value" : "Voulez-vous vraiment supprimer votre liste de lecture « %@ » ?"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你確定要移除播放清單「%@」嗎？"
+          }
         }
       }
     },
@@ -1293,6 +1731,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fondu audio"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音訊淡出"
           }
         }
       }
@@ -1312,6 +1756,12 @@
             "state" : "translated",
             "value" : "Livres audio et numériques"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有聲書與電子書"
+          }
         }
       }
     },
@@ -1329,6 +1779,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Authentification..."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "驗證中⋯"
           }
         }
       }
@@ -1348,6 +1804,12 @@
             "state" : "translated",
             "value" : "Authentification"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "驗證"
+          }
         }
       }
     },
@@ -1365,6 +1827,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erreur d'authentification"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "驗證錯誤"
           }
         }
       }
@@ -1384,6 +1852,12 @@
             "state" : "translated",
             "value" : "Méthode d'authentification"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "驗證方式"
+          }
         }
       }
     },
@@ -1401,6 +1875,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Authentification requise"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要驗證"
           }
         }
       }
@@ -1420,6 +1900,12 @@
             "state" : "translated",
             "value" : "Auteurs"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "作者"
+          }
         }
       }
     },
@@ -1438,6 +1924,12 @@
             "state" : "translated",
             "value" : "Auteurs et narrateurs"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "作者與朗讀者"
+          }
         }
       }
     },
@@ -1454,6 +1946,12 @@
             "state" : "translated",
             "value" : "Auto"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動"
+          }
         }
       }
     },
@@ -1469,6 +1967,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minuterie automatique"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動計時器模式"
           }
         }
       }
@@ -1488,6 +1992,12 @@
             "state" : "translated",
             "value" : "Téléchargement automatique"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動下載書籍"
+          }
         }
       }
     },
@@ -1506,6 +2016,12 @@
             "state" : "translated",
             "value" : "Lecture auto suivante"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動播放下一個"
+          }
         }
       }
     },
@@ -1521,6 +2037,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minuterie de sommeil"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動睡眠計時器"
           }
         }
       }
@@ -1538,6 +2060,12 @@
             "state" : "translated",
             "value" : "Démarrer automatiquement une minuterie de sommeil lors de la lecture pendant une plage horaire définie."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在特定時段播放時自動啟動睡眠計時器。"
+          }
         }
       }
     },
@@ -1553,6 +2081,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reculer"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回"
           }
         }
       }
@@ -1576,6 +2110,12 @@
             "state" : "translated",
             "value" : "Reculer %1$llds Avancer %2$llds"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒退 %llds 快進 %llds"
+          }
         }
       }
     },
@@ -1593,6 +2133,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Détails du livre"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書籍詳情"
           }
         }
       }
@@ -1612,6 +2158,12 @@
             "state" : "translated",
             "value" : "Signet ajouté à %@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書籤已新增至 %@"
+          }
         }
       }
     },
@@ -1630,6 +2182,12 @@
             "state" : "translated",
             "value" : "Titre du signet"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書籤標題"
+          }
         }
       }
     },
@@ -1645,6 +2203,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Signets"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書籤"
           }
         }
       }
@@ -1664,6 +2228,12 @@
             "state" : "translated",
             "value" : "Livres"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書籍"
+          }
         }
       }
     },
@@ -1681,6 +2251,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les livres téléchargés apparaîtront ici."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你下載的書籍會顯示在這裡。"
           }
         }
       }
@@ -1700,6 +2276,12 @@
             "state" : "translated",
             "value" : "Taille du cache"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快取大小"
+          }
         }
       }
     },
@@ -1717,6 +2299,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Annuler"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         }
       }
@@ -1736,6 +2324,12 @@
             "state" : "translated",
             "value" : "Annuler le téléchargement"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消下載"
+          }
         }
       }
     },
@@ -1753,6 +2347,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Annuler la minuterie de sommeil"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消睡眠計時器"
           }
         }
       }
@@ -1772,6 +2372,12 @@
             "state" : "translated",
             "value" : "Annule toute minuterie de sommeil active."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消任何啟用中的睡眠計時器。"
+          }
         }
       }
     },
@@ -1787,6 +2393,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chapitre"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "章節"
           }
         }
       }
@@ -1806,6 +2418,12 @@
             "state" : "translated",
             "value" : "Chapitres"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "章節"
+          }
         }
       }
     },
@@ -1821,6 +2439,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choisissez la durée de saut en avant et en arrière pendant l'écoute."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇聆聽時快進和倒退的時間長度。"
           }
         }
       }
@@ -1840,6 +2464,12 @@
             "state" : "translated",
             "value" : "Effacer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除"
+          }
         }
       }
     },
@@ -1857,6 +2487,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supprimer tous les téléchargements"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除所有下載"
           }
         }
       }
@@ -1876,6 +2512,12 @@
             "state" : "translated",
             "value" : "Supprimer tous les téléchargements ?"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除所有下載？"
+          }
         }
       }
     },
@@ -1893,6 +2535,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vider le cache d'images"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除圖片快取"
           }
         }
       }
@@ -1912,6 +2560,12 @@
             "state" : "translated",
             "value" : "Vider le cache d'images ?"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除圖片快取？"
+          }
         }
       }
     },
@@ -1929,6 +2583,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Effacer le stockage persistant"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除永久儲存空間"
           }
         }
       }
@@ -1948,6 +2608,12 @@
             "state" : "translated",
             "value" : "Fermer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
+          }
         }
       }
     },
@@ -1965,6 +2631,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Réduire les séries"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收合系列"
           }
         }
       }
@@ -1984,6 +2656,12 @@
             "state" : "translated",
             "value" : "Type de collection"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合集類型"
+          }
         }
       }
     },
@@ -2001,6 +2679,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Collections"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合集"
           }
         }
       }
@@ -2020,6 +2704,12 @@
             "state" : "translated",
             "value" : "Les collections sont partagées entre tous les utilisateurs du serveur."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合集會在伺服器上的所有使用者之間共享。"
+          }
         }
       }
     },
@@ -2038,6 +2728,12 @@
             "state" : "translated",
             "value" : "Apparence"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配色方案"
+          }
         }
       }
     },
@@ -2053,6 +2749,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Configurez l'affichage de la lecture et de la progression pour les livres avec chapitres."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定含有章節的書籍如何顯示播放和進度。"
           }
         }
       }
@@ -2070,6 +2772,12 @@
             "state" : "translated",
             "value" : "Configurez le comportement des contrôles de lecture sur l'écran de verrouillage."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定鎖定畫面播放控制項的行為。"
+          }
         }
       }
     },
@@ -2085,6 +2793,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Configurez l'impact de la vitesse de lecture sur l'affichage du temps."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定時間顯示如何受播放速度影響。"
           }
         }
       }
@@ -2104,6 +2818,12 @@
             "state" : "translated",
             "value" : "Connecté"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已連線"
+          }
         }
       }
     },
@@ -2121,6 +2841,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erreur de connexion"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線錯誤"
           }
         }
       }
@@ -2140,6 +2866,12 @@
             "state" : "translated",
             "value" : "Console"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主控台"
+          }
         }
       }
     },
@@ -2157,6 +2889,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Contenu"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "內容"
           }
         }
       }
@@ -2176,6 +2914,12 @@
             "state" : "translated",
             "value" : "Table des matières"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目錄"
+          }
         }
       }
     },
@@ -2193,6 +2937,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continuer l'écoute"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繼續聆聽"
           }
         }
       }
@@ -2212,6 +2962,12 @@
             "state" : "translated",
             "value" : "Continuer la lecture"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繼續閱讀"
+          }
         }
       }
     },
@@ -2229,6 +2985,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Taille de la section Continuer"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繼續區塊大小"
           }
         }
       }
@@ -2248,6 +3010,12 @@
             "state" : "translated",
             "value" : "Continuer la série"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繼續系列"
+          }
         }
       }
     },
@@ -2265,6 +3033,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les images de couverture seront retéléchargées si nécessaire."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面圖片將依需要重新下載。"
           }
         }
       }
@@ -2284,6 +3058,12 @@
             "state" : "translated",
             "value" : "Créer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建立"
+          }
         }
       }
     },
@@ -2301,6 +3081,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Créez votre premier signet ci-dessous."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在下方建立你的第一個書籤。"
           }
         }
       }
@@ -2320,6 +3106,12 @@
             "state" : "translated",
             "value" : "Créez votre première collection ci-dessous."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在下方建立你的第一個合集。"
+          }
         }
       }
     },
@@ -2337,6 +3129,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Créez votre première liste de lecture ci-dessous."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在下方建立你的第一個播放清單。"
           }
         }
       }
@@ -2356,6 +3154,12 @@
             "state" : "translated",
             "value" : "Créez votre première liste de lecture pour commencer."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建立你的第一個播放清單以開始使用。"
+          }
         }
       }
     },
@@ -2373,6 +3177,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Identifiants"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "憑證"
           }
         }
       }
@@ -2392,6 +3202,12 @@
             "state" : "translated",
             "value" : "En-têtes personnalisés"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂標頭"
+          }
         }
       }
     },
@@ -2409,6 +3225,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les en-têtes personnalisés seront envoyés avec chaque requête à votre serveur."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂標頭將會隨著每個請求傳送到你的伺服器。"
           }
         }
       }
@@ -2428,6 +3250,12 @@
             "state" : "translated",
             "value" : "Durée personnalisée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂時間"
+          }
         }
       }
     },
@@ -2446,6 +3274,12 @@
             "state" : "translated",
             "value" : "Sombre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深色"
+          }
         }
       }
     },
@@ -2461,6 +3295,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jour"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天"
           }
         }
       }
@@ -2480,6 +3320,12 @@
             "state" : "translated",
             "value" : "jours consécutifs"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天連續"
+          }
         }
       }
     },
@@ -2497,6 +3343,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Débogage"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偵錯"
           }
         }
       }
@@ -2516,6 +3368,12 @@
             "state" : "translated",
             "value" : "DÉFAUT"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "預設"
+          }
         }
       }
     },
@@ -2533,6 +3391,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Délai avant le téléchargement"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載前延遲"
           }
         }
       }
@@ -2552,6 +3416,12 @@
             "state" : "translated",
             "value" : "Supprimer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除"
+          }
         }
       }
     },
@@ -2569,6 +3439,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supprimer la collection"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除合集"
           }
         }
       }
@@ -2588,6 +3464,12 @@
             "state" : "translated",
             "value" : "Supprimer la liste de lecture"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除播放清單"
+          }
         }
       }
     },
@@ -2605,6 +3487,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Description"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "描述"
           }
         }
       }
@@ -2624,6 +3512,12 @@
             "state" : "translated",
             "value" : "Description (optionnel)"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "描述（選填）"
+          }
         }
       }
     },
@@ -2641,6 +3535,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Déconnecté"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已中斷連線"
           }
         }
       }
@@ -2660,6 +3560,12 @@
             "state" : "translated",
             "value" : "Découvrir"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "探索"
+          }
         }
       }
     },
@@ -2677,6 +3583,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Port de découverte"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "探索連接埠"
           }
         }
       }
@@ -2696,6 +3608,12 @@
             "state" : "translated",
             "value" : "Terminé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
         }
       }
     },
@@ -2713,6 +3631,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Télécharger"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載"
           }
         }
       }
@@ -2732,6 +3656,12 @@
             "state" : "translated",
             "value" : "Tout télécharger"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部下載"
+          }
         }
       }
     },
@@ -2749,6 +3679,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Télécharger tous les livres"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載所有書籍"
           }
         }
       }
@@ -2768,6 +3704,12 @@
             "state" : "translated",
             "value" : "Réglages de téléchargement"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載設定"
+          }
         }
       }
     },
@@ -2785,6 +3727,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Onglet téléchargement"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載分頁"
           }
         }
       }
@@ -2804,6 +3752,12 @@
             "state" : "translated",
             "value" : "Téléchargés"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下載"
+          }
         }
       }
     },
@@ -2821,6 +3775,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Livres téléchargés"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下載的書籍"
           }
         }
       }
@@ -2840,6 +3800,12 @@
             "state" : "translated",
             "value" : "Contenu téléchargé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下載的內容"
+          }
         }
       }
     },
@@ -2855,6 +3821,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Téléchargement"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載中"
           }
         }
       }
@@ -2874,6 +3846,12 @@
             "state" : "translated",
             "value" : "Téléchargements"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下載"
+          }
         }
       }
     },
@@ -2891,6 +3869,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Faites glisser pour réordonner les sections. Continuer l'écoute et Continuer la lecture ne peuvent pas être désactivés."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拖曳以重新排序已啟用的區塊。「繼續聆聽」和「繼續閱讀」無法停用。"
           }
         }
       }
@@ -2910,6 +3894,12 @@
             "state" : "translated",
             "value" : "Durée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時長"
+          }
         }
       }
     },
@@ -2927,6 +3917,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Durée de la minuterie de sommeil"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睡眠計時器的時長"
           }
         }
       }
@@ -2946,6 +3942,12 @@
             "state" : "translated",
             "value" : "La durée doit être supérieure à 0 minutes."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時長必須大於 0 分鐘。"
+          }
         }
       }
     },
@@ -2963,6 +3965,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Durée du saut en arrière"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒退時長"
           }
         }
       }
@@ -2982,6 +3990,12 @@
             "state" : "translated",
             "value" : "Durée du saut en avant"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快進時長"
+          }
         }
       }
     },
@@ -2997,6 +4011,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Livres numériques"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "電子書"
           }
         }
       }
@@ -3016,6 +4036,12 @@
             "state" : "translated",
             "value" : "Modifier le signet"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編輯書籤"
+          }
         }
       }
     },
@@ -3033,6 +4059,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Modifier la playlist"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "編輯播放清單"
           }
         }
       }
@@ -3052,6 +4084,12 @@
             "state" : "translated",
             "value" : "Contacter le support"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "電子郵件支援"
+          }
         }
       }
     },
@@ -3069,6 +4107,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Activé"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已啟用"
           }
         }
       }
@@ -3094,6 +4138,12 @@
             "state" : "translated",
             "value" : "Fin de %1$lld %2$@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %@ 結束"
+          }
         }
       }
     },
@@ -3112,6 +4162,12 @@
             "state" : "translated",
             "value" : "Fin de %lld chapitres"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 章結束"
+          }
         }
       }
     },
@@ -3128,6 +4184,12 @@
             "state" : "translated",
             "value" : "Fin de 2 chapitres"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 章結束"
+          }
         }
       }
     },
@@ -3143,6 +4205,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin de 3 chapitres"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 章結束"
           }
         }
       }
@@ -3162,6 +4230,12 @@
             "state" : "translated",
             "value" : "Fin du chapitre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "章節結束"
+          }
         }
       }
     },
@@ -3177,6 +4251,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Heure de fin"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "結束時間"
           }
         }
       }
@@ -3196,6 +4276,12 @@
             "state" : "translated",
             "value" : "Entrez un nouveau titre pour ce signet"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入此書籤的新標題"
+          }
         }
       }
     },
@@ -3213,6 +4299,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entrez du texte pour rechercher dans ce livre"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入文字以在本書中搜尋"
           }
         }
       }
@@ -3232,6 +4324,12 @@
             "state" : "translated",
             "value" : "Entrez le numéro de port pour rechercher les serveurs Audiobookshelf sur votre réseau local."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入連接埠號碼以掃描本地網路上的 Audiobookshelf 伺服器。"
+          }
         }
       }
     },
@@ -3249,6 +4347,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exemple : X-API-Key, Authorization, etc."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "範例：X-API-Key、Authorization 等。"
           }
         }
       }
@@ -3268,6 +4372,12 @@
             "state" : "translated",
             "value" : "Prolonger %@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延長 %@"
+          }
         }
       }
     },
@@ -3285,6 +4395,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prolongez la minuterie ou secouez votre téléphone pour continuer l'écoute."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "延長計時器或搖動你的手機以繼續聆聽。"
           }
         }
       }
@@ -3304,6 +4420,12 @@
             "state" : "translated",
             "value" : "Filtrer les livres"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "篩選書籍"
+          }
         }
       }
     },
@@ -3321,6 +4443,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filtrer la bibliothèque"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "篩選圖書館"
           }
         }
       }
@@ -3340,6 +4468,12 @@
             "state" : "translated",
             "value" : "Terminé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
         }
       }
     },
@@ -3357,6 +4491,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prénom Nom"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名 姓"
           }
         }
       }
@@ -3376,6 +4516,12 @@
             "state" : "translated",
             "value" : "Police de caractères"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字體系列"
+          }
         }
       }
     },
@@ -3393,6 +4539,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Taille de police"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字體大小"
           }
         }
       }
@@ -3412,6 +4564,12 @@
             "state" : "translated",
             "value" : "Épaisseur de police"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字體粗細"
+          }
         }
       }
     },
@@ -3427,6 +4585,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avancer"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快進"
           }
         }
       }
@@ -3446,6 +4610,12 @@
             "state" : "translated",
             "value" : "Général"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一般"
+          }
         }
       }
     },
@@ -3463,6 +4633,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Genres"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "類型"
           }
         }
       }
@@ -3482,6 +4658,12 @@
             "state" : "translated",
             "value" : "Vue grille"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "網格檢視"
+          }
         }
       }
     },
@@ -3499,6 +4681,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Détails de l'en-tête"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標頭詳細資訊"
           }
         }
       }
@@ -3518,6 +4706,12 @@
             "state" : "translated",
             "value" : "Nom de l'en-tête"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標頭名稱"
+          }
         }
       }
     },
@@ -3535,6 +4729,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Valeur de l'en-tête"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標頭值"
           }
         }
       }
@@ -3554,6 +4754,12 @@
             "state" : "translated",
             "value" : "Aide et commentaires"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "說明與意見回饋"
+          }
         }
       }
     },
@@ -3570,6 +4776,12 @@
             "state" : "translated",
             "value" : "Masquer les boutons de saut de chapitre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隱藏章節跳過按鈕"
+          }
         }
       }
     },
@@ -3585,6 +4797,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Élevé"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高"
           }
         }
       }
@@ -3604,6 +4822,12 @@
             "state" : "translated",
             "value" : "Historique"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記錄"
+          }
         }
       }
     },
@@ -3621,6 +4845,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Accueil"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首頁"
           }
         }
       }
@@ -3640,6 +4870,12 @@
             "state" : "translated",
             "value" : "heure"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小時"
+          }
         }
       }
     },
@@ -3657,6 +4893,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "heures"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小時"
           }
         }
       }
@@ -3676,6 +4918,12 @@
             "state" : "translated",
             "value" : "Heures"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小時"
+          }
         }
       }
     },
@@ -3693,6 +4941,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "http://"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "http://"
           }
         }
       }
@@ -3712,6 +4966,12 @@
             "state" : "translated",
             "value" : "https://"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://"
+          }
         }
       }
     },
@@ -3729,6 +4989,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iCloud"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud"
           }
         }
       }
@@ -3748,6 +5014,12 @@
             "state" : "translated",
             "value" : "Cache d'images"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "圖片快取"
+          }
         }
       }
     },
@@ -3765,6 +5037,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inclure les identifiants"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "包含憑證"
           }
         }
       }
@@ -3784,6 +5062,12 @@
             "state" : "translated",
             "value" : "Rejoignez notre Discord"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入我們的 Discord"
+          }
         }
       }
     },
@@ -3799,6 +5083,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Paysage"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "橫向"
           }
         }
       }
@@ -3818,6 +5108,12 @@
             "state" : "translated",
             "value" : "Langues"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "語言"
+          }
         }
       }
     },
@@ -3835,6 +5131,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nom Prénom"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓 名"
           }
         }
       }
@@ -3854,6 +5156,12 @@
             "state" : "translated",
             "value" : "Mise en page"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版面配置"
+          }
         }
       }
     },
@@ -3871,6 +5179,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Espacement des lettres"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字母間距"
           }
         }
       }
@@ -3890,6 +5204,12 @@
             "state" : "translated",
             "value" : "Bibliothèque"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "圖書館"
+          }
         }
       }
     },
@@ -3907,6 +5227,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Type de bibliothèque"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "圖書館類型"
           }
         }
       }
@@ -3926,6 +5252,12 @@
             "state" : "translated",
             "value" : "Clair"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "淺色"
+          }
         }
       }
     },
@@ -3943,6 +5275,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hauteur de ligne"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行高"
           }
         }
       }
@@ -3962,6 +5300,12 @@
             "state" : "translated",
             "value" : "Vue liste"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清單檢視"
+          }
         }
       }
     },
@@ -3977,6 +5321,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Réécouter"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次聆聽"
           }
         }
       }
@@ -3996,6 +5346,12 @@
             "state" : "translated",
             "value" : "Statistiques d'écoute"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聆聽統計"
+          }
         }
       }
     },
@@ -4013,6 +5369,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Charger plus"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入更多"
           }
         }
       }
@@ -4032,6 +5394,12 @@
             "state" : "translated",
             "value" : "Chargement des détails de l'auteur..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入作者詳細資訊⋯"
+          }
         }
       }
     },
@@ -4049,6 +5417,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chargement des auteurs..."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入作者⋯"
           }
         }
       }
@@ -4068,6 +5442,12 @@
             "state" : "translated",
             "value" : "Chargement des détails du livre..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入書籍詳細資訊⋯"
+          }
         }
       }
     },
@@ -4085,6 +5465,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chargement des livres..."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入書籍⋯"
           }
         }
       }
@@ -4104,6 +5490,12 @@
             "state" : "translated",
             "value" : "Chargement des collections..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入合集⋯"
+          }
         }
       }
     },
@@ -4121,6 +5513,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chargement du livre numérique..."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入電子書⋯"
           }
         }
       }
@@ -4140,6 +5538,12 @@
             "state" : "translated",
             "value" : "Chargement des bibliothèques..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入圖書館⋯"
+          }
         }
       }
     },
@@ -4157,6 +5561,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chargement des narrateurs..."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入朗讀者⋯"
           }
         }
       }
@@ -4176,6 +5586,12 @@
             "state" : "translated",
             "value" : "Chargement des livres hors ligne..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入離線書籍⋯"
+          }
         }
       }
     },
@@ -4193,6 +5609,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chargement des listes de lecture..."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入播放清單⋯"
           }
         }
       }
@@ -4212,6 +5634,12 @@
             "state" : "translated",
             "value" : "Chargement des séries..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入系列⋯"
+          }
         }
       }
     },
@@ -4230,6 +5658,12 @@
             "state" : "translated",
             "value" : "Chargement..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "載入中⋯"
+          }
         }
       }
     },
@@ -4245,6 +5679,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Contrôles de l'écran de verrouillage"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鎖定畫面控制項"
           }
         }
       }
@@ -4262,6 +5702,12 @@
             "state" : "translated",
             "value" : "Boutons suivant/précédent sur l'écran de verrouillage"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鎖定畫面上一個/下一個按鈕"
+          }
         }
       }
     },
@@ -4277,6 +5723,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verrouiller l'orientation de l'écran du lecteur."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鎖定播放器畫面方向。"
           }
         }
       }
@@ -4296,6 +5748,12 @@
             "state" : "translated",
             "value" : "Connexion..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入中⋯"
+          }
         }
       }
     },
@@ -4313,6 +5771,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se connecter"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入"
           }
         }
       }
@@ -4332,6 +5796,12 @@
             "state" : "translated",
             "value" : "Se connecter avec SSO"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 SSO 登入"
+          }
         }
       }
     },
@@ -4350,6 +5820,12 @@
             "state" : "translated",
             "value" : "Se déconnecter"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出"
+          }
         }
       }
     },
@@ -4366,6 +5842,12 @@
             "state" : "translated",
             "value" : "Faible"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低"
+          }
         }
       }
     },
@@ -4381,6 +5863,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gérer le stockage"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理儲存空間"
           }
         }
       }
@@ -4400,6 +5888,12 @@
             "state" : "translated",
             "value" : "Marquer comme lu"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標記為已完成"
+          }
         }
       }
     },
@@ -4417,6 +5911,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Marquer comme lu"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標記完成"
           }
         }
       }
@@ -4436,6 +5936,12 @@
             "state" : "translated",
             "value" : "Stockage maximum"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大儲存空間"
+          }
         }
       }
     },
@@ -4451,6 +5957,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Moyen"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中"
           }
         }
       }
@@ -4470,6 +5982,12 @@
             "state" : "translated",
             "value" : "Informations"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中繼資料"
+          }
         }
       }
     },
@@ -4487,6 +6005,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Méthode"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "方法"
           }
         }
       }
@@ -4506,6 +6030,12 @@
             "state" : "translated",
             "value" : "min"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分鐘"
+          }
         }
       }
     },
@@ -4523,6 +6053,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Réduire"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "壓縮"
           }
         }
       }
@@ -4542,6 +6078,12 @@
             "state" : "translated",
             "value" : "mins"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分鐘"
+          }
         }
       }
     },
@@ -4559,6 +6101,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minutes"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分鐘"
           }
         }
       }
@@ -4578,6 +6126,12 @@
             "state" : "translated",
             "value" : "Minutes d'écoute (7 derniers jours)"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聆聽分鐘數（過去 7 天）"
+          }
         }
       }
     },
@@ -4595,6 +6149,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plus"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多"
           }
         }
       }
@@ -4614,6 +6174,12 @@
             "state" : "translated",
             "value" : "Nom"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名稱"
+          }
         }
       }
     },
@@ -4631,6 +6197,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Narrateurs"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朗讀者"
           }
         }
       }
@@ -4650,6 +6222,12 @@
             "state" : "translated",
             "value" : "Découverte réseau"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "網路探索"
+          }
         }
       }
     },
@@ -4667,6 +6245,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nom de la nouvelle collection"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新的合集名稱"
           }
         }
       }
@@ -4686,6 +6270,12 @@
             "state" : "translated",
             "value" : "Nom de la nouvelle liste de lecture"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新的播放清單名稱"
+          }
         }
       }
     },
@@ -4703,6 +6293,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Derniers auteurs"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新作者"
           }
         }
       }
@@ -4722,6 +6318,12 @@
             "state" : "translated",
             "value" : "Chapitre suivant"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一章"
+          }
         }
       }
     },
@@ -4739,6 +6341,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Écriture de Tag NFC"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFC 標籤寫入"
           }
         }
       }
@@ -4758,6 +6366,12 @@
             "state" : "translated",
             "value" : "Aucune minuterie de sommeil active à annuler."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有啟用中的睡眠計時器可取消。"
+          }
         }
       }
     },
@@ -4775,6 +6389,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun livre audio n'est en cours de lecture."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前沒有播放有聲書。"
           }
         }
       }
@@ -4794,6 +6414,12 @@
             "state" : "translated",
             "value" : "Aucun auteur trouvé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到作者"
+          }
         }
       }
     },
@@ -4811,6 +6437,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun signet"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有書籤"
           }
         }
       }
@@ -4830,6 +6462,12 @@
             "state" : "translated",
             "value" : "Aucun livre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有書籍"
+          }
         }
       }
     },
@@ -4847,6 +6485,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun livre trouvé"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到書籍"
           }
         }
       }
@@ -4866,6 +6510,12 @@
             "state" : "translated",
             "value" : "Aucun livre ne correspond à votre recherche."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有符合你搜尋條件的書籍。"
+          }
         }
       }
     },
@@ -4883,6 +6533,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune collection"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有合集"
           }
         }
       }
@@ -4902,6 +6558,12 @@
             "state" : "translated",
             "value" : "Aucune collection"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有合集"
+          }
         }
       }
     },
@@ -4919,6 +6581,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune collection disponible."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有可用的合集。"
           }
         }
       }
@@ -4938,6 +6606,12 @@
             "state" : "translated",
             "value" : "Aucun contenu disponible"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有可用內容"
+          }
         }
       }
     },
@@ -4955,6 +6629,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun livre téléchargé"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有已下載的書籍"
           }
         }
       }
@@ -4974,6 +6654,12 @@
             "state" : "translated",
             "value" : "Aucun historique"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有記錄"
+          }
         }
       }
     },
@@ -4991,6 +6677,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun résultat pour « %@ »"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到「%@」的符合項目"
           }
         }
       }
@@ -5010,6 +6702,12 @@
             "state" : "translated",
             "value" : "Aucun narrateur trouvé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到朗讀者"
+          }
         }
       }
     },
@@ -5027,6 +6725,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune liste de lecture"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有播放清單"
           }
         }
       }
@@ -5046,6 +6750,12 @@
             "state" : "translated",
             "value" : "Aucun résultat"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有結果"
+          }
         }
       }
     },
@@ -5063,6 +6773,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun résultat trouvé"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到結果"
           }
         }
       }
@@ -5082,6 +6798,12 @@
             "state" : "translated",
             "value" : "Aucune série trouvée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找不到系列"
+          }
         }
       }
     },
@@ -5099,6 +6821,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucun serveur connecté"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "沒有連線的伺服器"
           }
         }
       }
@@ -5118,6 +6846,12 @@
             "state" : "translated",
             "value" : "Aucun"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無"
+          }
         }
       }
     },
@@ -5135,6 +6869,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pas assez de chapitres restants. Le maximum est %lld."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "剩餘章節數不足。最大值為 %lld。"
           }
         }
       }
@@ -5154,6 +6894,12 @@
             "state" : "translated",
             "value" : "En cours de lecture"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在播放"
+          }
         }
       }
     },
@@ -5171,6 +6917,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nombre de chapitres (0 = chapitre actuel)"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "章節數（0 = 目前章節）"
           }
         }
       }
@@ -5190,6 +6942,12 @@
             "state" : "translated",
             "value" : "Désactivé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
+          }
         }
       }
     },
@@ -5208,6 +6966,12 @@
             "state" : "translated",
             "value" : "OIDC (SSO)"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OIDC（SSO）"
+          }
         }
       }
     },
@@ -5223,6 +6987,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "En cas d'interruption"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中斷時"
           }
         }
       }
@@ -5242,6 +7012,12 @@
             "state" : "translated",
             "value" : "Ouvrir sur le web"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在網頁上開啟"
+          }
         }
       }
     },
@@ -5258,6 +7034,12 @@
             "state" : "translated",
             "value" : "Orientation"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "方向"
+          }
         }
       }
     },
@@ -5273,6 +7055,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verrouillage de l'orientation"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "方向鎖定"
           }
         }
       }
@@ -5292,6 +7080,12 @@
             "state" : "translated",
             "value" : "Marges de page"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "頁面邊距"
+          }
         }
       }
     },
@@ -5309,6 +7103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Retrait de paragraphe"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "段落縮排"
           }
         }
       }
@@ -5328,6 +7128,12 @@
             "state" : "translated",
             "value" : "Espacement des paragraphes"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "段落間距"
+          }
         }
       }
     },
@@ -5345,6 +7151,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mot de passe"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密碼"
           }
         }
       }
@@ -5364,6 +7176,12 @@
             "state" : "translated",
             "value" : "Pause"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停"
+          }
         }
       }
     },
@@ -5381,6 +7199,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mettre en pause"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停播放"
           }
         }
       }
@@ -5400,6 +7224,12 @@
             "state" : "translated",
             "value" : "Liste de lecture épinglée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "釘選的播放清單"
+          }
         }
       }
     },
@@ -5418,6 +7248,12 @@
             "state" : "translated",
             "value" : "Lecture"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放"
+          }
         }
       }
     },
@@ -5433,6 +7269,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Affichage de la lecture"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放顯示"
           }
         }
       }
@@ -5452,6 +7294,12 @@
             "state" : "translated",
             "value" : "La lecture est déjà en cours."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放已在進行中。"
+          }
         }
       }
     },
@@ -5469,6 +7317,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La lecture est déjà en pause."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放已暫停。"
           }
         }
       }
@@ -5488,6 +7342,12 @@
             "state" : "translated",
             "value" : "Sessions de lecture"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放工作階段"
+          }
         }
       }
     },
@@ -5503,6 +7363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajustements de la vitesse de lecture"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放速度調整"
           }
         }
       }
@@ -5520,6 +7386,12 @@
             "state" : "translated",
             "value" : "Lecteur"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放器"
+          }
         }
       }
     },
@@ -5535,6 +7407,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Orientation du lecteur"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放器方向"
           }
         }
       }
@@ -5554,6 +7432,12 @@
             "state" : "translated",
             "value" : "Nom de la playlist"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放清單名稱"
+          }
         }
       }
     },
@@ -5571,6 +7455,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Playlists"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放清單"
           }
         }
       }
@@ -5590,6 +7480,12 @@
             "state" : "translated",
             "value" : "Les listes de lecture sont privées. Seul l'utilisateur qui les crée peut les voir."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放清單為私人。只有建立者可以看到它們。"
+          }
         }
       }
     },
@@ -5605,6 +7501,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Portrait"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直向"
           }
         }
       }
@@ -5624,6 +7526,12 @@
             "state" : "translated",
             "value" : "Préférences"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "偏好設定"
+          }
         }
       }
     },
@@ -5641,6 +7549,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chapitre précédent"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上一章"
           }
         }
       }
@@ -5660,6 +7574,12 @@
             "state" : "translated",
             "value" : "Progression"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "進度"
+          }
         }
       }
     },
@@ -5677,6 +7597,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Protocole"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通訊協定"
           }
         }
       }
@@ -5696,6 +7622,12 @@
             "state" : "translated",
             "value" : "Décennies de publication"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出版年代"
+          }
         }
       }
     },
@@ -5713,6 +7645,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Styles de l'éditeur"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出版社樣式"
           }
         }
       }
@@ -5732,6 +7670,12 @@
             "state" : "translated",
             "value" : "Éditeurs"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出版社"
+          }
         }
       }
     },
@@ -5749,6 +7693,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Queue"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "佇列"
           }
         }
       }
@@ -5768,6 +7718,12 @@
             "state" : "translated",
             "value" : "La file queue est vide"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "佇列為空"
+          }
         }
       }
     },
@@ -5785,6 +7741,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se ré-authentifier"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新驗證"
           }
         }
       }
@@ -5804,6 +7766,12 @@
             "state" : "translated",
             "value" : "Lire"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閱讀"
+          }
         }
       }
     },
@@ -5821,6 +7789,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Réglages de la liseuse"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閱讀器設定"
           }
         }
       }
@@ -5840,6 +7814,12 @@
             "state" : "translated",
             "value" : "Séries récentes"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近系列"
+          }
         }
       }
     },
@@ -5857,6 +7837,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sessions récentes"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近工作階段"
           }
         }
       }
@@ -5876,6 +7862,12 @@
             "state" : "translated",
             "value" : "Ajoutés récemment"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近新增"
+          }
         }
       }
     },
@@ -5893,6 +7885,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supprimer"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
           }
         }
       }
@@ -5912,6 +7910,12 @@
             "state" : "translated",
             "value" : "Supprimer après inutilisation pendant"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閒置後移除"
+          }
         }
       }
     },
@@ -5929,6 +7933,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supprimer le téléchargement"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除下載"
           }
         }
       }
@@ -5948,6 +7958,12 @@
             "state" : "translated",
             "value" : "Supprimer le téléchargement une fois terminé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成時移除下載"
+          }
         }
       }
     },
@@ -5965,6 +7981,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supprimer les téléchargements"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除下載"
           }
         }
       }
@@ -5984,6 +8006,12 @@
             "state" : "translated",
             "value" : "Retirer de la playlist"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從「繼續聆聽」移除"
+          }
         }
       }
     },
@@ -6001,6 +8029,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Retirer de la queue"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從佇列移除"
           }
         }
       }
@@ -6020,6 +8054,12 @@
             "state" : "translated",
             "value" : "Renommer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新命名"
+          }
         }
       }
     },
@@ -6037,6 +8077,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Réinitialiser la progression"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重設進度"
           }
         }
       }
@@ -6056,6 +8102,12 @@
             "state" : "translated",
             "value" : "Réinitialiser la minuterie"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重設計時器"
+          }
         }
       }
     },
@@ -6073,6 +8125,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Réinitialiser"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重設為預設值"
           }
         }
       }
@@ -6092,6 +8150,12 @@
             "state" : "translated",
             "value" : "Reprendre la lecture"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繼續播放"
+          }
         }
       }
     },
@@ -6107,6 +8171,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rembobiner après une pause de 10 minutes ou après des interruptions audio."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停 10 分鐘或音訊中斷後倒退。"
           }
         }
       }
@@ -6126,6 +8196,12 @@
             "state" : "translated",
             "value" : "Enregistrer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "儲存"
+          }
         }
       }
     },
@@ -6143,6 +8219,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Analyser"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "掃描"
           }
         }
       }
@@ -6162,6 +8244,12 @@
             "state" : "translated",
             "value" : "Analyser le réseau local"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "掃描本地網路"
+          }
         }
       }
     },
@@ -6179,6 +8267,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Analyse du réseau..."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "掃描網路中⋯"
           }
         }
       }
@@ -6198,6 +8292,12 @@
             "state" : "translated",
             "value" : "Mode défilement"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "捲動模式"
+          }
         }
       }
     },
@@ -6215,6 +8315,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recherche"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋"
           }
         }
       }
@@ -6234,6 +8340,12 @@
             "state" : "translated",
             "value" : "Rechercher un livre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋書籍"
+          }
         }
       }
     },
@@ -6251,6 +8363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recherchez des livres, séries, auteurs, narrateurs, tags ou genres"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋書籍、系列、作者、朗讀者、標籤或類型"
           }
         }
       }
@@ -6270,6 +8388,12 @@
             "state" : "translated",
             "value" : "Recherche..."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋中⋯"
+          }
         }
       }
     },
@@ -6285,6 +8409,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Secondes"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "秒"
           }
         }
       }
@@ -6314,6 +8444,12 @@
             "state" : "translated",
             "value" : "Sélectionner"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇"
+          }
         }
       }
     },
@@ -6331,6 +8467,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sélectionnez un livre pour commencer"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇書籍以開始"
           }
         }
       }
@@ -6350,6 +8492,12 @@
             "state" : "translated",
             "value" : "Tout sélectionner"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全選"
+          }
         }
       }
     },
@@ -6367,6 +8515,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Envoyer le livre numérique à"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "傳送電子書至"
           }
         }
       }
@@ -6386,6 +8540,12 @@
             "state" : "translated",
             "value" : "Séries"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系列"
+          }
         }
       }
     },
@@ -6403,6 +8563,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Serveur"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器"
           }
         }
       }
@@ -6422,6 +8588,12 @@
             "state" : "translated",
             "value" : "Configuration du serveur"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器設定"
+          }
         }
       }
     },
@@ -6439,6 +8611,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL du serveur"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器網址"
           }
         }
       }
@@ -6464,6 +8642,12 @@
             "state" : "translated",
             "value" : "Serveur : %1$@, %2$@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器：%@，%@"
+          }
         }
       }
     },
@@ -6482,6 +8666,12 @@
             "state" : "translated",
             "value" : "Serveurs"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器"
+          }
         }
       }
     },
@@ -6497,6 +8687,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sessions"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作階段"
           }
         }
       }
@@ -6516,6 +8712,12 @@
             "state" : "translated",
             "value" : "Régler la minuterie de sommeil"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定睡眠計時器"
+          }
         }
       }
     },
@@ -6532,6 +8734,12 @@
             "state" : "translated",
             "value" : "Régler la minuterie de sommeil pour ${duration}"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將睡眠計時器設為 ${duration}"
+          }
         }
       }
     },
@@ -6547,6 +8755,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Régler la minuterie de sommeil à la fin de ${chapters} chapitres"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將睡眠計時器設為 ${chapters} 章結束"
           }
         }
       }
@@ -6566,6 +8780,12 @@
             "state" : "translated",
             "value" : "Régler la minuterie à la fin du chapitre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將睡眠計時器設為章節結束"
+          }
         }
       }
     },
@@ -6583,6 +8803,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Régler la minuterie de sommeil avec une durée"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定睡眠計時器時長"
           }
         }
       }
@@ -6602,6 +8828,12 @@
             "state" : "translated",
             "value" : "Règle la minuterie de sommeil pour mettre en pause après une durée définie."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將睡眠計時器設定為在指定時長後暫停。"
+          }
         }
       }
     },
@@ -6619,6 +8851,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Règle la minuterie de sommeil pour mettre en pause à la fin d'un nombre de chapitres défini."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "將睡眠計時器設定為在指定章節數結束時暫停。"
           }
         }
       }
@@ -6638,6 +8876,12 @@
             "state" : "translated",
             "value" : "Réglages"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
         }
       }
     },
@@ -6653,6 +8897,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sensibilité de la secousse pour réinitialiser"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搖動重設敏感度"
           }
         }
       }
@@ -6670,6 +8920,12 @@
             "state" : "translated",
             "value" : "Sensibilité de la secousse pour réinitialiser la minuterie"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搖動重設計時器敏感度"
+          }
         }
       }
     },
@@ -6685,6 +8941,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Secouez votre téléphone pour réinitialiser la minuterie pendant la lecture."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在播放期間搖動你的手機以重設計時器。"
           }
         }
       }
@@ -6704,6 +8966,12 @@
             "state" : "translated",
             "value" : "Partager la connexion"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享連線"
+          }
         }
       }
     },
@@ -6721,6 +8989,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Partager le lien"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享連結"
           }
         }
       }
@@ -6740,6 +9014,12 @@
             "state" : "translated",
             "value" : "Partager le code QR"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享 QR 碼"
+          }
         }
       }
     },
@@ -6757,6 +9037,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Partagez ce code QR ou ce lien avec un autre utilisateur AudioBooth pour l'aider à se connecter à votre serveur"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "與其他 AudioBooth 使用者分享此 QR 碼或連結，以協助他們連線到你的伺服器"
           }
         }
       }
@@ -6776,6 +9062,12 @@
             "state" : "translated",
             "value" : "Le partage des identifiants les invalidera sur cet appareil dès qu'un autre appareil les utilisera. Vous devrez vous reconnecter pour continuer à utiliser cette connexion."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享憑證會在其他裝置使用後使其在此裝置上失效。你需要重新連線以繼續使用此連線。"
+          }
         }
       }
     },
@@ -6793,6 +9085,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voir moins"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示較少"
           }
         }
       }
@@ -6812,6 +9110,12 @@
             "state" : "translated",
             "value" : "Voir plus"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示更多"
+          }
         }
       }
     },
@@ -6830,6 +9134,12 @@
             "state" : "translated",
             "value" : "Afficher l'option dans le menu des détails du livre pour écrire les informations sur des tags NFC pour un accès rapide."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在書籍詳細資訊選單中顯示將書籍資訊寫入 NFC 標籤的選項，以快速存取播放。"
+          }
         }
       }
     },
@@ -6845,6 +9155,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Afficher la barre de progression supplémentaire"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示補充書籍進度條"
           }
         }
       }
@@ -6864,6 +9180,12 @@
             "state" : "translated",
             "value" : "Reculer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒退"
+          }
         }
       }
     },
@@ -6882,6 +9204,12 @@
             "state" : "translated",
             "value" : "Reculer de %lld secondes"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒退 %lld 秒"
+          }
         }
       }
     },
@@ -6897,6 +9225,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reculer de ${duration}"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒退 ${duration}"
           }
         }
       }
@@ -6916,6 +9250,12 @@
             "state" : "translated",
             "value" : "Reculer de la durée indiquée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒退指定時間"
+          }
         }
       }
     },
@@ -6931,6 +9271,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saut de"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳過"
           }
         }
       }
@@ -6950,6 +9296,12 @@
             "state" : "translated",
             "value" : "Avancer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快進"
+          }
         }
       }
     },
@@ -6968,6 +9320,12 @@
             "state" : "translated",
             "value" : "Avancer de %lld secondes"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快進 %lld 秒"
+          }
         }
       }
     },
@@ -6984,6 +9342,12 @@
             "state" : "translated",
             "value" : "Avancer de ${duration}"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快進 ${duration}"
+          }
         }
       }
     },
@@ -6999,6 +9363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avancer et Reculer"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快進和倒退"
           }
         }
       }
@@ -7018,6 +9388,12 @@
             "state" : "translated",
             "value" : "Avancer de la durée indiquée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快進指定時間"
+          }
         }
       }
     },
@@ -7035,6 +9411,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Passer au chapitre suivant"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳到下一章"
           }
         }
       }
@@ -7054,6 +9436,12 @@
             "state" : "translated",
             "value" : "Revenir au chapitre précédent"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳到上一章"
+          }
         }
       }
     },
@@ -7071,6 +9459,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recule dans le livre audio en cours de lecture d'une durée définie."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在目前播放的有聲書中倒退指定的時長。"
           }
         }
       }
@@ -7090,6 +9484,12 @@
             "state" : "translated",
             "value" : "Avance dans le livre audio en cours de lecture d'une durée définie."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在目前播放的有聲書中快進指定的時長。"
+          }
         }
       }
     },
@@ -7107,6 +9507,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Passe au chapitre suivant du livre audio en cours de lecture."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳到目前播放有聲書的下一章。"
           }
         }
       }
@@ -7126,6 +9532,12 @@
             "state" : "translated",
             "value" : "Revient au chapitre précédent du livre audio en cours de lecture."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳到目前播放有聲書的上一章。"
+          }
         }
       }
     },
@@ -7141,6 +9553,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minuterie de sommeil"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睡眠計時器"
           }
         }
       }
@@ -7160,6 +9578,12 @@
             "state" : "translated",
             "value" : "Minuterie de sommeil annulée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睡眠計時器已取消"
+          }
         }
       }
     },
@@ -7178,6 +9602,12 @@
             "state" : "translated",
             "value" : "Minuterie de sommeil jusqu'à la fin du chapitre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睡眠計時器至章節結束"
+          }
         }
       }
     },
@@ -7193,6 +9623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rembobinage intelligent"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智慧倒退"
           }
         }
       }
@@ -7210,6 +9646,12 @@
             "state" : "translated",
             "value" : "Durée du rembobinage intelligent après pause"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暫停後智慧倒退時長"
+          }
         }
       }
     },
@@ -7225,6 +9667,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Durée du rembobinage intelligent en cas d'interruption"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中斷時智慧倒退時長"
           }
         }
       }
@@ -7244,6 +9692,12 @@
             "state" : "translated",
             "value" : "Trier par"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排序方式"
+          }
         }
       }
     },
@@ -7261,6 +9715,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ordre de tri"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排序順序"
           }
         }
       }
@@ -7280,6 +9740,12 @@
             "state" : "translated",
             "value" : "Vitesse"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "速度"
+          }
         }
       }
     },
@@ -7297,6 +9763,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sponsor"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "贊助"
           }
         }
       }
@@ -7316,6 +9788,12 @@
             "state" : "translated",
             "value" : "Démarrer"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開始"
+          }
         }
       }
     },
@@ -7331,6 +9809,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Heure de début"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開始時間"
           }
         }
       }
@@ -7350,6 +9834,12 @@
             "state" : "translated",
             "value" : "Commencé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已開始"
+          }
         }
       }
     },
@@ -7367,6 +9857,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Arrêter"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止"
           }
         }
       }
@@ -7386,6 +9882,12 @@
             "state" : "translated",
             "value" : "Stockage"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "儲存空間"
+          }
         }
       }
     },
@@ -7404,6 +9906,12 @@
             "state" : "translated",
             "value" : "Limites de stockage"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "儲存空間限制"
+          }
         }
       }
     },
@@ -7421,6 +9929,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Assistance"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支援"
           }
         }
       }
@@ -7452,6 +9966,12 @@
             "state" : "translated",
             "value" : "Synchronisation"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "滑動以移除或拖曳以重新排序"
+          }
         }
       }
     },
@@ -7469,6 +9989,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Synchronisez vos préférences sur tous vos appareils avec iCloud."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 iCloud 在所有裝置上同步你的偏好設定。"
           }
         }
       }
@@ -7488,6 +10014,12 @@
             "state" : "translated",
             "value" : "Tags"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標籤"
+          }
         }
       }
     },
@@ -7505,6 +10037,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toucher pour naviguer"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點擊以導覽"
           }
         }
       }
@@ -7524,6 +10062,12 @@
             "state" : "translated",
             "value" : "Touchez pour voir vos statistiques"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點擊以查看你的統計資料"
+          }
         }
       }
     },
@@ -7541,6 +10085,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avis TestFlight : "
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TestFlight 注意事項："
           }
         }
       }
@@ -7560,6 +10110,12 @@
             "state" : "translated",
             "value" : "Normalisation du texte"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文字正規化"
+          }
         }
       }
     },
@@ -7577,6 +10133,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Merci pour votre soutien !"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "感謝你的支援！"
           }
         }
       }
@@ -7596,6 +10158,12 @@
             "state" : "translated",
             "value" : "Le titre du signet"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書籤標題"
+          }
         }
       }
     },
@@ -7613,6 +10181,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Le livre audio actuel n'a pas de chapitres."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前的有聲書沒有章節。"
           }
         }
       }
@@ -7632,6 +10206,12 @@
             "state" : "translated",
             "value" : "Thème"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主題"
+          }
         }
       }
     },
@@ -7649,6 +10229,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ce sont des achats de test uniquement. Vous souhaitez soutenir le développement ? Téléchargez depuis l'App Store pour laisser un vrai pourboire. [Ouvrir l'App Store](https://apps.apple.com/us/app/id6753017503)"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這些僅為測試購買。想要支援開發？從 App Store 下載並留下真實的小費。[開啟 App Store](https://apps.apple.com/us/app/id6753017503)"
           }
         }
       }
@@ -7668,6 +10254,12 @@
             "state" : "translated",
             "value" : "Cette collection est vide."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此合集為空。"
+          }
         }
       }
     },
@@ -7685,6 +10277,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cette liste de lecture est vide."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此播放清單為空。"
           }
         }
       }
@@ -7704,6 +10302,12 @@
             "state" : "translated",
             "value" : "cette semaine"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本週"
+          }
         }
       }
     },
@@ -7721,6 +10325,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cela effacera toutes les images de couverture en cache. Elles seront retéléchargées si nécessaire."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這將清除所有快取的封面圖片。它們將依需要重新下載。"
           }
         }
       }
@@ -7740,6 +10350,12 @@
             "state" : "translated",
             "value" : "Cela supprimera tous les livres audio et livres numériques téléchargés. Vous pourrez les retélécharger plus tard."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這將刪除所有已下載的有聲書和電子書。你可以稍後重新下載。"
+          }
         }
       }
     },
@@ -7757,6 +10373,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cela supprimera tout le contenu téléchargé. Cette action est irréversible."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這將刪除所有已下載的內容。此操作無法復原。"
           }
         }
       }
@@ -7776,6 +10398,12 @@
             "state" : "translated",
             "value" : "Cela téléchargera tous les livres de cette collection. Cela peut utiliser un espace de stockage important."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這將下載此合集中的所有書籍。這可能會使用大量儲存空間。"
+          }
         }
       }
     },
@@ -7793,6 +10421,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Temps"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間"
           }
         }
       }
@@ -7812,6 +10446,12 @@
             "state" : "translated",
             "value" : "Temps écoulé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "時間到"
+          }
         }
       }
     },
@@ -7829,6 +10469,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minuterie"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "計時器"
           }
         }
       }
@@ -7868,6 +10514,12 @@
             "state" : "translated",
             "value" : "Minuterie prolongée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "計時器音訊淡出"
+          }
         }
       }
     },
@@ -7898,6 +10550,12 @@
             "state" : "translated",
             "value" : "Minuterie démarrée"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "計時器不可用。"
+          }
         }
       }
     },
@@ -7915,6 +10573,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "aujourd'hui"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今天"
           }
         }
       }
@@ -7934,6 +10598,12 @@
             "state" : "translated",
             "value" : "Aujourd'hui"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今天"
+          }
         }
       }
     },
@@ -7952,6 +10622,12 @@
             "state" : "translated",
             "value" : "Stockage total utilisé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已使用總儲存空間"
+          }
         }
       }
     },
@@ -7967,6 +10643,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pistes"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "曲目"
           }
         }
       }
@@ -7986,6 +10668,12 @@
             "state" : "translated",
             "value" : "Essayez d'ajuster vos termes de recherche"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "嘗試調整你的搜尋詞彙"
+          }
         }
       }
     },
@@ -8003,6 +10691,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Réessayer"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再試一次"
           }
         }
       }
@@ -8022,6 +10716,12 @@
             "state" : "translated",
             "value" : "Typographie"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排版"
+          }
         }
       }
     },
@@ -8039,6 +10739,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de charger l'auteur"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入作者"
           }
         }
       }
@@ -8058,6 +10764,12 @@
             "state" : "translated",
             "value" : "Impossible de charger le livre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入書籍"
+          }
         }
       }
     },
@@ -8075,6 +10787,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de charger le livre numérique"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入電子書"
           }
         }
       }
@@ -8094,6 +10812,12 @@
             "state" : "translated",
             "value" : "Tout désélectionner"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消全選"
+          }
         }
       }
     },
@@ -8112,6 +10836,12 @@
             "state" : "translated",
             "value" : "À suivre"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接下來"
+          }
         }
       }
     },
@@ -8127,6 +10857,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utiliser la durée du livre (au lieu du chapitre)"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用書籍時長（而非章節）"
           }
         }
       }
@@ -8146,6 +10882,12 @@
             "state" : "translated",
             "value" : "Nom d'utilisateur"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用者名稱"
+          }
         }
       }
     },
@@ -8163,6 +10905,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nom d'utilisateur et mot de passe"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用者名稱與密碼"
           }
         }
       }
@@ -8182,6 +10930,12 @@
             "state" : "translated",
             "value" : "Version : %@"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本：%@"
+          }
         }
       }
     },
@@ -8198,6 +10952,12 @@
             "state" : "translated",
             "value" : "Très élevé"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非常高"
+          }
         }
       }
     },
@@ -8213,6 +10973,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Très faible"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非常低"
           }
         }
       }
@@ -8232,6 +10998,12 @@
             "state" : "translated",
             "value" : "Voir l'auteur"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "檢視作者"
+          }
         }
       }
     },
@@ -8247,6 +11019,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voir le narrateur"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "檢視朗讀者"
           }
         }
       }
@@ -8266,6 +11044,12 @@
             "state" : "translated",
             "value" : "Voir la série"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "檢視系列"
+          }
         }
       }
     },
@@ -8284,6 +11068,12 @@
             "state" : "translated",
             "value" : "Visible"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可見"
+          }
         }
       }
     },
@@ -8299,6 +11089,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Niveau du volume"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音量"
           }
         }
       }
@@ -8318,6 +11114,12 @@
             "state" : "translated",
             "value" : "Comment souhaitez-vous nommer le signet ?"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "書籤應該取什麼名稱？"
+          }
         }
       }
     },
@@ -8335,6 +11137,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Espacement des mots"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字詞間距"
           }
         }
       }
@@ -8354,6 +11162,12 @@
             "state" : "translated",
             "value" : "Écrire un tag NFC"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寫入 NFC 標籤"
+          }
         }
       }
     },
@@ -8371,6 +11185,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rétrospective de l'année"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "年度回顧"
           }
         }
       }
@@ -8390,6 +11210,12 @@
             "state" : "translated",
             "value" : "Hier"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "昨天"
+          }
         }
       }
     },
@@ -8407,6 +11233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vous n'avez aucune liste de lecture"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你沒有播放清單"
           }
         }
       }
@@ -8426,6 +11258,12 @@
             "state" : "translated",
             "value" : "Vous n'avez pas encore créé de signet pour ce livre."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你尚未為此書建立任何書籤。"
+          }
         }
       }
     },
@@ -8443,6 +11281,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vos signets"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的書籤"
           }
         }
       }
@@ -8462,6 +11306,12 @@
             "state" : "translated",
             "value" : "Votre bibliothèque semble vide ou aucune bibliothèque n'est sélectionnée."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的圖書館似乎為空，或沒有選擇圖書館。"
+          }
         }
       }
     },
@@ -8479,6 +11329,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Votre bibliothèque ne semble avoir aucun auteur ou aucune bibliothèque n'est sélectionnée."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的圖書館似乎沒有作者，或沒有選擇圖書館。"
           }
         }
       }
@@ -8498,6 +11354,12 @@
             "state" : "translated",
             "value" : "Votre bibliothèque ne semble avoir aucun narrateur ou aucune bibliothèque n'est sélectionnée."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的圖書館似乎沒有朗讀者，或沒有選擇圖書館。"
+          }
         }
       }
     },
@@ -8515,6 +11377,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Votre bibliothèque ne semble avoir aucune série ou aucune bibliothèque n'est sélectionnée."
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的圖書館似乎沒有系列，或沒有選擇圖書館。"
           }
         }
       }
@@ -8534,6 +11402,12 @@
             "state" : "translated",
             "value" : "Votre contenu personnalisé apparaîtra ici"
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的個人化內容將顯示在這裡"
+          }
         }
       }
     },
@@ -8552,6 +11426,12 @@
             "state" : "translated",
             "value" : "Votre historique de lecture apparaîtra ici."
           }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的播放記錄將顯示在這裡。"
+          }
         }
       }
     },
@@ -8569,6 +11449,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vos statistiques"
+          }
+        },
+        "zh-tw": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的統計資料"
           }
         }
       }
